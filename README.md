@@ -1,2 +1,2 @@
-# PI-2026-Hub-AACD
+# AACD Connect
 Projeto Integrador - PI 2026
