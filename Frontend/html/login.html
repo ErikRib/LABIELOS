@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AACD Connect</title>
+    <link rel="stylesheet" href="/Frontend/css/style.css">
+
+    <link rel="icon" type="image/png" href="/Frontend/content/img/favicon.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <script src="/Frontend/js/acessibilidade.js" defer></script>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script src="/Frontend/js/interface.js" defer></script>
+</head>
+
+<body class="alto-contraste">
+
+    <nav aria-label="Navegação principal">
+
+        <a href="/Frontend/html/index.html" title="AACD Connect" class="nav-logo">
+            <img src="/Frontend/content/img/logoAACDConnect1.png" alt="Logo do AACD Connect">
+        </a>
+
+        <ul class="nav-links" id="navLinks">
+            <li>
+                <a href="/Frontend/html/index.html#sobre">Sobre</a>
+            </li>
+
+            <li>
+                <a href="/Frontend/html/index.html#como-funciona">Como funciona</a>
+            </li>
+
+            <li>
+                <a href="/Frontend/html/index.html#privacidade">Privacidade</a>
+            </li>
+        </ul>
+
+        <div class="nav-acoes">
+
+            <div class="acess-menu">
+                <ul class="acess-menu-list">
+
+                    <li class="acess-item">
+                        <button type="button" class="btn-acess-font-menor">
+
+                            <span aria-hidden="true">A−</span>
+
+                            <span class="acess-item-screen-reader">
+                                Reduzir tamanho da fonte
+                            </span>
+
+                        </button>
+                    </li>
+
+                    <li class="acess-item">
+                        <button type="button" class="btn-acess-font-maior">
+
+                            <span aria-hidden="true">A+</span>
+
+                            <span class="acess-item-screen-reader">
+                                Aumentar tamanho da fonte
+                            </span>
+
+                        </button>
+                    </li>
+
+                    <li class="acess-item">
+                        <button type="button" class="btn-acess-contr" aria-pressed="false"
+                            title="Ativar alto contraste">
+
+                            <span aria-hidden="true">◐</span>
+
+                            <span class="acess-item-screen-reader">
+                                Ativar alto contraste
+                            </span>
+                        </button>
+                    </li>
+
+                </ul>
+            </div>
+
+            <div class="nav-right">
+                <a href="/Frontend/html/index.html" class="login">
+
+                    Voltar ao início
+                </a>
+            </div>
+
+        </div>
+
+    </nav>
+
+    <main class="login-pagina">
+
+        <section class="login-container" aria-labelledby="titulo-login">
+
+            <div class="login-texto">
+
+                <span class="login-tag">
+                    Acesse a plataforma
+                </span>
+
+                <h1 id="titulo-login">
+                    Bem-vindo(a) de volta!
+                </h1>
+
+                <p>
+                    Utilize suas credenciais para acessar o AACD Connect.
+                </p>
+
+            </div>
+
+            <form class="login-form">
+
+                <div class="campo">
+
+                    <label for="email">
+                        E-mail
+                    </label>
+
+                    <input id="email" name="email" type="email" autocomplete="email" required>
+
+                </div>
+
+                <div class="campo">
+
+                    <label for="senha">
+                        Senha
+                    </label>
+
+                    <input id="senha" name="senha" type="password" autocomplete="current-password" required>
+
+                </div>
+
+                <div class="login-opcoes">
+
+                    <label class="lembrar-login">
+
+                        <input type="checkbox" name="lembrar">
+
+                        <span>
+                            Lembrar de mim
+                        </span>
+
+                    </label>
+
+                    <a href="#">
+                        Esqueci minha senha
+                    </a>
+
+                </div>
+
+                <button type="submit" class="btn-login">
+
+                    Entrar
+
+                </button>
+
+            </form>
+
+        </section>
+
+    </main>
+
+    <footer class="footer-principal">
+
+        <div class="footer-logo">
+
+            <a href="/Frontend/html/index.html">
+
+                <img src="/Frontend/content/img/logoAACDConnect1.png" alt="Logo do AACD Connect">
+
+            </a>
+
+        </div>
+
+        <div class="footer-links">
+
+            <a href="/Frontend/html/index.html#privacidade">
+                Privacidade
+            </a>
+
+            <a href="/Frontend/html/contato.html">
+                Contato
+            </a>
+
+            <a href="/Frontend/html/termos.html">
+                Termos
+            </a>
+
+        </div>
+
+        <p class="footer-copy">
+            &copy; 2026 - AACD Connect · Todos os direitos reservados
+        </p>
+
+    </footer>
+</body>
+
+</html>
