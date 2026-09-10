@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel - AACD Connect</title>
+    <link rel="stylesheet" href="/Frontend/css/AACD_Painel/style.css">
+
+    <link rel="icon" type="image/png" href="/Frontend/content/img/favicon.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <script src="/Frontend/js/acessibilidade.js" defer></script>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script src="/Frontend/js/interface.js" defer></script>
+</head>
+
+<body>
+
+    <header class="painel-header">
+
+        <nav class="painel-nav" aria-label="Navegação principal">
+
+            <a href="/Frontend/html/AACD/index.html" title="AACD Connect" class="nav-logo">
+
+                <img src="/Frontend/content/img/logoAACDConnect1.png" alt="Logo do AACD Connect">
+
+            </a>
+
+            <ul class="nav-links" id="navLinks">
+                <li>
+                    <a href="/Frontend/html/AACD/index.html">
+                        Início
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/Frontend/html/AACD/solicitacoes.html">
+                        Solicitações
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/Frontend/html/AACD/parceiros.html">
+                        Parceiros
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/Frontend/html/AACD/historico.html">
+                        Histórico
+                    </a>
+                </li>
+            </ul>
+
+            <div class="nav-acoes">
+
+                <!-- acessibilidade -->
+
+                <div class="nav-perfil">
+                    <img src="/Frontend/content/img/user.png" alt="Foto de perfil do usuário" width="32" height="32" style="--avatarSize-regular:32px">
+
+                    <span class="nav-perfil-name">
+                        Nome do usuário
+                    </span>
+                </div>
+
+            </div>
+
+        </nav>
+
+    </header>
+
+    <main class="painel-main">
+
+        <section class="painel-boas-vindas">
+            <h1>
+                Olá, <span class="perfil-name">Nome do usuário</span>!
+            </h1>
+
+            <p>
+                Acompanhe suas solicitações e parceiros.
+            </p>
+        </section>
+
+        <section class="painel-resumo" aria-label="Resumo das solicitações">
+
+            <article class="resumo-card solicitacoes-abertas">
+                <h2>Solicitações abertas</h2>
+                <p>0</p>
+            </article>
+
+            <article class="resumo-card em-analise">
+                <h2>Em análise</h2>
+                <p>0</p>
+            </article>
+
+            <article class="resumo-card em-producao">
+                <h2>Em produção</h2>
+                <p>0</p>
+            </article>
+
+            <article class="resumo-card concluidas">
+                <h2>Concluídas</h2>
+                <p>0</p>
+            </article>
+
+        </section>
+
+        <section class="tabela-solic-recente" aria-labelledby="titulo-solicitacoes-recentes">
+
+            <h2 id="titulo-solicitacoes-recentes">
+                Solicitações recentes
+            </h2>
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th scope="col">Protocolo</th>
+                        <th scope="col">Solicitação</th>
+                        <th scope="col">Requerente</th>
+                        <th scope="col">Atribuído</th>
+                        <th scope="col">Prioridade</th>
+                        <th scope="col">Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>#0001</td>
+                        <td>Órtese de mão</td>
+                        <td>Lucas Romano</td>
+                        <td>Instituto Mauá de Tecnologia</td>
+                        <td>Alta</td>
+                        <td>Em produção</td>
+                    </tr>
+                </tbody>
+
+            </table>
+
+        </section>
+
+    </main>
+
+
+
+    <button type="button" class="btn-topo" id="btnTopo" aria-label="Voltar ao topo da página" title="Voltar ao topo">
+        ↑
+    </button>
+</body>
+
+</html>
