@@ -1,0 +1,29 @@
+/* =========================
+   HISTÓRICO
+========================= */
+
+.historico-resumo {
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    margin-top: 24px;
+    margin-bottom: 24px;
+}
+
+.historico-chip {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 6px 12px;
+
+    border: 1px solid var(--cor-borda);
+    border-radius: 999px;
+
+    background-color: var(--cor-fundo-secundario);
+    color: var(--cor-texto-secundario);
+
+    font-size: 0.85rem;
+    font-weight: 600;
+}

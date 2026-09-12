@@ -1,0 +1,192 @@
+/* =========================
+   FORMULÁRIOS
+========================= */
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 20px;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+
+    gap: 6px;
+}
+
+.campo.amplo {
+    grid-column: 1 / -1;
+}
+
+.campo label,
+.campo legend {
+    color: var(--cor-texto);
+
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.campo input,
+.campo select,
+.campo textarea {
+    width: 100%;
+
+    padding: 10px 12px;
+
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto);
+
+    font-family: var(--fonte-texto);
+    font-size: 0.95rem;
+
+    transition:
+        border-color var(--transicao),
+        box-shadow var(--transicao);
+}
+
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus {
+    outline: none;
+
+    border-color: var(--cor-primaria);
+
+    box-shadow: 0 0 0 3px rgba(3, 68, 126, 0.12);
+}
+
+.campo textarea {
+    min-height: 120px;
+
+    resize: vertical;
+}
+
+.campo input[readonly] {
+    background-color: var(--cor-fundo-secundario);
+    color: var(--cor-texto-secundario);
+}
+
+.campo-ajuda {
+    color: var(--cor-texto-secundario);
+
+    font-size: 0.8rem;
+}
+
+/* =========================
+   ATRIBUIÇÕES
+========================= */
+
+.campo-atribuicoes {
+    padding: 16px;
+
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+}
+
+.campo-atribuicoes legend {
+    padding: 0 6px;
+
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.opcoes-atribuicao {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+
+    margin-top: 12px;
+}
+
+.opcoes-atribuicao label {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 8px;
+
+    cursor: pointer;
+}
+
+.opcoes-atribuicao input[type="checkbox"] {
+    width: auto;
+
+    margin-top: 3px;
+
+    accent-color: var(--cor-primaria);
+}
+
+/* =========================
+   ARQUIVO
+========================= */
+
+.campo-arquivo input[type="file"] {
+    min-width: 0;
+
+    padding: 8px;
+
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+
+    background-color: var(--cor-fundo);
+}
+
+.campo-arquivo input[type="file"]::file-selector-button {
+    margin-right: 10px;
+
+    padding: 8px 12px;
+
+    border: 1px solid var(--cor-primaria);
+    border-radius: 6px;
+
+    background-color: transparent;
+    color: var(--cor-primaria);
+
+    font-family: var(--fonte-texto);
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background-color var(--transicao),
+        color var(--transicao);
+}
+
+.campo-arquivo input[type="file"]::file-selector-button:hover {
+    background-color: var(--cor-primaria);
+    color: var(--cor-texto-claro);
+}
+
+/* =========================
+   RESPONSIVIDADE
+========================= */
+
+@media (max-width: 700px) {
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .campo.amplo {
+        grid-column: auto;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .form-grid {
+        gap: 16px;
+    }
+
+    .campo-arquivo input[type="file"] {
+        font-size: 0.85rem;
+    }
+
+    .campo-atribuicoes {
+        padding: 14px;
+    }
+}

@@ -1,0 +1,77 @@
+/* =========================
+   TABELAS
+========================= */
+
+.tabela-wrap {
+    width: 100%;
+
+    overflow-x: auto;
+    scrollbar-width: thin;
+
+    border: 1px solid var(--cor-borda);
+    border-radius: 12px;
+
+    background-color: var(--cor-fundo);
+}
+
+
+/* TABELA BASE */
+
+.tabela-wrap table {
+    width: 100%;
+    min-width: 760px;
+
+    border-collapse: collapse;
+
+    background-color: var(--cor-fundo);
+
+    text-align: left;
+}
+
+
+/* CABEÇALHO */
+
+.tabela-wrap thead {
+    background-color: var(--cor-fundo-secundario);
+}
+
+.tabela-wrap th {
+    padding: 14px 16px;
+
+    color: var(--cor-texto-secundario);
+
+    font-size: 0.85rem;
+    font-weight: 700;
+
+    white-space: nowrap;
+
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+
+/* CÉLULAS */
+
+.tabela-wrap td {
+    padding: 14px 16px;
+
+    color: var(--cor-texto);
+
+    vertical-align: middle;
+
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+
+/* LINHAS */
+
+.tabela-wrap tbody tr {
+    transition: background-color var(--transicao);
+}
+
+.tabela-wrap tbody tr:hover {
+    background-color: var(--cor-hover);
+}
+
+.tabela-wrap tbody tr:last-child td {
+    border-bottom: none;
+}

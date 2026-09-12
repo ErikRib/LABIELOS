@@ -1,0 +1,170 @@
+/* =========================
+   MODAL
+========================= */
+
+.modal {
+    width: min(600px, 90vw);
+
+    max-height: 90vh;
+
+    margin: auto;
+
+    padding: 0;
+
+    border: none;
+    border-radius: var(--borda-radius);
+
+    background-color: var(--cor-fundo);
+
+    color: var(--cor-texto);
+}
+
+.modal::backdrop {
+    background-color: rgba(0, 0, 0, 0.45);
+}
+
+
+/* =========================
+   CABEÇALHO DO MODAL
+========================= */
+
+.modal-cabecalho {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 16px;
+
+    padding: 24px;
+
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.modal-cabecalho p {
+    margin-bottom: 4px;
+
+    color: var(--cor-texto-secundario);
+
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.modal-cabecalho h2 {
+    font-size: 1.4rem;
+    line-height: 1.3;
+}
+
+.modal-fechar {
+    width: 36px;
+    height: 36px;
+
+    flex-shrink: 0;
+
+    border: none;
+    border-radius: 50%;
+
+    background-color: transparent;
+    color: var(--cor-texto-secundario);
+
+    font-size: 1.4rem;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        background-color var(--transicao),
+        color var(--transicao);
+}
+
+.modal-fechar:hover {
+    background-color: var(--cor-fundo-secundario);
+    color: var(--cor-texto);
+}
+
+.modal-fechar:focus-visible {
+    outline: 3px solid var(--cor-secundaria);
+    outline-offset: 3px;
+}
+
+
+/* =========================
+   CORPO DO MODAL
+========================= */
+
+.modal-corpo {
+    padding: 24px;
+    overflow-y: auto;
+}
+
+.detalhes-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 20px;
+}
+
+.detalhe.amplo {
+    grid-column: 1 / -1;
+}
+
+.detalhe dt {
+    margin-bottom: 4px;
+
+    color: var(--cor-texto-secundario);
+
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.detalhe dd {
+    color: var(--cor-texto);
+
+    font-weight: 600;
+}
+
+
+/* =========================
+   AÇÕES DO MODAL
+========================= */
+
+.modal-acoes {
+    display: flex;
+    justify-content: flex-end;
+
+    gap: 12px;
+
+    padding: 20px 24px;
+
+    border-top: 1px solid var(--cor-borda);
+}
+
+
+/* =========================
+   RESPONSIVIDADE
+========================= */
+
+@media (max-width: 480px) {
+
+    .modal-cabecalho,
+    .modal-corpo,
+    .modal-acoes {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .detalhes-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .detalhe.amplo {
+        grid-column: auto;
+    }
+
+    .modal-acoes {
+        justify-content: stretch;
+    }
+
+    .modal-acoes .btn {
+        width: 100%;
+    }
+}

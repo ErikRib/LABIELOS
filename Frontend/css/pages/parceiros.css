@@ -1,0 +1,104 @@
+/* =========================
+   PARCEIROS
+========================= */
+
+.parceiros-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 20px;
+}
+
+.parceiro-card {
+    display: flex;
+    flex-direction: column;
+
+    padding: 20px;
+
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--borda-radius);
+
+    background-color: var(--cor-fundo);
+}
+
+.parceiro-card-topo {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 16px;
+
+    margin-bottom: 12px;
+}
+
+.eyebrow {
+    margin-bottom: 4px;
+
+    color: var(--cor-texto-secundario);
+
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.parceiro-card h2 {
+    font-size: 1.4rem;
+    line-height: 1.3;
+}
+
+.parceiro-dados {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 16px;
+
+    margin-top: 16px;
+
+    flex: 1;
+}
+
+.parceiro-dados dt {
+    color: var(--cor-texto-secundario);
+
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.parceiro-dados dd {
+    margin-top: 2px;
+
+    color: var(--cor-texto);
+
+    font-weight: 600;
+}
+
+.parceiro-local {
+    margin-bottom: 16px;
+
+    color: var(--cor-texto-secundario);
+
+    font-size: 0.95rem;
+}
+
+.btn-ver-parceiro {
+    margin-top: 20px;
+    align-self: flex-start;
+}
+
+/* =========================
+   RESPONSIVIDADE
+========================= */
+
+/* CELULAR */
+
+@media (max-width: 700px) {
+
+    .parceiros-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 900px) {
+    .parceiros-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,0 +1,139 @@
+/* =========================
+   BOAS-VINDAS
+========================= */
+
+.painel-boas-vindas {
+    margin-bottom: 32px;
+}
+
+.painel-boas-vindas h1 {
+    font-size: 2rem;
+    margin-bottom: 4px;
+}
+
+.painel-boas-vindas p {
+    color: var(--cor-texto-secundario);
+}
+
+
+/* =========================
+   RESUMO
+========================= */
+
+.painel-resumo {
+    display: grid;
+
+    grid-template-columns: repeat(4, 1fr);
+
+    gap: 20px;
+
+    margin-bottom: 32px;
+}
+
+.resumo-card {
+    min-height: 125px;
+
+    padding: 20px;
+
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--borda-radius);
+
+    background-color: var(--cor-fundo);
+}
+
+.resumo-card h2 {
+    margin-bottom: 12px;
+
+    color: var(--cor-texto-secundario);
+
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.resumo-card p {
+    font-family: var(--fonte-titulo);
+
+    font-size: 2rem;
+    font-weight: 700;
+
+    color: var(--cor-primaria);
+}
+
+
+/* =========================
+   SOLICITAÇÕES RECENTES
+========================= */
+
+.barra-filtros {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 16px;
+
+    margin-bottom: 14px;
+}
+
+
+/* =========================
+   RESPONSIVIDADE
+========================= */
+
+/* TABLET */
+
+@media (max-width: 900px) {
+
+    .painel-resumo {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+
+/* CELULAR */
+
+@media (max-width: 700px) {
+
+    .painel-main {
+        padding: 24px 5%;
+    }
+
+    .barra-filtros {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .btn-nova-solicitacao {
+        width: 100%;
+    }
+}
+
+
+/* CELULAR PEQUENO */
+
+@media (max-width: 480px) {
+
+    .painel-boas-vindas h1 {
+        font-size: 1.7rem;
+    }
+
+    .painel-boas-vindas p {
+        font-size: 0.95rem;
+    }
+
+    .painel-resumo {
+        gap: 12px;
+    }
+
+    .resumo-card {
+        min-height: 105px;
+        padding: 14px;
+    }
+
+    .resumo-card p {
+        font-size: 1.8rem;
+    }
+
+    .tabela-solic-recente h2 {
+        font-size: 1.5rem;
+    }
+}

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Solicitações - AACD Connect</title>
+
+  <link rel="stylesheet" href="/Frontend/css/style.css">
+
+  <link rel="stylesheet" href="/Frontend/css/components/navbar.css">
+  <link rel="stylesheet" href="/Frontend/css/components/badges.css">
+  <link rel="stylesheet" href="/Frontend/css/components/buttons.css">
+  <link rel="stylesheet" href="/Frontend/css/components/table.css">
+  <link rel="stylesheet" href="/Frontend/css/components/modal.css">
+  <link rel="stylesheet" href="/Frontend/css/components/forms.css">
+
+  <link rel="stylesheet" href="/Frontend/css/pages/solicitacoes.css">
+
+  <link rel="icon" type="image/png" href="/Frontend/content/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <script src="/Frontend/js/prototipo.js" defer></script>
+</head>
+
+<body data-pagina="solicitacoes">
+  
+  <header class="painel-header">
+    
+    <nav class="nav-principal painel-nav" aria-label="Navegação principal">
+      <a href="/Frontend/html/AACD/index.html" title="AACD Connect" class="nav-logo"><img
+          src="/Frontend/content/img/logoAACDConnect1.png" alt="Logo do AACD Connect"></a>
+      <ul class="nav-links" id="navLinks">
+        <li><a data-pagina="inicio" href="/Frontend/html/AACD/index.html">Início</a></li>
+        <li><a data-pagina="solicitacoes" href="/Frontend/html/AACD/solicitacoes.html">Solicitações</a></li>
+        <li><a data-pagina="parceiros" href="/Frontend/html/AACD/parceiros.html">Parceiros</a></li>
+        <li><a data-pagina="historico" href="/Frontend/html/AACD/historico.html">Histórico</a></li>
+      </ul>
+
+      <div class="nav-acoes">
+        <div class="nav-perfil-wrap">
+          <button class="nav-perfil" type="button" aria-expanded="false" aria-haspopup="true">
+            <img src="/Frontend/content/img/user.png" alt="Foto de perfil do usuário">
+            <span class="nav-identidade"><strong>Lucas Romano</strong><small>AACD</small></span>
+            <span class="nav-seta" aria-hidden="true">▾</span>
+
+          </button>
+          <div class="perfil-menu" hidden>
+            <div class="perfil-menu-identidade"><strong>Lucas Romano</strong><span>AACD</span></div>
+            <a href="#" class="perfil-menu-item">Meu perfil</a>
+            <a href="/Frontend/html/index.html" class="perfil-menu-item perfil-sair">Sair</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+    
+  </header>
+
+  <main class="painel-main">
+    <section class="pagina-cabecalho">
+      <div>
+        <h1>Solicitações</h1>
+        <p>Consulte, filtre e acompanhe todas as solicitações cadastradas.</p>
+      </div>
+      <div class="pagina-acoes"><button
+          class="btn btn-principal btn-acao btn-nova-solicitacao">+ Nova solicitação</button>
+      </div>
+    </section>
+    <section class="area-listagem">
+      <div class="barra-filtros">
+        <p id="contadorSolicitacoes"></p><button id="limparFiltros" class="btn-texto">Limpar filtros</button>
+      </div>
+      <div class="tabela-wrap">
+        <table id="tabelaSolicitacoes">
+          <thead>
+            <tr>
+              <th>Protocolo</th>
+              <th>Solicitação</th>
+              <th>Requerente</th>
+              <th>Atribuído</th>
+              <th>Prioridade</th>
+              <th>Status</th>
+            </tr>
+            <tr class="filtros-linha">
+              <th><input data-filtro="protocolo" aria-label="Filtrar protocolo" placeholder="Filtrar..."></th>
+              <th><input data-filtro="solicitacao" aria-label="Filtrar solicitação" placeholder="Filtrar..."></th>
+              <th><input data-filtro="requerente" aria-label="Filtrar requerente" placeholder="Filtrar..."></th>
+              <th><input data-filtro="atribuido" aria-label="Filtrar atribuído" placeholder="Filtrar..."></th>
+              <th><input data-filtro="prioridade" aria-label="Filtrar prioridade" placeholder="Filtrar..."></th>
+              <th><input data-filtro="status" aria-label="Filtrar status" placeholder="Filtrar..."></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main><button class="btn-topo" id="btnTopo">↑</button>
+  <dialog class="modal" id="modalNovaSolicitacao">
+    <div class="modal-cabecalho">
+      <div>
+        <p>Cadastro</p>
+        <h2>Nova solicitação</h2>
+      </div>
+      <button class="modal-fechar" type="button" data-fechar-modal aria-label="Fechar">×</button>
+    </div>
+    <form id="formNovaSolicitacao">
+      <div class="modal-corpo">
+        <div class="form-grid">
+          <div class="campo"><label>Solicitação</label><input name="solicitacao" required
+              placeholder="Ex.: Colete ortopédico"></div>
+          <div class="campo"><label>Requerente</label><input name="requerente" value="AACD" readonly
+              aria-readonly="true"><small class="campo-ajuda">Preenchido automaticamente pela organização
+              autenticada.</small></div>
+          <fieldset class="campo amplo campo-atribuicoes">
+            <legend>Atribuídos</legend>
+            <p class="campo-ajuda">Selecione uma ou mais instituições que participarão da solicitação.</p>
+            <div class="opcoes-atribuicao">
+              <label><input type="checkbox" name="atribuido" value="Instituto Mauá de Tecnologia"> <span>Instituto Mauá
+                  de Tecnologia</span></label>
+              <label><input type="checkbox" name="atribuido" value="Centro Universitário FEI"> <span>Centro
+                  Universitário FEI</span></label>
+              <label><input type="checkbox" name="atribuido" value="Universidade Presbiteriana Mackenzie">
+                <span>Universidade Presbiteriana Mackenzie</span></label>
+            </div>
+            <p class="erro-campo" id="erroAtribuidos" role="alert"></p>
+          </fieldset>
+          <div class="campo"><label>Prioridade</label><select name="prioridade" required>
+              <option>Baixa</option>
+              <option selected>Média</option>
+              <option>Alta</option>
+            </select></div>
+          <div class="campo"><label>Categoria</label><input name="categoria" required placeholder="Ex.: Órtese"></div>
+          <div class="campo"><label>Prazo desejado</label><input name="prazo" type="date"></div>
+          <div class="campo"><label>Material</label><input name="material" placeholder="Ex.: PLA / TPU"></div>
+          <div class="campo amplo"><label>Descrição</label><textarea name="descricao" required
+              placeholder="Descreva a necessidade, requisitos, medidas e demais informações relevantes."></textarea>
+          </div>
+          <div class="campo amplo campo-arquivo">
+            <label for="arquivo3d">Arquivo 3D</label>
+            <input id="arquivo3d" name="arquivo3d" type="file" accept=".stl,.obj,.3mf,.step,.stp,.iges,.igs">
+            <p class="campo-ajuda">Formatos de protótipo: STL, OBJ, 3MF, STEP/STP ou IGES/IGS.</p>
+            <div class="arquivo-selecionado" data-arquivo-selecionado hidden></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-acoes">
+        <button type="button" class="btn btn-secundario btn-acao" data-fechar-modal>Cancelar</button>
+        <button type="submit" class="btn btn-principal btn-acao">Criar solicitação</button>
+      </div>
+    </form>
+  </dialog>
+</body>
+
+</html>

@@ -1,0 +1,147 @@
+/* =========================
+   BOTÕES
+========================= */
+
+/* BASE */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 12px 24px;
+
+    border-radius: 8px;
+
+    font-family: var(--fonte-texto);
+    font-weight: 600;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+        background-color var(--transicao),
+        color var(--transicao),
+        border-color var(--transicao),
+        transform var(--transicao);
+}
+
+
+/* PRINCIPAL */
+
+.btn-principal {
+    border: none;
+
+    background-color: var(--cor-primaria);
+    color: var(--cor-texto-claro);
+}
+
+.btn-principal:hover {
+    background-color: var(--cor-secundaria);
+
+    transform: translateY(-2px);
+}
+
+
+/* SECUNDÁRIO */
+
+.btn-secundario {
+    border: 1px solid var(--cor-primaria);
+
+    background-color: transparent;
+    color: var(--cor-primaria);
+}
+
+.btn-secundario:hover {
+    background-color: var(--cor-primaria);
+    color: var(--cor-texto-claro);
+
+    transform: translateY(-2px);
+}
+
+/* BOTÃO LIMPAR FILTROS */
+
+.btn-texto {
+    border: none;
+    background-color: transparent;
+
+    color: var(--cor-primaria);
+
+    font-family: var(--fonte-texto);
+    font-size: 0.9rem;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: color var(--transicao);
+}
+
+.btn-texto:hover {
+    color: var(--cor-secundaria);
+}
+
+/* BOTÃO DE LOGIN */
+
+.btn-login {
+    width: 100%;
+}
+
+
+/* BOTÃO VOLTAR AO TOPO */
+
+.btn-topo {
+    position: fixed;
+
+    right: 30px;
+    bottom: 30px;
+
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 50%;
+
+    background-color: var(--cor-primaria);
+    color: var(--cor-texto-claro);
+
+    font-size: 1.4rem;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    z-index: 900;
+
+    opacity: 0;
+    visibility: hidden;
+
+    transform: translateY(15px);
+
+    transition:
+        opacity var(--transicao),
+        visibility var(--transicao),
+        transform var(--transicao),
+        background-color var(--transicao);
+}
+
+.btn-topo:hover {
+    background-color: var(--cor-secundaria);
+
+    transform: translateY(-3px);
+}
+
+.btn-topo.visivel {
+    opacity: 1;
+    visibility: visible;
+
+    transform: translateY(0);
+}
+
+.btn-topo:focus-visible {
+    outline: 3px solid var(--cor-secundaria);
+    outline-offset: 3px;
+}

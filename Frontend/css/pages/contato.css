@@ -1,0 +1,171 @@
+/* =========================
+   CONTATO
+
+   Página pública de contato. A intenção é manter a mesma identidade visual
+   da Home e do Login, utilizando componentes compartilhados.
+========================= */
+
+.contato-pagina {
+    min-height: 70vh;
+
+    padding: 72px 8%;
+
+    background-color: var(--cor-fundo-secundario);
+}
+
+.contato {
+    max-width: 1100px;
+
+    margin: 0 auto;
+}
+
+.contato-conteudo {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+
+    gap: 56px;
+
+    align-items: start;
+}
+
+/* Texto introdutório à esquerda. */
+.contato-texto {
+    position: sticky;
+    top: 120px;
+}
+
+.contato-tag {
+    display: inline-block;
+
+    margin-bottom: 12px;
+
+    color: var(--cor-secundaria);
+
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.contato-texto h1 {
+    margin-bottom: 14px;
+
+    font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.contato-texto p {
+    color: var(--cor-texto-secundario);
+
+    line-height: 1.8;
+}
+
+/* Card do formulário. */
+.contato-form {
+    display: flex;
+    flex-direction: column;
+
+    gap: 18px;
+
+    padding: 32px;
+
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--borda-radius);
+
+    background-color: var(--cor-fundo);
+
+    box-shadow: 0 18px 50px rgba(3, 68, 126, 0.06);
+}
+
+.campo-duplo {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 16px;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+
+    gap: 6px;
+}
+
+.campo label {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.campo input,
+.campo textarea {
+    width: 100%;
+
+    padding: 12px 14px;
+
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto);
+
+    font-family: var(--fonte-texto);
+    font-size: 0.95rem;
+
+    transition:
+        border-color var(--transicao),
+        box-shadow var(--transicao);
+}
+
+.campo textarea {
+    min-height: 160px;
+
+    resize: vertical;
+}
+
+.campo input:focus,
+.campo textarea:focus {
+    outline: none;
+
+    border-color: var(--cor-primaria);
+
+    box-shadow: 0 0 0 3px rgba(3, 68, 126, 0.12);
+}
+
+.btn-enviar {
+    align-self: flex-start;
+}
+
+/* =========================
+   RESPONSIVIDADE
+========================= */
+
+@media (max-width: 850px) {
+    .contato-conteudo {
+        grid-template-columns: 1fr;
+
+        gap: 32px;
+    }
+
+    .contato-texto {
+        position: static;
+    }
+}
+
+@media (max-width: 700px) {
+    .contato-pagina {
+        padding: 56px 5%;
+    }
+}
+
+@media (max-width: 480px) {
+    .campo-duplo {
+        grid-template-columns: 1fr;
+    }
+
+    .contato-form {
+        padding: 24px 20px;
+    }
+
+    .btn-enviar {
+        width: 100%;
+    }
+}

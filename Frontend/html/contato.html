@@ -7,13 +7,22 @@
 
     <title>Contato - AACD Connect</title>
 
+    <!-- CSS global -->
     <link rel="stylesheet" href="/Frontend/css/style.css">
+
+    <!-- Componentes compartilhados com Home e Login -->
+    <link rel="stylesheet" href="/Frontend/css/components/navbar.css">
+    <link rel="stylesheet" href="/Frontend/css/components/buttons.css">
+    <link rel="stylesheet" href="/Frontend/css/components/accessibility.css">
+    <link rel="stylesheet" href="/Frontend/css/components/footer.css">
+
+    <!-- CSS exclusivo desta página -->
+    <link rel="stylesheet" href="/Frontend/css/pages/contato.css">
 
     <link rel="icon" type="image/png" href="/Frontend/content/img/favicon.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
         rel="stylesheet">
@@ -24,207 +33,142 @@
 </head>
 
 <body>
-    <nav aria-label="Navegação principal">
+
+    <!-- =========================
+         NAVEGAÇÃO PÚBLICA
+         Usa exatamente o mesmo componente das demais páginas públicas.
+    ========================== -->
+    <nav class="nav-principal site-nav" aria-label="Navegação principal">
 
         <a href="/Frontend/html/index.html" title="AACD Connect" class="nav-logo">
             <img src="/Frontend/content/img/logoAACDConnect1.png" alt="Logo do AACD Connect">
         </a>
 
         <ul class="nav-links" id="navLinks">
-            <li>
-                <a href="/Frontend/html/index.html#sobre">Sobre</a>
-            </li>
-
-            <li>
-                <a href="/Frontend/html/index.html#como-funciona">Como funciona</a>
-            </li>
-
-            <li>
-                <a href="/Frontend/html/index.html#privacidade">Privacidade</a>
-            </li>
+            <li><a href="/Frontend/html/index.html#sobre">Sobre</a></li>
+            <li><a href="/Frontend/html/index.html#como-funciona">Como funciona</a></li>
+            <li><a href="/Frontend/html/index.html#privacidade">Privacidade</a></li>
         </ul>
 
         <div class="nav-acoes">
-
             <div class="acess-menu">
                 <ul class="acess-menu-list">
-
                     <li class="acess-item">
                         <button type="button" class="btn-acess-font-menor">
-
                             <span aria-hidden="true">A−</span>
-
-                            <span class="acess-item-screen-reader">
-                                Reduzir tamanho da fonte
-                            </span>
-
+                            <span class="acess-item-screen-reader">Reduzir tamanho da fonte</span>
                         </button>
                     </li>
 
                     <li class="acess-item">
                         <button type="button" class="btn-acess-font-maior">
-
                             <span aria-hidden="true">A+</span>
-
-                            <span class="acess-item-screen-reader">
-                                Aumentar tamanho da fonte
-                            </span>
-
+                            <span class="acess-item-screen-reader">Aumentar tamanho da fonte</span>
                         </button>
                     </li>
 
                     <li class="acess-item">
                         <button type="button" class="btn-acess-contr" aria-pressed="false"
                             title="Ativar alto contraste">
-
                             <span aria-hidden="true">◐</span>
-
-                            <span class="acess-item-screen-reader">
-                                Ativar alto contraste
-                            </span>
+                            <span class="acess-item-screen-reader">Ativar alto contraste</span>
                         </button>
                     </li>
-
                 </ul>
             </div>
 
             <div class="nav-right">
-                <a href="/Frontend/html/login.html" class="login">
-
-                    Faça login
-                </a>
+                <a href="/Frontend/html/login.html" class="btn btn-principal">Faça login</a>
             </div>
-
         </div>
 
     </nav>
 
-    <section id="form-contato" class="contato">
+    <!-- =========================
+         CONTATO
+    ========================== -->
+    <main class="contato-pagina">
 
-    <div class="contato-conteudo">
+        <section id="form-contato" class="contato" aria-labelledby="titulo-contato">
 
-        <div class="contato-texto">
-            <span>Fale conosco</span>
+            <div class="contato-conteudo">
 
-            <h1>Entre em contato</h1>
-
-            <p>
-                Tem alguma dúvida, sugestão ou precisa falar com a equipe
-                responsável pelo AACD Connect? Envie uma mensagem pelo formulário.
-            </p>
-        </div>
-
-        <form class="contato-form">
-
-            <div class="campo-duplo">
-
-                <div class="campo">
-                    <label for="primeiroNome">Nome</label>
-
-                    <input
-                        id="primeiroNome"
-                        name="primeiroNome"
-                        type="text"
-                        autocomplete="given-name"
-                        required>
+                <div class="contato-texto">
+                    <span class="contato-tag">Fale conosco</span>
+                    <h1 id="titulo-contato">Entre em contato</h1>
+                    <p>
+                        Tem alguma dúvida, sugestão ou precisa falar com a equipe responsável pelo AACD Connect?
+                        Envie uma mensagem pelo formulário.
+                    </p>
                 </div>
 
-                <div class="campo">
-                    <label for="segundoNome">Sobrenome</label>
+                <!--
+                    O formulário ainda não possui integração de envio.
+                    O CSS abaixo deixa a interface pronta; a ação poderá ser conectada ao backend depois.
+                -->
+                <form class="contato-form">
 
-                    <input
-                        id="segundoNome"
-                        name="segundoNome"
-                        type="text"
-                        autocomplete="family-name"
-                        required>
-                </div>
+                    <div class="campo-duplo">
+                        <div class="campo">
+                            <label for="primeiroNome">Nome</label>
+                            <input id="primeiroNome" name="primeiroNome" type="text"
+                                autocomplete="given-name" required>
+                        </div>
+
+                        <div class="campo">
+                            <label for="segundoNome">Sobrenome</label>
+                            <input id="segundoNome" name="segundoNome" type="text"
+                                autocomplete="family-name" required>
+                        </div>
+                    </div>
+
+                    <div class="campo">
+                        <label for="email">E-mail</label>
+                        <input id="email" name="email" type="email" autocomplete="email" required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="assunto">Assunto</label>
+                        <input id="assunto" name="assunto" type="text" required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="mensagem">Mensagem</label>
+                        <textarea id="mensagem" name="mensagem" rows="6" required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-principal btn-enviar">Enviar mensagem</button>
+                </form>
 
             </div>
 
-            <div class="campo">
-                <label for="email">E-mail</label>
+        </section>
 
-                <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autocomplete="email"
-                    required>
-            </div>
+    </main>
 
-            <div class="campo">
-                <label for="assunto">Assunto</label>
-
-                <input
-                    id="assunto"
-                    name="assunto"
-                    type="text"
-                    required>
-            </div>
-
-            <div class="campo">
-                <label for="mensagem">Mensagem</label>
-
-                <textarea
-                    id="mensagem"
-                    name="mensagem"
-                    rows="6"
-                    required></textarea>
-            </div>
-
-            <button type="submit" class="btn-enviar">
-                Enviar mensagem
-            </button>
-
-        </form>
-
-    </div>
-
-</section>
-
+    <!-- RODAPÉ COMPARTILHADO -->
     <footer class="footer-principal">
+        <div class="footer-conteudo">
+            <div class="footer-marca">
+                <a href="/Frontend/html/index.html" class="footer-logo">
+                    <img src="/Frontend/content/img/logoAACDConnect1.png" alt="Logo do AACD Connect">
+                </a>
+                <p>Conectando tecnologia, saúde e parceiros de manufatura aditiva.</p>
+            </div>
 
-        <div class="footer-logo">
-
-            <a href="/Frontend/html/index.html">
-
-                <img src="/Frontend/content/img/logoAACDConnect1.png" alt="Logo do AACD Connect">
-
-            </a>
-
+            <nav class="footer-links" aria-label="Links do rodapé">
+                <a href="/Frontend/html/index.html#privacidade">Privacidade</a>
+                <a href="/Frontend/html/contato.html">Contato</a>
+                <a href="/Frontend/html/termos.html">Termos</a>
+            </nav>
         </div>
 
-        <div class="footer-links">
-
-            <a href="/Frontend/html/index.html#privacidade">
-                Privacidade
-            </a>
-
-            <a href="/Frontend/html/contato.html">
-                Contato
-            </a>
-
-            <a href="/Frontend/html/termos.html">
-                Termos
-            </a>
-
-        </div>
-
-        <p class="footer-copy">
-            &copy; 2026 - AACD Connect · Todos os direitos reservados
-        </p>
-
+        <p class="footer-copy">&copy; 2026 - AACD Connect · Todos os direitos reservados</p>
     </footer>
 
-    <button
-    type="button"
-    class="btn-topo"
-    id="btnTopo"
-    aria-label="Voltar ao topo da página"
-    title="Voltar ao topo">
-    ↑
-</button>
+    <button type="button" class="btn-topo" id="btnTopo" aria-label="Voltar ao topo da página" title="Voltar ao topo">
+        ↑
+    </button>
 
 </body>
 

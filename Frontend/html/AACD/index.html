@@ -2,158 +2,183 @@
 <html lang="pt-BR">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel - AACD Connect</title>
-    <link rel="stylesheet" href="/Frontend/css/AACD_Painel/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Início - AACD Connect</title>
+  <link rel="stylesheet" href="/Frontend/css/style.css">
 
-    <link rel="icon" type="image/png" href="/Frontend/content/img/favicon.png">
+  <link rel="stylesheet" href="/Frontend/css/components/navbar.css">
+  <link rel="stylesheet" href="/Frontend/css/components/badges.css">
+  <link rel="stylesheet" href="/Frontend/css/components/buttons.css">
+  <link rel="stylesheet" href="/Frontend/css/components/table.css">
+  <link rel="stylesheet" href="/Frontend/css/components/modal.css">
+  <link rel="stylesheet" href="/Frontend/css/components/forms.css">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
-        rel="stylesheet">
-
-    <script src="/Frontend/js/acessibilidade.js" defer></script>
-    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
-    <script src="/Frontend/js/interface.js" defer></script>
+  <link rel="stylesheet" href="/Frontend/css/pages/dashboard.css">
+  <link rel="icon" type="image/png" href="/Frontend/content/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <script src="/Frontend/js/prototipo.js" defer></script>
 </head>
 
-<body>
+<body data-pagina="inicio">
 
-    <header class="painel-header">
+  <header class="painel-header">
 
-        <nav class="painel-nav" aria-label="Navegação principal">
+    <nav class="nav-principal painel-nav" aria-label="Navegação principal">
+      <a href="/Frontend/html/AACD/index.html" title="AACD Connect" class="nav-logo"><img
+          src="/Frontend/content/img/logoAACDConnect1.png" alt="Logo do AACD Connect"></a>
+      <ul class="nav-links" id="navLinks">
+        <li><a data-pagina="inicio" href="/Frontend/html/AACD/index.html">Início</a></li>
+        <li><a data-pagina="solicitacoes" href="/Frontend/html/AACD/solicitacoes.html">Solicitações</a></li>
+        <li><a data-pagina="parceiros" href="/Frontend/html/AACD/parceiros.html">Parceiros</a></li>
+        <li><a data-pagina="historico" href="/Frontend/html/AACD/historico.html">Histórico</a></li>
+      </ul>
 
-            <a href="/Frontend/html/AACD/index.html" title="AACD Connect" class="nav-logo">
+      <div class="nav-acoes">
+        <div class="nav-perfil-wrap">
+          <button class="nav-perfil" type="button" aria-expanded="false" aria-haspopup="true">
+            <img src="/Frontend/content/img/user.png" alt="Foto de perfil do usuário">
+            <span class="nav-identidade"><strong>Lucas Romano</strong><small>AACD</small></span>
+            <span class="nav-seta" aria-hidden="true">▾</span>
 
-                <img src="/Frontend/content/img/logoAACDConnect1.png" alt="Logo do AACD Connect">
+          </button>
+          <div class="perfil-menu" hidden>
+            <div class="perfil-menu-identidade"><strong>Lucas Romano</strong><span>AACD</span></div>
+            <a href="#" class="perfil-menu-item">Meu perfil</a>
+            <a href="/Frontend/html/index.html" class="perfil-menu-item perfil-sair">Sair</a>
+          </div>
+        </div>
+      </div>
+    </nav>
 
-            </a>
+  </header>
 
-            <ul class="nav-links" id="navLinks">
-                <li>
-                    <a href="/Frontend/html/AACD/index.html">
-                        Início
-                    </a>
-                </li>
+  <main class="painel-main">
 
-                <li>
-                    <a href="/Frontend/html/AACD/solicitacoes.html">
-                        Solicitações
-                    </a>
-                </li>
+    <section class="painel-boas-vindas">
+      <h1>Olá, <span class="perfil-name">Lucas Romano</span>!</h1>
+      <p>Acompanhe suas solicitações e parceiros.</p>
+    </section>
 
-                <li>
-                    <a href="/Frontend/html/AACD/parceiros.html">
-                        Parceiros
-                    </a>
-                </li>
+    <section class="painel-resumo" aria-label="Resumo das solicitações">
 
-                <li>
-                    <a href="/Frontend/html/AACD/historico.html">
-                        Histórico
-                    </a>
-                </li>
-            </ul>
+      <article class="resumo-card">
+        <h2>Solicitações abertas</h2>
+        <p data-resumo="abertas">0</p>
+      </article>
 
-            <div class="nav-acoes">
+      <article class="resumo-card">
+        <h2>Em análise</h2>
+        <p data-resumo="analise">0</p>
+      </article>
 
-                <!-- acessibilidade -->
+      <article class="resumo-card">
+        <h2>Em produção</h2>
+        <p data-resumo="producao">0</p>
+      </article>
 
-                <div class="nav-perfil">
-                    <img src="/Frontend/content/img/user.png" alt="Foto de perfil do usuário" width="32" height="32" style="--avatarSize-regular:32px">
+      <article class="resumo-card">
+        <h2>Concluídas</h2>
+        <p data-resumo="concluidas">0</p>
+      </article>
 
-                    <span class="nav-perfil-name">
-                        Nome do usuário
-                    </span>
-                </div>
+    </section>
 
+    <section class="tabela-solic-recente" aria-labelledby="titulo-solicitacoes-recentes">
+      
+      <div class="barra-filtros">
+        <h2 id="titulo-solicitacoes-recentes">Solicitações recentes</h2><button
+          class="btn btn-principal btn-acao btn-nova-solicitacao">+ Nova solicitação</button>
+      </div>
+
+      <div class="tabela-wrap">
+        <table id="tabelaRecentes">
+          <thead>
+            <tr>
+              <th>Protocolo</th>
+              <th>Solicitação</th>
+              <th>Requerente</th>
+              <th>Atribuído</th>
+              <th>Prioridade</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+    </section>
+
+  </main>
+
+  <button type="button" class="btn-topo" id="btnTopo" aria-label="Voltar ao topo">↑</button>
+
+  <dialog class="modal" id="modalNovaSolicitacao">
+
+    <div class="modal-cabecalho">
+      <div>
+        <p>Cadastro</p>
+        <h2>Nova solicitação</h2>
+      </div>
+      <button class="modal-fechar" type="button" data-fechar-modal aria-label="Fechar">×</button>
+    </div>
+
+    <form id="formNovaSolicitacao">
+      <div class="modal-corpo">
+        <div class="form-grid">
+          <div class="campo"><label>Solicitação</label><input name="solicitacao" required
+              placeholder="Ex.: Colete ortopédico"></div>
+          <div class="campo"><label>Requerente</label><input name="requerente" value="AACD" readonly
+              aria-readonly="true"><small class="campo-ajuda">Preenchido automaticamente pela organização
+              autenticada.</small></div>
+          <fieldset class="campo amplo campo-atribuicoes">
+            <legend>Atribuídos</legend>
+            <p class="campo-ajuda">Selecione uma ou mais instituições que participarão da solicitação.</p>
+            <div class="opcoes-atribuicao">
+              <label><input type="checkbox" name="atribuido" value="Instituto Mauá de Tecnologia"> <span>Instituto Mauá
+                  de Tecnologia</span></label>
+              <label><input type="checkbox" name="atribuido" value="Centro Universitário FEI"> <span>Centro
+                  Universitário FEI</span></label>
+              <label><input type="checkbox" name="atribuido" value="Universidade Presbiteriana Mackenzie">
+                <span>Universidade Presbiteriana Mackenzie</span></label>
             </div>
+            <p class="erro-campo" id="erroAtribuidos" role="alert"></p>
+          </fieldset>
+          <div class="campo"><label>Prioridade</label><select name="prioridade" required>
+              <option>Baixa</option>
+              <option selected>Média</option>
+              <option>Alta</option>
+            </select></div>
+          <div class="campo"><label>Categoria</label><input name="categoria" required placeholder="Ex.: Órtese"></div>
+          <div class="campo"><label>Prazo desejado</label><input name="prazo" type="date"></div>
+          <div class="campo"><label>Material</label><input name="material" placeholder="Ex.: PLA / TPU"></div>
+          <div class="campo amplo"><label>Descrição</label><textarea name="descricao" required
+              placeholder="Descreva a necessidade, requisitos, medidas e demais informações relevantes."></textarea>
+          </div>
+          <div class="campo amplo campo-arquivo">
+            <label for="arquivo3d">Arquivo 3D</label>
+            <input id="arquivo3d" name="arquivo3d" type="file" accept=".stl,.obj,.3mf,.step,.stp,.iges,.igs">
+            <p class="campo-ajuda">Formatos de protótipo: STL, OBJ, 3MF, STEP/STP ou IGES/IGS.</p>
+            <div class="arquivo-selecionado" data-arquivo-selecionado hidden></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-acoes">
+        <button type="button" class="btn btn-secundario btn-acao" data-fechar-modal>
+          Cancelar
+        </button>
 
-        </nav>
+        <button type="submit" class="btn btn-principal btn-acao">
+          Criar solicitação
+        </button>
+      </div>
+    </form>
+  </dialog>
 
-    </header>
-
-    <main class="painel-main">
-
-        <section class="painel-boas-vindas">
-            <h1>
-                Olá, <span class="perfil-name">Nome do usuário</span>!
-            </h1>
-
-            <p>
-                Acompanhe suas solicitações e parceiros.
-            </p>
-        </section>
-
-        <section class="painel-resumo" aria-label="Resumo das solicitações">
-
-            <article class="resumo-card solicitacoes-abertas">
-                <h2>Solicitações abertas</h2>
-                <p>0</p>
-            </article>
-
-            <article class="resumo-card em-analise">
-                <h2>Em análise</h2>
-                <p>0</p>
-            </article>
-
-            <article class="resumo-card em-producao">
-                <h2>Em produção</h2>
-                <p>0</p>
-            </article>
-
-            <article class="resumo-card concluidas">
-                <h2>Concluídas</h2>
-                <p>0</p>
-            </article>
-
-        </section>
-
-        <section class="tabela-solic-recente" aria-labelledby="titulo-solicitacoes-recentes">
-
-            <h2 id="titulo-solicitacoes-recentes">
-                Solicitações recentes
-            </h2>
-
-            <table>
-
-                <thead>
-                    <tr>
-                        <th scope="col">Protocolo</th>
-                        <th scope="col">Solicitação</th>
-                        <th scope="col">Requerente</th>
-                        <th scope="col">Atribuído</th>
-                        <th scope="col">Prioridade</th>
-                        <th scope="col">Status</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    <tr>
-                        <td>#0001</td>
-                        <td>Órtese de mão</td>
-                        <td>Lucas Romano</td>
-                        <td>Instituto Mauá de Tecnologia</td>
-                        <td>Alta</td>
-                        <td>Em produção</td>
-                    </tr>
-                </tbody>
-
-            </table>
-
-        </section>
-
-    </main>
-
-
-
-    <button type="button" class="btn-topo" id="btnTopo" aria-label="Voltar ao topo da página" title="Voltar ao topo">
-        ↑
-    </button>
 </body>
 
 </html>

@@ -1,0 +1,105 @@
+/* =========================
+   RODAPÉ GLOBAL
+   Usado por Home, Login e Contato.
+========================= */
+
+.footer-principal {
+    padding: 36px 8% 20px;
+
+    border-top: 1px solid var(--cor-borda);
+
+    background-color: var(--cor-fundo-secundario);
+}
+
+/* Área superior: marca à esquerda e links à direita. */
+.footer-conteudo {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 32px;
+
+    margin-bottom: 28px;
+}
+
+.footer-marca {
+    max-width: 420px;
+}
+
+/*
+   Limitar a largura aqui evita o problema da logo ocupar a página inteira,
+   como acontecia quando a imagem não possuía dimensão definida.
+*/
+.footer-logo {
+    display: inline-block;
+
+    margin-bottom: 14px;
+}
+
+.footer-logo img {
+    display: block;
+
+    width: 190px;
+    max-width: 100%;
+    height: auto;
+}
+
+.footer-marca p {
+    color: var(--cor-texto-secundario);
+
+    font-size: 0.9rem;
+}
+
+.footer-links {
+    display: flex;
+    align-items: center;
+
+    gap: 22px;
+}
+
+.footer-links a {
+    color: var(--cor-texto-secundario);
+
+    font-size: 0.9rem;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    transition: color var(--transicao);
+}
+
+.footer-links a:hover {
+    color: var(--cor-primaria);
+}
+
+.footer-copy {
+    padding-top: 18px;
+
+    border-top: 1px solid var(--cor-borda);
+
+    color: var(--cor-texto-secundario);
+
+    font-size: 0.8rem;
+}
+
+/* =========================
+   RESPONSIVIDADE
+========================= */
+
+@media (max-width: 700px) {
+    .footer-principal {
+        padding: 32px 5% 18px;
+    }
+
+    .footer-conteudo {
+        flex-direction: column;
+
+        gap: 24px;
+    }
+
+    .footer-links {
+        flex-wrap: wrap;
+
+        gap: 14px 20px;
+    }
+}

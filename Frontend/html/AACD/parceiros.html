@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Parceiros - AACD Connect</title>
+
+  <link rel="stylesheet" href="/Frontend/css/style.css">
+
+  <link rel="stylesheet" href="/Frontend/css/components/navbar.css">
+  <link rel="stylesheet" href="/Frontend/css/components/buttons.css">
+  <link rel="stylesheet" href="/Frontend/css/components/badges.css">
+  <link rel="stylesheet" href="/Frontend/css/components/table.css">
+  <link rel="stylesheet" href="/Frontend/css/components/modal.css">
+
+  <link rel="stylesheet" href="/Frontend/css/pages/parceiros.css">
+
+  <link rel="icon" type="image/png" href="/Frontend/content/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <script src="/Frontend/js/prototipo.js" defer></script>
+</head>
+
+<body data-pagina="parceiros">
+  <header>
+    
+    <nav class="nav-principal painel-nav" aria-label="Navegação principal">
+      <a href="/Frontend/html/AACD/index.html" title="AACD Connect" class="nav-logo"><img
+          src="/Frontend/content/img/logoAACDConnect1.png" alt="Logo do AACD Connect"></a>
+      <ul class="nav-links" id="navLinks">
+        <li><a data-pagina="inicio" href="/Frontend/html/AACD/index.html">Início</a></li>
+        <li><a data-pagina="solicitacoes" href="/Frontend/html/AACD/solicitacoes.html">Solicitações</a></li>
+        <li><a data-pagina="parceiros" href="/Frontend/html/AACD/parceiros.html">Parceiros</a></li>
+        <li><a data-pagina="historico" href="/Frontend/html/AACD/historico.html">Histórico</a></li>
+      </ul>
+
+      <div class="nav-acoes">
+        <div class="nav-perfil-wrap">
+          <button class="nav-perfil" type="button" aria-expanded="false" aria-haspopup="true">
+            <img src="/Frontend/content/img/user.png" alt="Foto de perfil do usuário">
+            <span class="nav-identidade"><strong>Lucas Romano</strong><small>AACD</small></span>
+            <span class="nav-seta" aria-hidden="true">▾</span>
+
+          </button>
+          <div class="perfil-menu" hidden>
+            <div class="perfil-menu-identidade"><strong>Lucas Romano</strong><span>AACD</span></div>
+            <a href="#" class="perfil-menu-item">Meu perfil</a>
+            <a href="/Frontend/html/index.html" class="perfil-menu-item perfil-sair">Sair</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+    
+  </header>
+  <main class="painel-main">
+    <section class="pagina-cabecalho">
+      <div>
+        <h1>Parceiros</h1>
+        <p>Consulte disponibilidade, capacidade produtiva, tecnologias e materiais das instituições credenciadas.</p>
+      </div>
+    </section>
+    <section class="parceiros-grid" id="gridParceiros"></section>
+  </main><button class="btn-topo" id="btnTopo">↑</button>
+  <dialog class="modal" id="modalParceiro">
+    <div class="modal-cabecalho">
+      <div>
+        <p>Capacidade do parceiro</p>
+        <h2 data-parceiro-detalhe="nome"></h2>
+      </div><button class="modal-fechar" data-fechar-modal>×</button>
+    </div>
+    <div class="modal-corpo">
+      <dl class="detalhes-grid">
+        <div class="detalhe">
+          <dt>Localização</dt>
+          <dd data-parceiro-detalhe="cidade"></dd>
+        </div>
+        <div class="detalhe">
+          <dt>Disponibilidade</dt>
+          <dd data-parceiro-detalhe="status"></dd>
+        </div>
+        <div class="detalhe">
+          <dt>Impressoras cadastradas</dt>
+          <dd data-parceiro-detalhe="impressoras"></dd>
+        </div>
+        <div class="detalhe">
+          <dt>Tecnologias</dt>
+          <dd data-parceiro-detalhe="tecnologias"></dd>
+        </div>
+        <div class="detalhe amplo">
+          <dt>Materiais disponíveis</dt>
+          <dd data-parceiro-detalhe="materiais"></dd>
+        </div>
+      </dl>
+    </div>
+    <div class="modal-acoes"><button class="btn btn-principal btn-acao" data-fechar-modal>
+  Fechar
+</button></div>
+  </dialog>
+</body>
+
+</html>

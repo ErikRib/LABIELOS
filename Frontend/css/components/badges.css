@@ -1,0 +1,77 @@
+/* =========================
+   BADGES
+========================= */
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 5px 10px;
+
+    border-radius: 999px;
+
+    font-size: 0.8rem;
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+
+/* =========================
+   PRIORIDADES
+========================= */
+
+.prioridade-alta {
+    background-color: #fdecec;
+    color: #b42318;
+}
+
+.prioridade-media {
+    background-color: #fff4cc;
+    color: #8a6100;
+}
+
+.prioridade-baixa {
+    background-color: #eaf7ee;
+    color: #267a3f;
+}
+
+
+/* =========================
+   STATUS DE SOLICITAÇÕES
+========================= */
+
+.status-analise {
+    background-color: #eef2ff;
+    color: #3f51b5;
+}
+
+.status-producao {
+    background-color: #e6f7fb;
+    color: #007c91;
+}
+
+.status-concluida {
+    background-color: #eaf7ee;
+    color: #267a3f;
+}
+
+
+/* =========================
+   STATUS DE PARCEIROS
+========================= */
+
+.parceiro-disponivel {
+    background-color: #eaf7ee;
+    color: #267a3f;
+}
+
+.parceiro-capacidade-limitada {
+    background-color: #fff4cc;
+    color: #8a6100;
+}
+
+.parceiro-indisponivel {
+    background-color: #fdecec;
+    color: #b42318;
+}

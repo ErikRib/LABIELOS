@@ -4,14 +4,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Login - AACD Connect</title>
+
+    <!-- CSS global e componentes reutilizados no site público -->
     <link rel="stylesheet" href="/Frontend/css/style.css">
+    <link rel="stylesheet" href="/Frontend/css/components/navbar.css">
+    <link rel="stylesheet" href="/Frontend/css/components/buttons.css">
+    <link rel="stylesheet" href="/Frontend/css/components/accessibility.css">
+    <link rel="stylesheet" href="/Frontend/css/components/footer.css">
+
+    <!-- CSS exclusivo da tela de login -->
+    <link rel="stylesheet" href="/Frontend/css/pages/login.css">
 
     <link rel="icon" type="image/png" href="/Frontend/content/img/favicon.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
         rel="stylesheet">
@@ -21,188 +30,125 @@
     <script src="/Frontend/js/interface.js" defer></script>
 </head>
 
-<body class="alto-contraste">
+<body>
 
-    <nav aria-label="Navegação principal">
+    <!-- =========================
+         NAVEGAÇÃO PÚBLICA
+    ========================== -->
+    <nav class="nav-principal site-nav" aria-label="Navegação principal">
 
         <a href="/Frontend/html/index.html" title="AACD Connect" class="nav-logo">
             <img src="/Frontend/content/img/logoAACDConnect1.png" alt="Logo do AACD Connect">
         </a>
 
         <ul class="nav-links" id="navLinks">
-            <li>
-                <a href="/Frontend/html/index.html#sobre">Sobre</a>
-            </li>
-
-            <li>
-                <a href="/Frontend/html/index.html#como-funciona">Como funciona</a>
-            </li>
-
-            <li>
-                <a href="/Frontend/html/index.html#privacidade">Privacidade</a>
-            </li>
+            <li><a href="/Frontend/html/index.html#sobre">Sobre</a></li>
+            <li><a href="/Frontend/html/index.html#como-funciona">Como funciona</a></li>
+            <li><a href="/Frontend/html/index.html#privacidade">Privacidade</a></li>
         </ul>
 
         <div class="nav-acoes">
-
             <div class="acess-menu">
                 <ul class="acess-menu-list">
-
                     <li class="acess-item">
                         <button type="button" class="btn-acess-font-menor">
-
                             <span aria-hidden="true">A−</span>
-
-                            <span class="acess-item-screen-reader">
-                                Reduzir tamanho da fonte
-                            </span>
-
+                            <span class="acess-item-screen-reader">Reduzir tamanho da fonte</span>
                         </button>
                     </li>
 
                     <li class="acess-item">
                         <button type="button" class="btn-acess-font-maior">
-
                             <span aria-hidden="true">A+</span>
-
-                            <span class="acess-item-screen-reader">
-                                Aumentar tamanho da fonte
-                            </span>
-
+                            <span class="acess-item-screen-reader">Aumentar tamanho da fonte</span>
                         </button>
                     </li>
 
                     <li class="acess-item">
                         <button type="button" class="btn-acess-contr" aria-pressed="false"
                             title="Ativar alto contraste">
-
                             <span aria-hidden="true">◐</span>
-
-                            <span class="acess-item-screen-reader">
-                                Ativar alto contraste
-                            </span>
+                            <span class="acess-item-screen-reader">Ativar alto contraste</span>
                         </button>
                     </li>
-
                 </ul>
             </div>
 
             <div class="nav-right">
-                <a href="/Frontend/html/index.html" class="login">
-
-                    Voltar ao início
-                </a>
+                <a href="/Frontend/html/index.html" class="btn btn-principal">Voltar ao início</a>
             </div>
-
         </div>
 
     </nav>
 
+    <!-- =========================
+         ÁREA DE LOGIN
+    ========================== -->
     <main class="login-pagina">
 
         <section class="login-container" aria-labelledby="titulo-login">
 
+            <!-- Texto introdutório do card -->
             <div class="login-texto">
-
-                <span class="login-tag">
-                    Acesse a plataforma
-                </span>
-
-                <h1 id="titulo-login">
-                    Bem-vindo(a) de volta!
-                </h1>
-
-                <p>
-                    Utilize suas credenciais para acessar o AACD Connect.
-                </p>
-
+                <span class="login-tag">Acesse a plataforma</span>
+                <h1 id="titulo-login">Bem-vindo(a) de volta!</h1>
+                <p>Utilize suas credenciais para acessar o AACD Connect.</p>
             </div>
 
-            <form class="login-form">
+            <!--
+                Por enquanto o formulário direciona diretamente para o painel.
+                Quando existir backend/autenticação real, o action deverá ser substituído.
+            -->
+            <form class="login-form" action="/Frontend/html/AACD/index.html">
 
                 <div class="campo">
-
-                    <label for="email">
-                        E-mail
-                    </label>
-
-                    <input id="email" name="email" type="email" autocomplete="email" required>
-
+                    <label for="email">E-mail</label>
+                    <input id="email" name="email" type="email" autocomplete="email"
+                        placeholder="nome@exemplo.com" required>
                 </div>
 
                 <div class="campo">
-
-                    <label for="senha">
-                        Senha
-                    </label>
-
-                    <input id="senha" name="senha" type="password" autocomplete="current-password" required>
-
+                    <label for="senha">Senha</label>
+                    <input id="senha" name="senha" type="password" autocomplete="current-password"
+                        placeholder="Digite sua senha" required>
                 </div>
 
                 <div class="login-opcoes">
-
                     <label class="lembrar-login">
-
                         <input type="checkbox" name="lembrar">
-
-                        <span>
-                            Lembrar de mim
-                        </span>
-
+                        <span>Lembrar de mim</span>
                     </label>
 
-                    <a href="#">
-                        Esqueci minha senha
-                    </a>
-
+                    <a href="#">Esqueci minha senha</a>
                 </div>
 
-                <button type="submit" class="btn-login">
-
-                    Entrar
-
-                </button>
-
+                <button type="submit" class="btn btn-principal btn-login">Entrar</button>
             </form>
 
         </section>
 
     </main>
 
+    <!-- RODAPÉ COMPARTILHADO -->
     <footer class="footer-principal">
+        <div class="footer-conteudo">
+            <div class="footer-marca">
+                <a href="/Frontend/html/index.html" class="footer-logo">
+                    <img src="/Frontend/content/img/logoAACDConnect1.png" alt="Logo do AACD Connect">
+                </a>
+                <p>Conectando tecnologia, saúde e parceiros de manufatura aditiva.</p>
+            </div>
 
-        <div class="footer-logo">
-
-            <a href="/Frontend/html/index.html">
-
-                <img src="/Frontend/content/img/logoAACDConnect1.png" alt="Logo do AACD Connect">
-
-            </a>
-
+            <nav class="footer-links" aria-label="Links do rodapé">
+                <a href="/Frontend/html/index.html#privacidade">Privacidade</a>
+                <a href="/Frontend/html/contato.html">Contato</a>
+                <a href="/Frontend/html/termos.html">Termos</a>
+            </nav>
         </div>
 
-        <div class="footer-links">
-
-            <a href="/Frontend/html/index.html#privacidade">
-                Privacidade
-            </a>
-
-            <a href="/Frontend/html/contato.html">
-                Contato
-            </a>
-
-            <a href="/Frontend/html/termos.html">
-                Termos
-            </a>
-
-        </div>
-
-        <p class="footer-copy">
-            &copy; 2026 - AACD Connect · Todos os direitos reservados
-        </p>
-
+        <p class="footer-copy">&copy; 2026 - AACD Connect · Todos os direitos reservados</p>
     </footer>
+
 </body>
 
 </html>
