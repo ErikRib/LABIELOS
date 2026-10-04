@@ -1,0 +1,514 @@
+/* =========================
+   ACESSIBILIDADE
+========================= */
+
+
+/* =========================
+   MENU DE ACESSIBILIDADE
+========================= */
+
+.acess-menu-list {
+    display: flex;
+    align-items: center;
+
+    gap: 6px;
+
+    list-style: none;
+}
+
+.acess-item {
+    list-style: none;
+}
+
+.acess-item button {
+    min-width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border:
+        1px solid
+        var(--cor-borda);
+
+    border-radius: 8px;
+
+    background-color: var(--cor-fundo);
+    color: var(--cor-primaria);
+
+    font-family: var(--fonte-texto);
+    font-size: 0.9rem;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background-color var(--transicao),
+        border-color var(--transicao),
+        color var(--transicao),
+        transform var(--transicao);
+}
+
+.acess-item button:hover {
+    background-color: var(--cor-fundo-secundario);
+
+    border-color: var(--cor-secundaria);
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================
+   TEXTO PARA LEITOR DE TELA
+========================= */
+
+.acess-item-screen-reader {
+    position: absolute;
+
+    width: 1px;
+    height: 1px;
+
+    padding: 0;
+    margin: -1px;
+
+    overflow: hidden;
+
+    clip: rect(0, 0, 0, 0);
+
+    white-space: nowrap;
+
+    border: 0;
+}
+
+
+/* =========================
+   FOCO POR TECLADO
+========================= */
+
+.nav-links a:focus-visible,
+.acess-item button:focus-visible,
+.btn:focus-visible,
+.btn-principal:focus-visible,
+.btn-secundario:focus-visible,
+.btn-topo:focus-visible,
+.modal-fechar:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline:
+        3px solid
+        var(--cor-secundaria);
+
+    outline-offset: 3px;
+}
+
+
+/* =========================
+   ALTO CONTRASTE
+========================= */
+
+/*
+   O alto contraste redefine as variáveis globais.
+   Assim, componentes que utilizam var(--cor-...)
+   mudam automaticamente sem precisar de regras
+   específicas para cada tela.
+*/
+
+body.alto-contraste {
+    --cor-primaria: #ffff00;
+    --cor-primaria-hover: #ffffff;
+    --cor-secundaria: #ffff00;
+
+    --cor-texto: #ffffff;
+    --cor-texto-secundario: #ffffff;
+    --cor-texto-claro: #000000;
+
+    --cor-fundo: #000000;
+    --cor-fundo-secundario: #000000;
+
+    --cor-borda: #ffffff;
+    --cor-hover: #1a1a1a;
+
+    color: var(--cor-texto);
+    background-color: var(--cor-fundo);
+
+    scrollbar-color:
+        #ffff00
+        #000000;
+}
+
+
+/* =========================
+   TEXTOS E LINKS
+========================= */
+
+body.alto-contraste a {
+    color: #ffff00;
+}
+
+body.alto-contraste h1,
+body.alto-contraste h2,
+body.alto-contraste h3,
+body.alto-contraste p,
+body.alto-contraste span,
+body.alto-contraste dt,
+body.alto-contraste dd,
+body.alto-contraste label,
+body.alto-contraste legend {
+    border-color: var(--cor-borda);
+}
+
+
+/* =========================
+   ELEMENTOS DE DESTAQUE
+========================= */
+
+body.alto-contraste .principal-tag,
+body.alto-contraste .login-tag {
+    border:
+        1px solid
+        #ffff00;
+
+    background-color: #000000;
+    color: #ffff00;
+}
+
+body.alto-contraste .principal h1 em,
+body.alto-contraste .sobre h2 span {
+    color: #ffff00;
+}
+
+
+/* =========================
+   BOTÕES
+========================= */
+
+body.alto-contraste .btn-principal {
+    border-color: #ffff00;
+
+    background-color: #ffff00;
+    color: #000000;
+}
+
+body.alto-contraste .btn-principal:hover {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+body.alto-contraste .btn-secundario {
+    border-color: #ffff00;
+
+    background-color: #000000;
+    color: #ffff00;
+}
+
+body.alto-contraste .btn-secundario:hover {
+    background-color: #ffff00;
+    color: #000000;
+}
+
+body.alto-contraste .btn-topo {
+    border:
+        2px solid
+        #ffffff;
+
+    background-color: #ffff00;
+    color: #000000;
+}
+
+
+/* =========================
+   BOTÕES DE ACESSIBILIDADE
+========================= */
+
+body.alto-contraste .acess-item button {
+    border-color: #ffffff;
+
+    background-color: #000000;
+    color: #ffff00;
+}
+
+body.alto-contraste .acess-item button:hover {
+    border-color: #ffff00;
+
+    background-color: #1a1a1a;
+}
+
+
+/* =========================
+   FORMULÁRIOS
+========================= */
+
+body.alto-contraste input,
+body.alto-contraste select,
+body.alto-contraste textarea {
+    border:
+        2px solid
+        #ffffff;
+
+    background-color: #000000;
+    color: #ffffff;
+}
+
+body.alto-contraste input::placeholder,
+body.alto-contraste textarea::placeholder {
+    color: #ffffff;
+}
+
+body.alto-contraste input:focus,
+body.alto-contraste select:focus,
+body.alto-contraste textarea:focus {
+    border-color: #ffff00;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(255, 255, 0, 0.25);
+}
+
+body.alto-contraste input[readonly] {
+    background-color: #111111;
+    color: #ffffff;
+}
+
+body.alto-contraste input[type="checkbox"] {
+    accent-color: #ffff00;
+}
+
+
+/* =========================
+   CARDS E BLOCOS
+========================= */
+
+body.alto-contraste .painel-bloco,
+body.alto-contraste .resumo-card,
+body.alto-contraste .parceiro-card,
+body.alto-contraste .login-container,
+body.alto-contraste .contato-form,
+body.alto-contraste .sobre-solicitacoes,
+body.alto-contraste .sobre-parceiros,
+body.alto-contraste .sobre-acompanhamento {
+    border-color: #ffffff;
+
+    background-color: #000000;
+    color: #ffffff;
+
+    box-shadow: none;
+}
+
+
+/* =========================
+   TABELAS
+========================= */
+
+body.alto-contraste .tabela-wrap {
+    border-color: #ffffff;
+
+    background-color: #000000;
+}
+
+body.alto-contraste .tabela-wrap table,
+body.alto-contraste .tabela-wrap thead,
+body.alto-contraste .tabela-wrap th,
+body.alto-contraste .tabela-wrap td {
+    background-color: #000000;
+    color: #ffffff;
+
+    border-color: #ffffff;
+}
+
+body.alto-contraste .tabela-wrap tbody tr:hover {
+    background-color: #1a1a1a;
+}
+
+
+/* =========================
+   FLUXOS E TIMELINE
+========================= */
+
+body.alto-contraste .numero {
+    background-color: #ffff00;
+    color: #000000;
+}
+
+body.alto-contraste .linha-fluxo,
+body.alto-contraste .timeline::before,
+body.alto-contraste .fluxo-solicitacao::before {
+    background-color: #ffffff;
+}
+
+body.alto-contraste .fluxo-solicitacao::after {
+    background-color: #ffff00;
+}
+
+body.alto-contraste .fluxo-ponto {
+    border-color: #ffffff;
+
+    background-color: #000000;
+    color: #ffffff;
+}
+
+body.alto-contraste .fluxo-etapa.concluida .fluxo-ponto {
+    border-color: #ffff00;
+
+    background-color: #ffff00;
+    color: #000000;
+}
+
+body.alto-contraste .fluxo-etapa.atual .fluxo-ponto {
+    border-color: #ffff00;
+
+    color: #ffff00;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(255, 255, 0, 0.2);
+}
+
+body.alto-contraste .timeline-marcador {
+    background-color: #ffff00;
+}
+
+
+/* =========================
+   BADGES
+========================= */
+
+body.alto-contraste .badge {
+    border:
+        1px solid
+        #ffffff;
+
+    background-color: #000000;
+    color: #ffff00;
+}
+
+
+/* =========================
+   ARQUIVOS / ANEXOS
+========================= */
+
+body.alto-contraste .anexo-card {
+    border-color: #ffffff;
+
+    background-color: #000000;
+}
+
+body.alto-contraste .anexo-icone {
+    background-color: #ffff00;
+    color: #000000;
+}
+
+body.alto-contraste .viewer-3d {
+    border-color: #ffffff;
+
+    background-color: #000000;
+}
+
+body.alto-contraste .wireframe {
+    stroke: #ffff00;
+}
+
+body.alto-contraste .viewer-eixo {
+    background-color: #000000;
+    color: #ffff00;
+
+    border:
+        1px solid
+        #ffffff;
+}
+
+
+/* =========================
+   MODAIS
+========================= */
+
+body.alto-contraste .modal {
+    border:
+        2px solid
+        #ffffff;
+
+    background-color: #000000;
+    color: #ffffff;
+}
+
+body.alto-contraste .modal-cabecalho,
+body.alto-contraste .modal-acoes {
+    border-color: #ffffff;
+}
+
+body.alto-contraste .modal::backdrop {
+    background-color: rgba(255, 255, 255, 0.18);
+}
+
+
+/* =========================
+   FOOTER
+========================= */
+
+body.alto-contraste .footer-principal {
+    border-top:
+        1px solid
+        #ffffff;
+
+    background-color: #000000;
+}
+
+body.alto-contraste .footer-links a {
+    color: #ffff00;
+}
+
+
+/* =========================
+   LOGOS
+========================= */
+
+body.alto-contraste .nav-logo img,
+body.alto-contraste .footer-logo img {
+    filter:
+        grayscale(1)
+        brightness(0)
+        invert(1);
+}
+
+
+/* =========================================================
+   BARRA DE ROLAGEM - ALTO CONTRASTE
+========================================================= */
+
+/*
+   Existe uma particularidade importante:
+
+   a barra de rolagem principal da página pertence
+   ao elemento raiz <html>, enquanto a classe
+   .alto-contraste está sendo aplicada ao <body>.
+
+   Por isso utilizamos :has() para identificar
+   quando o body está utilizando alto contraste.
+*/
+
+
+/* Firefox */
+
+html:has(body.alto-contraste) {
+    scrollbar-color:
+        #ffff00
+        #000000;
+}
+
+
+/* Chrome, Edge e Safari */
+
+html:has(body.alto-contraste)::-webkit-scrollbar-track {
+    background-color: #000000;
+}
+
+html:has(body.alto-contraste)::-webkit-scrollbar-thumb {
+    border-color: #000000;
+
+    background-color: #ffff00;
+}
+
+html:has(body.alto-contraste)::-webkit-scrollbar-thumb:hover {
+    background-color: #ffffff;
+}

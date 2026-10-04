@@ -4,49 +4,49 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Detalhes da solicitação - AACD Connect</title>
+  <title>Detalhes da solicitação</title>
 
-  <link rel="stylesheet" href="/Frontend/css/style.css">
+  <link rel="stylesheet" href="/css/style.css">
 
-  <link rel="stylesheet" href="/Frontend/css/components/navbar.css">
-  <link rel="stylesheet" href="/Frontend/css/components/badges.css">
-  <link rel="stylesheet" href="/Frontend/css/components/buttons.css">
-  <link rel="stylesheet" href="/Frontend/css/components/forms.css">
-  <link rel="stylesheet" href="/Frontend/css/components/modal.css">
+  <link rel="stylesheet" href="/css/components/navbar.css">
+  <link rel="stylesheet" href="/css/components/badges.css">
+  <link rel="stylesheet" href="/css/components/buttons.css">
+  <link rel="stylesheet" href="/css/components/forms.css">
+  <link rel="stylesheet" href="/css/components/modal.css">
 
-  <link rel="stylesheet" href="/Frontend/css/pages/detalhes-solicitacao.css">
+  <link rel="stylesheet" href="/css/pages/detalhes-solicitacao.css">
 
-  <link rel="icon" type="image/png" href="/Frontend/content/img/favicon.png">
+  <link rel="icon" type="image/png" href="/content/img/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
     rel="stylesheet">
-  <script src="/Frontend/js/prototipo.js" defer></script>
+  <script src="/js/prototipo.js" defer></script>
 </head>
 
 <body data-pagina="solicitacoes">
   <header class="painel-header">
     <nav class="nav-principal painel-nav" aria-label="Navegação principal">
-      <a href="/Frontend/html/AACD/index.html" class="nav-logo"><img src="/Frontend/content/img/logoAACDConnect1.png"
-          alt="Logo do AACD Connect"></a>
+      <a href="/html/client/index.html" class="nav-logo"><img src="/content/img/logo-simples.png"
+          alt="Logo do LABIELOS"></a>
       <ul class="nav-links">
-        <li><a data-pagina="inicio" href="/Frontend/html/AACD/index.html">Início</a></li>
-        <li><a data-pagina="solicitacoes" href="/Frontend/html/AACD/solicitacoes.html">Solicitações</a></li>
-        <li><a data-pagina="parceiros" href="/Frontend/html/AACD/parceiros.html">Parceiros</a></li>
-        <li><a data-pagina="historico" href="/Frontend/html/AACD/historico.html">Histórico</a></li>
+        <li><a data-pagina="inicio" href="/html/client/index.html">Início</a></li>
+        <li><a data-pagina="solicitacoes" href="/html/client/solicitacoes.html">Solicitações</a></li>
+        <li><a data-pagina="parceiros" href="/html/client/parceiros.html">Parceiros</a></li>
+        <li><a data-pagina="historico" href="/html/client/historico.html">Histórico</a></li>
       </ul>
       <div class="nav-acoes">
         <div class="nav-perfil-wrap">
           <button class="nav-perfil" type="button" aria-expanded="false" aria-haspopup="true">
-            <img src="/Frontend/content/img/user.png" alt="Foto de perfil do usuário">
+            <img src="/content/img/user.png" alt="Foto de perfil do usuário">
             <span class="nav-identidade"><strong>Lucas Romano</strong><small>AACD</small></span>
             <span class="nav-seta" aria-hidden="true">▾</span>
           </button>
           <div class="perfil-menu" hidden>
             <div class="perfil-menu-identidade"><strong>Lucas Romano</strong><span>AACD</span></div>
             <a href="#" class="perfil-menu-item">Meu perfil</a>
-            <a href="/Frontend/html/index.html" class="perfil-menu-item perfil-sair">Sair</a>
+            <a href="/index.html" class="perfil-menu-item perfil-sair">Sair</a>
           </div>
         </div>
       </div>
@@ -59,7 +59,7 @@
       <div class="detalhe-cabecalho-info">
 
         <div class="detalhe-navegacao">
-          <a class="voltar-link" href="/Frontend/html/AACD/solicitacoes.html">
+          <a class="voltar-link" href="/html/client/solicitacoes.html">
             ← Voltar para solicitações
           </a>
 
@@ -218,8 +218,8 @@
         </div>
       </div>
       <div class="modal-acoes">
-        <button type="button" class="btn-secundario btn-acao" data-fechar-modal>Cancelar</button>
-        <button type="submit" class="btn-principal btn-acao">Criar solicitação</button>
+        <button type="button" class="btn btn-secundario btn-acao" data-fechar-modal>Cancelar</button>
+        <button type="submit" class="btn btn-principal btn-acao">Criar solicitação</button>
       </div>
     </form>
   </dialog>

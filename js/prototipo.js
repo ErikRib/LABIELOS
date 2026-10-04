@@ -106,7 +106,7 @@ function ativarLinhasClicaveis(container) {
   container.querySelectorAll('.linha-clicavel').forEach(linha => {
     const abrir = () => {
       const protocolo = linha.dataset.protocolo;
-      window.location.href = `/Frontend/html/AACD/detalhes-solicitacao.html?protocolo=${encodeURIComponent(protocolo)}`;
+      window.location.href = `/html/client/detalhes-solicitacao.html?protocolo=${encodeURIComponent(protocolo)}`;
     };
 
     linha.addEventListener('click', abrir);
@@ -184,7 +184,7 @@ function renderDetalheSolicitacao() {
   const anexo = document.querySelector('#anexoSolicitacao');
   if (anexo) {
     if (s.arquivo3d) {
-      anexo.innerHTML = `<div class="anexo-icone">3D</div><div class="anexo-info"><strong>${s.arquivo3d.nome}</strong><span>${s.arquivo3d.formato} · ${s.arquivo3d.tamanho}</span></div><button type="button" class="btn-secundario btn-visualizar-arquivo">Visualizar</button>`;
+      anexo.innerHTML = `<div class="anexo-icone">3D</div><div class="anexo-info"><strong>${s.arquivo3d.nome}</strong><span>${s.arquivo3d.formato} · ${s.arquivo3d.tamanho}</span></div><button type="button" class="btn btn-secundario btn-visualizar-arquivo">Visualizar</button>`;
       anexo.querySelector('.btn-visualizar-arquivo')?.addEventListener('click', () => abrirVisualizadorArquivo(s.arquivo3d));
     } else {
       anexo.innerHTML = '<p class="texto-detalhe">Nenhum arquivo 3D anexado.</p>';
