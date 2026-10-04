@@ -142,7 +142,7 @@ function renderDetalheSolicitacao() {
   const protocolo = params.get('protocolo') || '#0001';
   const s = solicitacoes.find(item => item.protocolo === protocolo) || solicitacoes[0];
 
-  document.title = `${s.protocolo} - ${s.solicitacao} | AACD Connect`;
+  document.title = `${s.protocolo} - ${s.solicitacao} | LABIELOS`;
   document.querySelectorAll('[data-detalhe]').forEach(el => {
     const campo = el.dataset.detalhe;
     if (campo === 'prioridade' || campo === 'status') {
