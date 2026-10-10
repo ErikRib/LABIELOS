@@ -136,6 +136,24 @@ h3 {
     background-color: var(--cor-secundaria);
 }
 
+/* =========================
+   SEPARADOR
+========================= */
+
+.separador {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.separador::before,
+.separador::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background-color: var(--cor-borda);
+}
+
 
 
 /* =========================
