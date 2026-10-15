@@ -23,7 +23,9 @@
 }
 
 .footer-marca {
-    max-width: 420px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
 }
 
 /*
@@ -31,9 +33,9 @@
    como acontecia quando a imagem não possuía dimensão definida.
 */
 .footer-logo {
-    display: inline-block;
-
-    margin-bottom: 14px;
+    display: block;
+    flex-shrink: 0;
+    margin-bottom: 0;
 }
 
 .footer-logo img {
@@ -46,8 +48,8 @@
 
 .footer-marca p {
     color: var(--cor-texto-secundario);
-
     font-size: 0.9rem;
+    margin: 0;
 }
 
 .footer-links {
@@ -82,6 +84,13 @@
     font-size: 0.8rem;
 }
 
+.footer-copy-outros {
+
+    color: var(--cor-texto-secundario);
+
+    font-size: 0.8rem;
+}
+
 /* =========================
    RESPONSIVIDADE
 ========================= */
@@ -101,5 +110,9 @@
         flex-wrap: wrap;
 
         gap: 14px 20px;
+    }
+    .footer-marca {
+        flex-direction: column;
+        align-items: flex-start;
     }
 }

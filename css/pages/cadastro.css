@@ -80,7 +80,7 @@
     font-weight: 600;
 }
 
-.campo input {
+.campo input:not([type="radio"]):not([type="checkbox"]) {
     width: 100%;
 
     padding: 12px 14px;
@@ -146,6 +146,127 @@
     width: 100%;
 
     margin-top: 4px;
+}
+
+/* =========================
+   SELEÇÃO DO TIPO DE PERFIL
+========================= */
+
+.campo-perfil {
+    border: none;
+    padding: 0;
+    margin: 0;
+
+    gap: 12px;
+}
+
+.campo-perfil legend {
+    margin-bottom: 16px;
+
+    font-size: 1rem;
+    font-weight: 600;
+
+    color: var(--cor-texto);
+}
+
+/* Cartão de seleção */
+.campo-perfil .opcao-perfil {
+    display: flex;
+    align-items: center;
+
+    gap: 14px;
+
+    padding: 18px;
+
+    border: 1px solid var(--cor-borda);
+    border-radius: 10px;
+
+    background-color: var(--cor-fundo);
+
+    cursor: pointer;
+
+    transition:
+        border-color var(--transicao),
+        background-color var(--transicao),
+        box-shadow var(--transicao);
+}
+
+/* Botão radio */
+.campo-perfil .opcao-perfil input[type="radio"] {
+    width: 18px;
+    height: 18px;
+
+    padding: 0;
+    margin: 0;
+
+    flex-shrink: 0;
+
+    accent-color: var(--cor-primaria);
+
+    cursor: pointer;
+}
+
+/* Textos */
+.opcao-perfil-texto {
+    display: flex;
+    flex-direction: column;
+
+    gap: 5px;
+}
+
+.opcao-perfil-texto strong {
+    font-size: 0.95rem;
+    font-weight: 600;
+
+    color: var(--cor-texto);
+}
+
+.opcao-perfil-texto > span {
+    font-size: 0.85rem;
+    font-weight: 400;
+    line-height: 1.5;
+
+    color: var(--cor-texto-secundario);
+}
+
+/* Efeito ao passar o mouse */
+.campo-perfil .opcao-perfil:hover {
+    border-color: var(--cor-primaria);
+}
+
+/* Cartão selecionado */
+.campo-perfil .opcao-perfil:has(input:checked) {
+    border-color: var(--cor-primaria);
+
+    background-color: var(--cor-fundo-secundario);
+
+    box-shadow: 0 0 0 1px var(--cor-primaria);
+}
+
+/* Navegação por teclado */
+.campo-perfil .opcao-perfil:has(input:focus-visible) {
+    outline: 3px solid var(--cor-primaria);
+    outline-offset: 3px;
+}
+
+/* =========================
+   BOTÕES DE NAVEGAÇÃO
+========================= */
+
+.cadastro-botoes {
+    display: flex;
+    gap: 12px;
+    margin-top: 4px;
+}
+
+.cadastro-botoes .btn {
+    flex: 1;
+}
+
+@media (max-width: 480px) {
+    .cadastro-botoes {
+        flex-direction: column-reverse;
+    }
 }
 
 /* =========================
