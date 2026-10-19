@@ -20,7 +20,7 @@ Já foram desenvolvidas interfaces iniciais para:
 - histórico de solicitações;
 - recursos iniciais de acessibilidade.
 
-Algumas funcionalidades utilizam dados simulados para permitir a validação da interface e dos fluxos enquanto o back-end e o banco de dados ainda não estão implementados.
+Login, cadastro, perfil e os painéis da AACD/fabricante já chamam uma API real (contrato documentado em `docs/backend.md`/`docs/database.md`), mas o back-end em si ainda não foi implementado — por isso essas telas dependem de um servidor rodando para funcionar.
 
 ## Tecnologias
 
@@ -40,6 +40,8 @@ A documentação técnica do projeto está disponível no diretório [`docs/`](.
 
 - [`frontend.md`](./docs/frontend.md) — estrutura, páginas, componentes, funcionalidades e estado atual do front-end.
 - [`design-system.md`](./docs/design-system.md) — Design System (Figma) aplicado ao projeto, painel do fabricante, filtros avançados e demais mudanças.
+- [`backend.md`](./docs/backend.md) — contrato de referência da API (FastAPI + MongoDB Atlas): endpoints, instalação e limitações.
+- [`database.md`](./docs/database.md) — modelo de dados (coleções do MongoDB).
 
 Novos documentos serão adicionados conforme outras partes da aplicação forem desenvolvidas.
 

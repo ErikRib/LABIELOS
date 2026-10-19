@@ -333,9 +333,9 @@ js/
 
 docs/
 ├── design-system.md   — este arquivo
-└── backend.md, database.md — contrato de referência da API (FastAPI,
-                                descartado como implementação, mantido
-                                como ponto de partida para o Flask real)
+└── backend.md, database.md — contrato de referência da API (FastAPI +
+                                MongoDB Atlas, confirmado como a stack
+                                real do back-end — ver seção 11)
 
 README_API.md (raiz do projeto) — resumo da versão com API
 ```
@@ -344,21 +344,24 @@ README_API.md (raiz do projeto) — resumo da versão com API
 
 ## 8. Login, cadastro e perfil "de verdade" (conectados a uma API)
 
-Diferente de todo o resto do site (que é 100% simulado no navegador, sem
-back-end), as telas **Login** (`html/login.html`), **Cadastro**
-(`html/cadastro.html`) e **Meu perfil** (`html/perfil.html`) foram
-conectadas a uma API real, via `js/api.js` (um wrapper fino de `fetch`,
-com `credentials: 'same-origin'` e sessão por cookie).
+As telas **Login** (`html/login.html`), **Cadastro** (`html/cadastro.html`)
+e **Meu perfil** (`html/perfil.html`) foram as primeiras a deixar de usar
+dados simulados: foram conectadas a uma API real, via `js/api.js` (um
+wrapper fino de `fetch`, com `credentials: 'same-origin'` e sessão por
+cookie). Os painéis da AACD e do fabricante seguiram o mesmo caminho logo
+depois (ver seção 10) — hoje nenhuma das áreas autenticadas usa mais dados
+fixos no código.
 
 Essa integração foi desenhada em conjunto com o ChatGPT, lado a lado com
 um back-end de referência em FastAPI + MongoDB Atlas (documentado em
-`docs/backend.md`/`docs/database.md`). **Essa parte do back-end foi
-descartada** — o colega responsável pelo back vai usar Flask + MongoDB —
-mas o contrato de endpoints descrito nesses dois arquivos ainda serve como
-referência do que o front-end espera (rotas, formato de entrada/saída em
-JSON). Vale revisar esses dois arquivos com calma antes do colega começar,
-já que os nomes de rota/campos podem precisar de ajuste para bater com o
-que ele decidir implementar em Flask.
+`docs/backend.md`/`docs/database.md`). **A implementação de back-end que o
+ChatGPT escreveu foi descartada** — só o front-end (HTML/CSS/JS) foi
+aproveitado — mas o contrato de endpoints descrito nesses dois arquivos
+ainda serve como referência do que o front-end espera (rotas, formato de
+entrada/saída em JSON), e a stack real do back-end (FastAPI + MongoDB
+Atlas) já foi confirmada — ver seção 11. Vale revisar esses dois arquivos
+com calma antes de começar a implementação real, já que os nomes de
+rota/campo podem precisar de ajuste fino.
 
 **Importante:** diferente das telas de prototipagem (AACD/fabricante),
 estas três páginas **não funcionam sem um back-end no ar** — ao abrir

@@ -4,4 +4,4 @@ Esta versão conecta **cadastro, login e perfil** à API FastAPI + MongoDB Atlas
 
 **Comece em [`docs/backend.md`](docs/backend.md)** para instalação, configuração, endpoints e limitações. Consulte [`docs/database.md`](docs/database.md) para o modelo de dados.
 
-**Atenção:** os painéis de solicitantes e fabricantes continuam demonstrativos. Esta versão não está pronta para produção ou dados reais de saúde.
+**Atualização:** os painéis da AACD e do fabricante também deixaram de usar dados fixos no código — ver [`docs/design-system.md`](docs/design-system.md), seção 10. Esta versão não está pronta para produção ou dados reais de saúde.

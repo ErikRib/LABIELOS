@@ -59,7 +59,13 @@ LABIELOS/
 ├── js/
 │   ├── acessibilidade.js
 │   ├── interface.js
-│   └── prototipo.js
+│   ├── api.js
+│   ├── login.js
+│   ├── cadastro.js
+│   ├── perfil.js
+│   ├── prototipo.js
+│   ├── fabricator.js
+│   └── filtros.js
 ├── index.html
 └── README.md
 ```
@@ -149,10 +155,13 @@ com o projeto.
 A pasta `html/client/` contém a área atualmente desenvolvida para
 representar a utilização da plataforma pela AACD.
 
-As informações exibidas nessa área ainda utilizam dados simulados no
-arquivo `js/prototipo.js`. Portanto, seu comportamento atual serve para
-demonstrar e validar a interface e os fluxos previstos, não
-representando ainda uma integração com banco de dados ou back-end.
+As informações exibidas nessa área são buscadas em uma API real por meio
+do arquivo `js/prototipo.js` (ver seção 7 e
+[`design-system.md`](./design-system.md), seção 10). O back-end que
+atende a essa API ainda não foi implementado, então essas páginas só
+funcionam com um servidor respondendo ao contrato documentado em
+[`backend.md`](./backend.md) — a exceção é a página "Histórico", que
+ainda mostra uma amostra estática (ver seção 10 deste documento).
 
 ### 5.1 Dashboard
 
@@ -213,7 +222,7 @@ A interface contempla:
 A página `html/client/parceiros.html` representa a consulta aos
 parceiros de manufatura cadastrados na plataforma.
 
-No protótipo atual são exibidos dados simulados, como:
+São exibidos dados vindos da API (`GET /api/parceiros`), como:
 
 -   nome da instituição;
 -   localização;
@@ -270,26 +279,50 @@ Atualmente implementa:
 Implementa comportamentos gerais da interface pública, como o botão para
 retorno ao topo da página.
 
+### `api.js`
+
+Wrapper fino de `fetch` (`credentials: 'same-origin'`, JSON por padrão,
+`FormData` quando o corpo exige multipart) usado por todos os outros
+scripts para chamar a API — é o único ponto do front-end que sabe como
+montar uma requisição HTTP.
+
+### `login.js`, `cadastro.js`, `perfil.js`
+
+Implementam as telas de autenticação e perfil conectadas à API real
+(`POST /api/auth/login`, `POST /api/auth/register`, `GET`/`PATCH
+/api/me`, troca de e-mail e senha etc. — ver
+[`backend.md`](./backend.md)). Essas três páginas não funcionam sem um
+back-end no ar: sem sessão válida, `perfil.html` redireciona para
+`login.html`.
+
 ### `prototipo.js`
 
-Este arquivo é utilizado para simular o funcionamento da área
-autenticada durante o desenvolvimento do front-end.
+Apesar do nome (mantido por não valer a pena renomear o arquivo neste
+estágio), este script **não simula mais dados localmente** — ele busca o
+usuário autenticado, as solicitações e os parceiros na API real (`GET
+/api/me`, `/api/solicitacoes`, `/api/parceiros`) e envia as alterações
+(nova solicitação, edição, mudança de status, registro de linha do tempo)
+de volta via `POST`/`PATCH`, usando `js/api.js`. Também implementa a
+renderização das tabelas, filtros, modais, detalhes das solicitações e o
+menu de perfil da área da AACD.
 
-Ele contém dados temporários de:
+A única exceção é a página "Histórico": ela ainda mostra uma amostra
+estática, porque o contrato da API não tem (ainda) um endpoint agregado
+por organização — ver [`design-system.md`](./design-system.md), seção 10.
 
--   usuário autenticado;
--   solicitações;
--   parceiros;
--   histórico das solicitações.
+### `fabricator.js`
 
-Também implementa comportamentos do protótipo, como renderização das
-tabelas, filtros, modais, detalhes das solicitações, menu de perfil e
-interações entre as páginas.
+Equivalente a `prototipo.js` para a área autenticada do fabricante
+(`html/fabricator/`): lista as demandas atribuídas ao parceiro logado
+(a filtragem é feita pelo back-end, não no cliente), e as ações
+Aceitar/Recusar/Iniciar produção/Concluir fazem um `PATCH
+/api/solicitacoes/{protocolo}` real.
 
-**Importante:** o conteúdo desse arquivo não deve ser interpretado como
-a implementação definitiva da lógica da aplicação. O JavaScript da
-aplicação será reestruturado posteriormente conforme forem desenvolvidos
-o back-end, o banco de dados e as regras definitivas do sistema.
+### `filtros.js`
+
+Motor de filtros avançados por coluna (texto e data, com modos como
+"contém", "igual", "entre"), reutilizado pelas tabelas de solicitações e
+de demandas.
 
 ------------------------------------------------------------------------
 
@@ -315,13 +348,18 @@ desenvolvimento e os testes da aplicação.
 
 O front-end encontra-se **em desenvolvimento**.
 
-Já existe uma base visual significativa para a área pública e para a
-experiência da AACD, permitindo demonstrar o funcionamento esperado da
-plataforma e validar os principais fluxos de interface.
+Já existe uma base visual significativa para a área pública e para as
+experiências da AACD e do fabricante, permitindo demonstrar o
+funcionamento esperado da plataforma e validar os principais fluxos de
+interface.
 
-Entretanto, algumas funcionalidades ainda são apenas representações de
-protótipo. Não existe, nesta etapa, integração definitiva entre a
-interface, autenticação, back-end e banco de dados.
+A interface já está conectada a um contrato de API real (login, cadastro,
+perfil e os dois painéis autenticados — ver
+[`design-system.md`](./design-system.md), seções 8 e 10), mas o back-end
+e o banco de dados em si ainda não foram implementados. Enquanto isso não
+acontece, essas telas só funcionam com um servidor respondendo a esse
+contrato (um mock local, por exemplo) — não dá mais para abri-las
+"soltas" sem back-end, como era possível na etapa anterior do projeto.
 
 ------------------------------------------------------------------------
 
@@ -346,28 +384,21 @@ para apresentar à AACD o **ponto de retirada da prótese em um mapa**. A
 implementação técnica desse recurso ainda será definida durante o
 desenvolvimento.
 
-### Cadastro de usuários
+### Endpoint agregado de histórico
 
-Será desenvolvida uma tela de cadastro, complementando a página de login
-já existente.
+A página "Histórico" da AACD (`html/client/historico.html`) ainda mostra
+uma amostra estática porque falta definir, no contrato da API, um
+endpoint que agregue os eventos de todas as solicitações de uma
+organização (hoje só existe o histórico de uma solicitação específica —
+ver [`backend.md`](./backend.md)).
 
-Os campos e regras definitivas dependerão da definição dos tipos de
-usuários e da estrutura de autenticação da aplicação.
+### Integração com o back-end real
 
-### JavaScript definitivo
-
-O arquivo `prototipo.js` atualmente utilizado será substituído ou
-reestruturado.
-
-A lógica definitiva deverá ser desenvolvida de acordo com a arquitetura
-futura do sistema, removendo a dependência de dados simulados e
-integrando a interface às informações reais fornecidas pela aplicação.
-
-### Integrações futuras
-
-Com a evolução do projeto, o front-end deverá ser integrado ao back-end
-e ao banco de dados. Essas integrações serão documentadas separadamente
-quando suas tecnologias, estruturas e regras estiverem definidas.
+`js/prototipo.js` e `js/fabricator.js` já chamam a API descrita em
+[`backend.md`](./backend.md)/[`database.md`](./database.md), mas só
+foram testados contra um mock local — a próxima etapa é validá-los contra
+a implementação real do back-end (FastAPI + MongoDB Atlas) assim que ela
+existir.
 
 ------------------------------------------------------------------------
 
