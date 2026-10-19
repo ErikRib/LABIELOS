@@ -3,7 +3,7 @@
   Estrutura equivalente a html/client/detalhes-solicitacao.html (mesmo
   fluxo de status e linha do tempo, vindos de js/prototipo.js), mas com
   os botões de ação específicos do fabricante (Aceitar/Recusar/Iniciar
-  produção/Concluir) renderizados em #acoesDemanda por js/fabricante.js.
+  produção/Concluir) renderizados em #acoesDemanda por js/fabricator.js.
 -->
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -30,18 +30,19 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
+  <script src="/js/api.js" defer></script>
   <script src="/js/prototipo.js" defer></script>
-  <script src="/js/fabricante.js" defer></script>
+  <script src="/js/fabricator.js" defer></script>
 </head>
 
-<body data-pagina="fabricante-demandas">
+<body data-pagina="fabricator-demandas">
   <header class="painel-header">
     <nav class="nav-principal painel-nav" aria-label="Navegação principal">
-      <a href="/html/fabricante/index.html" class="nav-logo"><img src="/content/img/logo-simples.png"
+      <a href="/html/fabricator/index.html" class="nav-logo"><img src="/content/img/logo-simples.png"
           alt="Logo do LABIELOS"></a>
       <ul class="nav-links">
-        <li><a data-pagina="fabricante-inicio" href="/html/fabricante/index.html">Visão geral</a></li>
-        <li><a data-pagina="fabricante-demandas" href="/html/fabricante/demandas.html">Demandas</a></li>
+        <li><a data-pagina="fabricator-inicio" href="/html/fabricator/index.html">Visão geral</a></li>
+        <li><a data-pagina="fabricator-demandas" href="/html/fabricator/demandas.html">Demandas</a></li>
       </ul>
       <div class="nav-acoes">
         <div class="nav-perfil-wrap">
@@ -65,7 +66,7 @@
 
       <div class="detalhe-cabecalho-info">
         <div class="detalhe-navegacao">
-          <a class="voltar-link" href="/html/fabricante/demandas.html">
+          <a class="voltar-link" href="/html/fabricator/demandas.html">
             ← Voltar para demandas
           </a>
           <span class="detalhe-protocolo" data-detalhe="protocolo">

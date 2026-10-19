@@ -1,78 +1,25 @@
 /*
-   Protótipo da área autenticada da AACD (painel do solicitante).
-   Este arquivo concentra DADOS SIMULADOS (não há back-end nem banco de
-   dados ainda) e a lógica de renderização/interação das telas:
-   dashboard, solicitações, parceiros, histórico e detalhes de uma
-   solicitação. O conteúdo de "solicitacoes", "parceiros" e
-   "historicoSolicitacoes" é fictício e serve apenas para demonstrar a
-   interface e os fluxos previstos (ver docs/frontend.md).
+   Área autenticada da AACD (painel do solicitante).
+   Diferente da versão anterior deste arquivo, os dados aqui vêm de uma
+   API real (ver js/api.js e docs/backend.md — seção "Solicitações,
+   demandas, parceiros e histórico"), não de arrays fixos no código.
 
-   js/fabricante.js reaproveita os dados e funções definidos aqui
-   (solicitacoes, historicoSolicitacoes, parceiros, badgeClass,
-   textoAtribuidos) para a área do fabricante/parceiro de manufatura.
+   js/fabricator.js reaproveita as funções definidas aqui (badgeClass,
+   textoAtribuidos, carregarSolicitacoes, etc.) para a área do fabricante/
+   parceiro de manufatura.
+
+   Como toda página autenticada depende de uma sessão válida, qualquer
+   chamada à API que volte 401 redireciona para o login — ver
+   `carregarUsuarioAtual()` e `exigirSessao()`.
 */
 
-// Usuário fictício autenticado como organização solicitante (AACD).
-const usuarioLogado = { nome: 'Lucas Romano', organizacao: 'AACD' };
-
-// Base de solicitações simuladas, usada no dashboard, na listagem,
-// nos detalhes de uma solicitação e também no painel do fabricante.
-const solicitacoes = [
-  {
-    protocolo: '#0001',
-    solicitacao: 'Colete ortopédico',
-    requerente: 'AACD',
-    atribuido: ['Instituto Mauá de Tecnologia'],
-    prioridade: 'Alta',
-    status: 'Em produção',
-    categoria: 'Órtese',
-    abertura: '08/09/2026 10:32',
-    prazo: '18/09/2026',
-    material: 'PLA / TPU',
-    descricao: 'Produção de colete ortopédico personalizado conforme requisitos e arquivo 3D anexado. O modelo está em produção pelo parceiro atribuído.',
-    arquivo3d: { nome: 'colete-ortopedico-v3.stl', tamanho: '4,2 MB', formato: 'STL' },
-    ultimaAtualizacao: '09/09/2026 16:40'
-  },
-  {
-    protocolo: '#0002',
-    solicitacao: 'Órtese craniana',
-    requerente: 'AACD',
-    atribuido: ['Instituto Mauá de Tecnologia'],
-    prioridade: 'Média',
-    status: 'Em análise',
-    categoria: 'Órtese',
-    abertura: '09/09/2026 09:15',
-    prazo: '22/09/2026',
-    material: 'A definir',
-    descricao: 'Solicitação para produção de órtese craniana personalizada. O arquivo 3D foi anexado e está em análise técnica pelo parceiro atribuído.',
-    arquivo3d: { nome: 'ortese-craniana.3mf', tamanho: '3,7 MB', formato: '3MF' },
-    ultimaAtualizacao: '10/09/2026 08:10'
-  },
-  {
-    protocolo: '#0003',
-    solicitacao: 'Prótese de mão transradial',
-    requerente: 'AACD',
-    atribuido: ['Instituto Mauá de Tecnologia'],
-    prioridade: 'Alta',
-    status: 'Aguardando aceite',
-    categoria: 'Prótese',
-    abertura: '12/09/2026 09:00',
-    prazo: '25/09/2026',
-    material: 'PETG',
-    descricao: 'Solicitação de prótese de mão transradial personalizada. Arquivo 3D anexado, aguardando aceite do parceiro de manufatura atribuído.',
-    arquivo3d: { nome: 'protese-mao-transradial.stl', tamanho: '5,1 MB', formato: 'STL' },
-    ultimaAtualizacao: '12/09/2026 09:00'
-  }
-];
-
-// Parceiros de manufatura credenciados (dados simulados), usados na
-// página "Parceiros" da AACD e no card de capacidade do fabricante.
-const parceiros = [
-  { nome: 'Instituto Mauá de Tecnologia', cidade: 'São Caetano do Sul - SP', status: 'Disponível', impressoras: 12, tecnologias: 'FDM, SLA', materiais: 'PLA, PETG, ABS, TPU', emProducao: 2 },
-  { nome: 'Centro Universitário FEI', cidade: 'São Bernardo do Campo - SP', status: 'Disponível', impressoras: 8, tecnologias: 'FDM, SLA', materiais: 'PLA, PETG, TPU', emProducao: 1 },
-  { nome: 'Universidade Presbiteriana Mackenzie', cidade: 'São Paulo - SP', status: 'Capacidade limitada', impressoras: 6, tecnologias: 'FDM', materiais: 'PLA, ABS', emProducao: 3 },
-  { nome: 'Laboratório Parceiro Demo', cidade: 'São Paulo - SP', status: 'Indisponível', impressoras: 4, tecnologias: 'FDM', materiais: 'PLA, PETG', emProducao: 0 }
-];
+// Estado em memória desta página: preenchido por carregarDadosIniciais()
+// e atualizado conforme o usuário cria/edita solicitações ou troca o
+// status de uma demanda. Os demais arquivos (fabricator.js) leem essas
+// mesmas variáveis.
+let usuarioLogado = null;
+let solicitacoes = [];
+let parceiros = [];
 
 // Junta a lista de instituições atribuídas em um texto legível.
 function textoAtribuidos(valor) {
@@ -83,16 +30,88 @@ function textoAtribuidos(valor) {
 // badge correspondente (ex.: "em-analise"), removendo acentos.
 function badgeClass(valor) {
   return String(valor).toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
     .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 }
+
+// Formata um tamanho em bytes como "123 KB" ou "4,2 MB".
+function formatarTamanhoArquivo(bytes) {
+  if (!bytes) return 'Tamanho não informado';
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1).replace('.', ',')} MB`;
+}
+
+// Extrai nome/tamanho/formato de um File escolhido em um input[type=file].
+function metadadosArquivo(file) {
+  if (!file || !file.name) return null;
+  const ext = file.name.split('.').pop()?.toUpperCase() || '3D';
+  return { nome: file.name, tamanho: formatarTamanhoArquivo(file.size), formato: ext };
+}
+
+
+/* =========================
+   CARREGAMENTO DE DADOS (API)
+========================= */
+
+// Busca o usuário autenticado. Se não houver sessão válida, manda para
+// o login — nenhuma página deste painel faz sentido sem estar logado.
+async function carregarUsuarioAtual() {
+  try {
+    const { user } = await api('/api/me');
+    usuarioLogado = { nome: `${user.nome} ${user.sobrenome}`.trim(), organizacao: user.organizacao || '' };
+    atualizarIdentidadeNav(usuarioLogado);
+  } catch {
+    location.href = '/html/login.html';
+    throw new Error('Sessão inválida, redirecionando para o login.');
+  }
+}
+
+// Reflete nome/organização do usuário logado no cabeçalho (botão de
+// perfil e menu), nos lugares em que essa informação aparece estática
+// no HTML.
+function atualizarIdentidadeNav(usuario) {
+  document.querySelectorAll('.nav-identidade, .perfil-menu-identidade').forEach(bloco => {
+    const nome = bloco.querySelector('strong');
+    const org = bloco.querySelector('small, span');
+    if (nome) nome.textContent = usuario.nome;
+    if (org) org.textContent = usuario.organizacao;
+  });
+  document.querySelectorAll('.perfil-name').forEach(el => { el.textContent = usuario.nome; });
+}
+
+// Busca a lista de solicitações visíveis para a organização autenticada
+// (a própria API decide o que cada organização pode ver).
+async function carregarSolicitacoes() {
+  solicitacoes = await api('/api/solicitacoes');
+}
+
+// Busca os parceiros de manufatura credenciados.
+async function carregarParceiros() {
+  parceiros = await api('/api/parceiros');
+}
+
+// Busca uma única solicitação pelo protocolo (usado na página de
+// detalhes, que não depende da lista completa já estar carregada).
+async function buscarSolicitacao(protocolo) {
+  return api(`/api/solicitacoes/${encodeURIComponent(protocolo)}`);
+}
+
+// Busca a linha do tempo de uma solicitação.
+async function buscarHistorico(protocolo) {
+  return api(`/api/solicitacoes/${encodeURIComponent(protocolo)}/historico`);
+}
+
+
+/* =========================
+   FILTROS DA TABELA DE SOLICITAÇÕES
+========================= */
 
 // Colunas filtráveis da tabela de Solicitações (ver js/filtros.js).
 const COLUNAS_SOLICITACOES = [
   { chave: 'protocolo', tipo: 'texto', label: 'Protocolo' },
-  { chave: 'solicitacao', tipo: 'texto', label: 'Solicita\u00e7\u00e3o' },
+  { chave: 'solicitacao', tipo: 'texto', label: 'Solicitação' },
   { chave: 'requerente', tipo: 'texto', label: 'Requerente' },
-  { chave: 'atribuido', tipo: 'texto', label: 'Atribu\u00eddo' },
+  { chave: 'atribuido', tipo: 'texto', label: 'Atribuído' },
   { chave: 'prioridade', tipo: 'texto', label: 'Prioridade' },
   { chave: 'status', tipo: 'texto', label: 'Status' }
 ];
@@ -110,6 +129,11 @@ function renderFiltrosSolicitacoes() {
   linha.innerHTML = COLUNAS_SOLICITACOES.map(c => `<th>${criarCelulaFiltro(c)}</th>`).join('');
   ativarFiltrosAvancados(COLUNAS_SOLICITACOES, renderTabelaSolicitacoes);
 }
+
+
+/* =========================
+   DASHBOARD E LISTAGEM
+========================= */
 
 // Atualiza os cartões numéricos do dashboard (abertas/análise/produção/concluídas).
 function preencherResumo() {
@@ -181,38 +205,29 @@ function ativarLinhasClicaveis(container) {
   });
 }
 
-// Linha do tempo (eventos) de cada solicitação, por protocolo.
-// Alimenta a página de detalhes e cresce conforme o usuário edita a
-// solicitação ou adiciona um novo registro/comentário ao histórico.
-const historicoSolicitacoes = {
-  '#0001': [
-    { data: '08/09/2026 10:32', tipo: 'Criação', autor: 'Lucas Romano (AACD)', titulo: 'Solicitação criada', descricao: 'Solicitação de colete ortopédico registrada com arquivo 3D anexado.' },
-    { data: '08/09/2026 11:05', tipo: 'Atribuição', autor: 'Equipe AACD', titulo: 'Parceiro atribuído', descricao: 'Instituto Mauá de Tecnologia selecionado para avaliar a produção.' },
-    { data: '08/09/2026 16:20', tipo: 'Status', autor: 'Instituto Mauá de Tecnologia', titulo: 'Status alterado para Em análise', descricao: 'Arquivo 3D e requisitos recebidos para validação técnica.' },
-    { data: '09/09/2026 09:10', tipo: 'Comentário', autor: 'Instituto Mauá de Tecnologia', titulo: 'Validação técnica concluída', descricao: 'Requisitos validados e produção liberada.' },
-    { data: '09/09/2026 16:40', tipo: 'Status', autor: 'Instituto Mauá de Tecnologia', titulo: 'Status alterado para Em produção', descricao: 'Produção do colete ortopédico iniciada.' }
-  ],
-  '#0002': [
-    { data: '09/09/2026 09:15', tipo: 'Criação', autor: 'Lucas Romano (AACD)', titulo: 'Solicitação criada', descricao: 'Solicitação de órtese craniana registrada com arquivo 3D anexado.' },
-    { data: '09/09/2026 10:00', tipo: 'Atribuição', autor: 'Equipe AACD', titulo: 'Parceiro atribuído', descricao: 'Instituto Mauá de Tecnologia selecionado para análise da solicitação.' },
-    { data: '10/09/2026 08:10', tipo: 'Status', autor: 'Instituto Mauá de Tecnologia', titulo: 'Status alterado para Em análise', descricao: 'Arquivo 3D e requisitos da órtese craniana estão em validação técnica.' }
-  ],
-  '#0003': [
-    { data: '12/09/2026 09:00', tipo: 'Criação', autor: 'Lucas Romano (AACD)', titulo: 'Solicitação criada', descricao: 'Solicitação de prótese de mão transradial registrada com arquivo 3D anexado.' },
-    { data: '12/09/2026 09:05', tipo: 'Atribuição', autor: 'Equipe AACD', titulo: 'Parceiro atribuído', descricao: 'Instituto Mauá de Tecnologia selecionado; demanda aguardando aceite do parceiro.' }
-  ]
-};
+
+/* =========================
+   PÁGINA DE DETALHES
+========================= */
 
 // Preenche toda a página de detalhes (AACD ou fabricante) a partir do
 // protocolo na URL: dados gerais, fluxo de status, linha do tempo e
 // anexo. Reaproveitada pelas duas áreas do site.
-function renderDetalheSolicitacao() {
+async function renderDetalheSolicitacao() {
   const pagina = document.querySelector('#paginaDetalheSolicitacao');
   if (!pagina) return;
 
   const params = new URLSearchParams(window.location.search);
-  const protocolo = params.get('protocolo') || '#0001';
-  const s = solicitacoes.find(item => item.protocolo === protocolo) || solicitacoes[0];
+  const protocolo = params.get('protocolo');
+  if (!protocolo) return;
+
+  let s, eventos;
+  try {
+    [s, eventos] = await Promise.all([buscarSolicitacao(protocolo), buscarHistorico(protocolo)]);
+  } catch (erro) {
+    pagina.innerHTML = `<p class="estado-vazio">Não foi possível carregar esta solicitação: ${erro.message}</p>`;
+    return;
+  }
 
   document.title = `${s.protocolo} - ${s.solicitacao} | LABIELOS`;
   document.querySelectorAll('[data-detalhe]').forEach(el => {
@@ -238,8 +253,7 @@ function renderDetalheSolicitacao() {
 
   const lista = document.querySelector('#timelineSolicitacao');
   if (lista) {
-    const eventos = historicoSolicitacoes[s.protocolo] || [];
-    lista.innerHTML = eventos.slice().reverse().map(evento => `
+    lista.innerHTML = (eventos || []).slice().reverse().map(evento => `
       <article class="timeline-item">
         <div class="timeline-marcador"></div>
         <div class="timeline-conteudo">
@@ -267,60 +281,6 @@ function renderDetalheSolicitacao() {
   prepararRegistroTimeline();
 }
 
-// Identifica quem está "logado" nesta página (AACD ou fabricante) para
-// assinar um novo registro na linha do tempo.
-function autorAtual() {
-  if (typeof usuarioFabricante !== 'undefined') return `${usuarioFabricante.nome} (${usuarioFabricante.organizacao})`;
-  return `${usuarioLogado.nome} (${usuarioLogado.organizacao})`;
-}
-
-// Liga o formulário "Adicionar registro" da página de detalhes: ao
-// enviar, cria um novo item na linha do tempo (comentário ou anexo),
-// no estilo de um sistema de chamados (ex.: GLPI).
-function prepararRegistroTimeline() {
-  const form = document.querySelector('#formRegistroTimeline');
-  if (!form || form.dataset.configurado) return;
-  form.dataset.configurado = 'true';
-
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-    const params = new URLSearchParams(window.location.search);
-    const protocolo = params.get('protocolo') || (solicitacoes[0] && solicitacoes[0].protocolo);
-    const dados = new FormData(form);
-    const tipo = dados.get('tipo');
-    const mensagem = dados.get('mensagem')?.trim();
-    const arquivo = form.elements.arquivo?.files[0];
-    if (!mensagem && !arquivo) return;
-    if (!historicoSolicitacoes[protocolo]) historicoSolicitacoes[protocolo] = [];
-
-    historicoSolicitacoes[protocolo].push({
-      data: new Date().toLocaleString('pt-BR'),
-      tipo,
-      autor: autorAtual(),
-      titulo: tipo === 'Anexo' ? `Anexo adicionado${arquivo ? ': ' + arquivo.name : ''}` : 'Novo comentário',
-      descricao: mensagem || (arquivo ? `Arquivo anexado: ${arquivo.name}` : '')
-    });
-
-    form.reset();
-    renderDetalheSolicitacao();
-  });
-}
-
-
-// Formata um tamanho em bytes como "123 KB" ou "4,2 MB".
-function formatarTamanhoArquivo(bytes) {
-  if (!bytes) return 'Tamanho não informado';
-  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1).replace('.', ',')} MB`;
-}
-
-// Extrai nome/tamanho/formato de um File escolhido em um input[type=file].
-function metadadosArquivo(file) {
-  if (!file || !file.name) return null;
-  const ext = file.name.split('.').pop()?.toUpperCase() || '3D';
-  return { nome: file.name, tamanho: formatarTamanhoArquivo(file.size), formato: ext };
-}
-
 // Abre o modal de pré-visualização 3D (wireframe ilustrativo) do arquivo anexado.
 function abrirVisualizadorArquivo(arquivo) {
   const modal = document.querySelector('#modalVisualizarArquivo');
@@ -329,6 +289,37 @@ function abrirVisualizadorArquivo(arquivo) {
   modal.querySelector('[data-viewer="nome-info"]').textContent = arquivo.nome;
   modal.querySelector('[data-viewer="meta"]').textContent = `${arquivo.formato} · ${arquivo.tamanho}`;
   modal.showModal();
+}
+
+// Liga o formulário "Adicionar registro" da página de detalhes: ao
+// enviar, cria um novo item na linha do tempo (comentário ou anexo) via
+// API, no estilo de um sistema de chamados (ex.: GLPI).
+function prepararRegistroTimeline() {
+  const form = document.querySelector('#formRegistroTimeline');
+  if (!form || form.dataset.configurado) return;
+  form.dataset.configurado = 'true';
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const params = new URLSearchParams(window.location.search);
+    const protocolo = params.get('protocolo');
+    const dados = new FormData(form);
+    const tipo = dados.get('tipo');
+    const mensagem = dados.get('mensagem')?.trim();
+    const arquivo = form.elements.arquivo?.files[0];
+    if (!mensagem && !arquivo) return;
+
+    try {
+      const corpo = arquivo
+        ? (() => { const fd = new FormData(); fd.append('tipo', tipo); fd.append('mensagem', mensagem || ''); fd.append('arquivo', arquivo); return fd; })()
+        : JSON.stringify({ tipo, mensagem });
+      await api(`/api/solicitacoes/${encodeURIComponent(protocolo)}/historico`, { method: 'POST', body: corpo });
+      form.reset();
+      await renderDetalheSolicitacao();
+    } catch (erro) {
+      alert(erro.message);
+    }
+  });
 }
 
 // Garante que pelo menos um parceiro foi marcado em "Atribuídos".
@@ -344,8 +335,8 @@ function validarAtribuidos(form, erroId) {
 }
 
 // Liga o modal "Editar solicitação" (só existe na área da AACD): abre
-// preenchido com os dados atuais e, ao salvar, atualiza a solicitação
-// e registra o evento de edição na linha do tempo.
+// preenchido com os dados atuais e, ao salvar, envia as mudanças para a
+// API (PATCH) e recarrega a página de detalhes.
 function prepararEdicaoSolicitacao(s) {
   const modal = document.querySelector('#modalEditarSolicitacao');
   const form = document.querySelector('#formEditarSolicitacao');
@@ -371,37 +362,50 @@ function prepararEdicaoSolicitacao(s) {
 
   if (!form.dataset.configurado) {
     form.dataset.configurado = 'true';
-    form.addEventListener('submit', e => {
+    form.addEventListener('submit', async e => {
       e.preventDefault();
       const atribuidos = validarAtribuidos(form, 'erroAtribuidosEdicao');
       if (!atribuidos) return;
       const dados = new FormData(form);
-      const statusAnterior = s.status;
       const arquivo = form.elements.arquivo3d.files[0];
-      s.solicitacao = dados.get('solicitacao');
-      s.requerente = dados.get('requerente');
-      s.atribuido = atribuidos;
-      s.prioridade = dados.get('prioridade');
-      s.status = dados.get('status');
-      s.categoria = dados.get('categoria');
-      s.prazo = dados.get('prazo') ? dados.get('prazo').split('-').reverse().join('/') : 'A definir';
-      s.material = dados.get('material') || 'A definir';
-      s.descricao = dados.get('descricao');
-      if (arquivo) s.arquivo3d = metadadosArquivo(arquivo);
-      s.ultimaAtualizacao = new Date().toLocaleString('pt-BR');
-      if (!historicoSolicitacoes[s.protocolo]) historicoSolicitacoes[s.protocolo] = [];
-      historicoSolicitacoes[s.protocolo].push({
-        data: s.ultimaAtualizacao,
-        tipo: 'Edição',
-        autor: `${usuarioLogado.nome} (${usuarioLogado.organizacao})`,
-        titulo: statusAnterior !== s.status ? `Solicitação editada · ${statusAnterior} → ${s.status}` : 'Informações da solicitação atualizadas',
-        descricao: arquivo ? `Dados atualizados e arquivo 3D substituído por ${arquivo.name}.` : 'Dados cadastrais da solicitação atualizados.'
-      });
-      modal.close();
-      renderDetalheSolicitacao();
+
+      const campos = {
+        solicitacao: dados.get('solicitacao'),
+        requerente: dados.get('requerente'),
+        atribuido: atribuidos,
+        prioridade: dados.get('prioridade'),
+        status: dados.get('status'),
+        categoria: dados.get('categoria'),
+        prazo: dados.get('prazo') ? dados.get('prazo').split('-').reverse().join('/') : 'A definir',
+        material: dados.get('material') || 'A definir',
+        descricao: dados.get('descricao')
+      };
+
+      try {
+        let corpo;
+        if (arquivo) {
+          corpo = new FormData();
+          Object.entries(campos).forEach(([chave, valor]) => {
+            corpo.append(chave, Array.isArray(valor) ? JSON.stringify(valor) : valor);
+          });
+          corpo.append('arquivo3d', arquivo);
+        } else {
+          corpo = JSON.stringify(campos);
+        }
+        await api(`/api/solicitacoes/${encodeURIComponent(s.protocolo)}`, { method: 'PATCH', body: corpo });
+        modal.close();
+        await renderDetalheSolicitacao();
+      } catch (erro) {
+        alert(erro.message);
+      }
     });
   }
 }
+
+
+/* =========================
+   MODAIS GENÉRICOS E NOVA SOLICITAÇÃO
+========================= */
 
 // Comportamento genérico de todos os <dialog class="modal">: fechar
 // pelo "×", pelo clique fora, e abrir/enviar o modal "Nova solicitação".
@@ -435,41 +439,56 @@ function prepararModais() {
       area.textContent = `${arquivo.name} · ${formatarTamanhoArquivo(arquivo.size)}`;
     });
 
-    form.addEventListener('submit', e => {
+    form.addEventListener('submit', async e => {
       e.preventDefault();
       const atribuidos = validarAtribuidos(form, 'erroAtribuidos');
       if (!atribuidos) return;
       const dados = new FormData(form);
-      const numero = String(Math.max(...solicitacoes.map(s => Number(s.protocolo.replace('#','')))) + 1).padStart(4,'0');
-      const agora = new Date().toLocaleString('pt-BR');
       const arquivo = form.elements.arquivo3d.files[0];
-      const nova = {
-        protocolo: `#${numero}`,
+
+      const campos = {
         solicitacao: dados.get('solicitacao'),
-        requerente: usuarioLogado.organizacao,
         atribuido: atribuidos,
         prioridade: dados.get('prioridade'),
-        status: 'Aberta',
         categoria: dados.get('categoria'),
-        abertura: agora,
         prazo: dados.get('prazo') ? dados.get('prazo').split('-').reverse().join('/') : 'A definir',
         material: dados.get('material') || 'A definir',
-        descricao: dados.get('descricao'),
-        arquivo3d: metadadosArquivo(arquivo),
-        ultimaAtualizacao: agora
+        descricao: dados.get('descricao')
       };
-      solicitacoes.unshift(nova);
-      historicoSolicitacoes[nova.protocolo] = [{ data: agora, tipo: 'Criação', autor: `${usuarioLogado.nome} (${usuarioLogado.organizacao})`, titulo: 'Solicitação criada', descricao: arquivo ? `Solicitação registrada com o arquivo 3D ${arquivo.name}.` : 'Solicitação registrada no sistema.' }];
-      form.reset();
-      form.querySelector('[data-arquivo-selecionado]')?.setAttribute('hidden','');
-      document.querySelector('#modalNovaSolicitacao')?.close();
-      preencherResumo();
-      renderTabelaSolicitacoes();
-      renderTabelaInicio();
-      alert(`Solicitação #${numero} criada no protótipo.`);
+
+      try {
+        let corpo;
+        if (arquivo) {
+          corpo = new FormData();
+          Object.entries(campos).forEach(([chave, valor]) => {
+            corpo.append(chave, Array.isArray(valor) ? JSON.stringify(valor) : valor);
+          });
+          corpo.append('arquivo3d', arquivo);
+        } else {
+          corpo = JSON.stringify(campos);
+        }
+        const nova = await api('/api/solicitacoes', { method: 'POST', body: corpo });
+
+        form.reset();
+        form.querySelector('[data-arquivo-selecionado]')?.setAttribute('hidden', '');
+        document.querySelector('#modalNovaSolicitacao')?.close();
+
+        await carregarSolicitacoes();
+        preencherResumo();
+        renderTabelaSolicitacoes();
+        renderTabelaInicio();
+        alert(`Solicitação ${nova.protocolo} criada.`);
+      } catch (erro) {
+        alert(erro.message);
+      }
     });
   }
 }
+
+
+/* =========================
+   PARCEIROS
+========================= */
 
 // Grade de cards da página "Parceiros", com modal de capacidade por parceiro.
 function renderParceiros() {
@@ -508,21 +527,32 @@ function renderParceiros() {
   }));
 }
 
-// Tabela da página "Histórico". Lista fixa e independente de
-// historicoSolicitacoes — é só uma amostra para demonstrar a tela.
+
+/* =========================
+   HISTÓRICO (AMOSTRA)
+========================= */
+
+// Tabela da página "Histórico". Ainda é uma amostra estática — o
+// contrato da API (docs/backend.md) por enquanto só cobre a linha do
+// tempo de uma solicitação específica, não um feed agregado de toda a
+// organização. Ver "O que fica para depois" em docs/design-system.md.
 function renderHistorico() {
   const tbody = document.querySelector('#tabelaHistorico tbody');
   if (!tbody) return;
   const eventos = [
-    ['10/09/2026 08:10','#0002','Status alterado','Órtese craniana','Em análise','Instituto Mauá de Tecnologia'],
-    ['09/09/2026 16:40','#0001','Status alterado','Colete ortopédico','Em produção','Instituto Mauá de Tecnologia'],
-    ['09/09/2026 10:00','#0002','Parceiro atribuído','Órtese craniana','Em análise','Instituto Mauá de Tecnologia'],
-    ['08/09/2026 11:05','#0001','Parceiro atribuído','Colete ortopédico','Em análise','Instituto Mauá de Tecnologia'],
-    ['08/09/2026 10:32','#0001','Solicitação criada','Colete ortopédico','Aberta','Não atribuído']
+    ['10/09/2026 08:10', '#0002', 'Status alterado', 'Órtese craniana', 'Em análise', 'Instituto Mauá de Tecnologia'],
+    ['09/09/2026 16:40', '#0001', 'Status alterado', 'Colete ortopédico', 'Em produção', 'Instituto Mauá de Tecnologia'],
+    ['09/09/2026 10:00', '#0002', 'Parceiro atribuído', 'Órtese craniana', 'Em análise', 'Instituto Mauá de Tecnologia'],
+    ['08/09/2026 11:05', '#0001', 'Parceiro atribuído', 'Colete ortopédico', 'Em análise', 'Instituto Mauá de Tecnologia'],
+    ['08/09/2026 10:32', '#0001', 'Solicitação criada', 'Colete ortopédico', 'Aberta', 'Não atribuído']
   ];
   tbody.innerHTML = eventos.map(e => `<tr><td>${e[0]}</td><td>${e[1]}</td><td>${e[2]}</td><td>${e[3]}</td><td><span class="badge status-${badgeClass(e[4])}">${e[4]}</span></td><td>${e[5]}</td></tr>`).join('');
 }
 
+
+/* =========================
+   NAVEGAÇÃO E INTERFACE
+========================= */
 
 // Abre/fecha o menu "Meu perfil / Sair" do cabeçalho e fecha ao clicar fora.
 function prepararMenuPerfil() {
@@ -547,6 +577,15 @@ function prepararMenuPerfil() {
     document.querySelectorAll('.perfil-menu').forEach(m => m.hidden = true);
     document.querySelectorAll('.nav-perfil').forEach(b => b.setAttribute('aria-expanded', 'false'));
   });
+
+  // "Sair" chama a mesma rota de logout usada no perfil.
+  document.querySelectorAll('.perfil-sair').forEach(link => {
+    link.addEventListener('click', async e => {
+      e.preventDefault();
+      try { await api('/api/auth/logout', { method: 'POST' }); } catch { /* segue para o login de qualquer forma */ }
+      location.href = '/html/login.html';
+    });
+  });
 }
 
 // Destaca o item de navegação da página atual (via data-pagina no <body>).
@@ -555,7 +594,7 @@ function marcarPaginaAtiva() {
   document.querySelectorAll('.nav-links a').forEach(a => {
     if (a.dataset.pagina === pagina) {
       a.classList.add('ativo');
-      a.setAttribute('aria-current','page');
+      a.setAttribute('aria-current', 'page');
     }
   });
 }
@@ -568,21 +607,47 @@ function botaoTopo() {
   btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 }
 
-// Ponto de entrada: cada função abaixo verifica se os elementos da
-// página atual existem antes de renderizar, então é seguro carregar
-// este arquivo em qualquer página do site (público, AACD ou fabricante).
-document.addEventListener('DOMContentLoaded', () => {
+
+/* =========================
+   PONTO DE ENTRADA
+========================= */
+
+// Carrega o essencial (usuário + solicitações + parceiros) antes de
+// desenhar qualquer coisa que dependa deles. A página de detalhes busca
+// a própria solicitação separadamente (não depende da lista completa).
+async function carregarDadosIniciais() {
+  await carregarUsuarioAtual();
+  await Promise.all([
+    carregarSolicitacoes().catch(() => { solicitacoes = []; }),
+    carregarParceiros().catch(() => { parceiros = []; })
+  ]);
+}
+
+// Exposta globalmente (em vez de só chamada dentro do DOMContentLoaded
+// abaixo) para que js/fabricator.js — carregado depois deste arquivo,
+// mas com seu próprio listener de DOMContentLoaded — possa aguardar o
+// mesmo carregamento antes de renderizar, sem duplicar a chamada.
+window.dadosIniciaisProntos = carregarDadosIniciais();
+
+document.addEventListener('DOMContentLoaded', async () => {
   marcarPaginaAtiva();
   prepararMenuPerfil();
+  prepararModais();
+  botaoTopo();
+
+  try {
+    await window.dadosIniciaisProntos;
+  } catch {
+    return; // carregarUsuarioAtual() já redirecionou para o login.
+  }
+
   preencherResumo();
   renderTabelaInicio();
   renderFiltrosSolicitacoes();
   renderTabelaSolicitacoes();
   renderParceiros();
   renderHistorico();
-  renderDetalheSolicitacao();
-  prepararModais();
-  botaoTopo();
+  await renderDetalheSolicitacao();
 
   document.querySelector('#limparFiltros')?.addEventListener('click', () => {
     limparFiltrosAvancados(COLUNAS_SOLICITACOES);

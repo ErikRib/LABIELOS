@@ -147,7 +147,7 @@ classe de status foram corrigidos (ver seção 5.1 — bug encontrado).
 
 A AACD já tinha um painel completo (`html/client/`). O fabricante (parceiro
 de manufatura) ainda não tinha uma área própria terminada — esta sessão
-construiu uma base completa para ele em `html/fabricante/`, reaproveitando
+construiu uma base completa para ele em `html/fabricator/`, reaproveitando
 ao máximo os componentes e os dados simulados já existentes em
 `js/prototipo.js` (a mesma lista de `solicitacoes`, por exemplo, aparece
 nos dois painéis, de dois pontos de vista diferentes).
@@ -158,9 +158,9 @@ nos dois painéis, de dois pontos de vista diferentes).
 
 | Página | Arquivo | O que mostra |
 |---|---|---|
-| Visão geral | `html/fabricante/index.html` | Resumo (Aguardando aceite / Em análise / Em produção / Concluídas), demandas recentes e card de capacidade produtiva |
-| Demandas | `html/fabricante/demandas.html` | Lista completa, com filtros avançados e colunas configuráveis |
-| Detalhes da demanda | `html/fabricante/detalhe-demanda.html` | Fluxo de status, linha do tempo completa e ações de status |
+| Visão geral | `html/fabricator/index.html` | Resumo (Aguardando aceite / Em análise / Em produção / Concluídas), demandas recentes e card de capacidade produtiva |
+| Demandas | `html/fabricator/demandas.html` | Lista completa, com filtros avançados e colunas configuráveis |
+| Detalhes da demanda | `html/fabricator/detalhe-demanda.html` | Fluxo de status, linha do tempo completa e ações de status |
 
 ### 4.1 Fluxo de status simulado
 
@@ -170,11 +170,12 @@ Aguardando aceite ──Aceitar──▶ Em análise ──Iniciar produção─
         └──Recusar──▶ Recusada
 ```
 
-Cada ação (`js/fabricante.js`, função `aplicarAcaoDemanda`) muda o status da
-solicitação e registra automaticamente um evento na linha do tempo
-(`historicoSolicitacoes`, de `js/prototipo.js`) — o mesmo objeto que
-alimenta a página de detalhes da AACD. Por isso, uma ação tomada no painel
-do fabricante aparece também no histórico que a AACD vê.
+Cada ação (`js/fabricator.js`, função `aplicarAcaoDemanda`) faz um `PATCH`
+em `/api/solicitacoes/{protocolo}` com o novo status; é o back-end quem
+registra o evento correspondente na linha do tempo dessa solicitação (ver
+seção 10). Por isso, uma ação tomada no painel do fabricante aparece
+também no histórico que a AACD vê — é a mesma solicitação, no mesmo
+back-end, não mais um objeto local compartilhado entre os dois arquivos.
 
 Uma terceira solicitação simulada (`#0003`, "Prótese de mão transradial",
 status inicial "Aguardando aceite") foi adicionada para que o fluxo de
@@ -190,12 +191,13 @@ página (`autorAtual()`, em `js/prototipo.js`). É a mesma ideia de um sistema
 de chamados: cada atualização vira um novo registro, sem apagar os
 anteriores.
 
-### 4.3 Dados simulados (sem back-end)
+### 4.3 Dados vindos da API
 
-Assim como o resto do protótipo, não há back-end nem banco de dados — tudo
-vive em memória (`js/prototipo.js` e `js/fabricante.js`) e **reinicia a
-cada recarregamento da página**. Isso é intencional nesta fase (ver
-`frontend.md`), só documentando para não ser confundido com um bug.
+Quando esta seção foi escrita, `js/prototipo.js` e `js/fabricator.js`
+ainda guardavam os dados em memória (reiniciando a cada recarregamento da
+página). Isso **não é mais o caso**: os dois arquivos foram conectados à
+API real nesta mesma sessão — ver seção 10 para os detalhes dessa
+conversão.
 
 ---
 
@@ -231,7 +233,7 @@ Esse motor é usado em dois lugares:
 - `html/client/solicitacoes.html` (AACD) — colunas fixas (Protocolo,
   Solicitação, Requerente, Atribuído, Prioridade, Status), todas do tipo
   texto.
-- `html/fabricante/demandas.html` (fabricante) — colunas fixas mais colunas
+- `html/fabricator/demandas.html` (fabricante) — colunas fixas mais colunas
   opcionais do tipo data (Abertura, Prazo), que só aparecem quando
   marcadas no seletor de colunas (ver 5.3). É aí que o modo "Entre" entra
   em ação de verdade, filtrando um intervalo de datas.
@@ -294,7 +296,7 @@ css/
 │                                     .eyebrow/.detalhes-lista/.voltar-link,
 │                                     extraído para reuso por 3 páginas
 └── pages/
-    ├── fabricante.css             — layout das páginas do fabricante
+    ├── fabricator.css             — layout das páginas do fabricante
     ├── detalhes-solicitacao.css   — formulário de novo registro na timeline
     ├── perfil.css                 — [novo/reescrito] só o que é específico
     │                                 da página "Meu perfil"
@@ -315,12 +317,12 @@ html/
 │   ├── index.html, solicitacoes.html,
 │   │   parceiros.html, historico.html — fontes, header/footer semânticos
 │   └── detalhes-solicitacao.html      — formulário de novo registro, header/footer
-└── fabricante/                        — index.html, demandas.html,
+└── fabricator/                        — index.html, demandas.html,
                                           detalhe-demanda.html
 
 js/
 ├── prototipo.js   — nova solicitação #0003, filtros da AACD, registro de timeline
-├── fabricante.js  — toda a lógica do painel do fabricante
+├── fabricator.js  — toda a lógica do painel do fabricante
 ├── filtros.js     — motor de filtros avançados (reutilizável)
 ├── api.js         — [novo] wrapper de fetch para a API real
 ├── login.js       — [novo] login conectado à API
@@ -375,13 +377,13 @@ Não dá para demonstrar essas telas "soltas" como o resto do protótipo.
   o que é mesmo específico da página (foto de perfil, layout, etc).
 - Como `.painel-bloco`/`.bloco-cabecalho`/`.eyebrow`/`.detalhes-lista`/
   `.voltar-link` agora são usados por duas páginas de detalhe diferentes
-  (`detalhes-solicitacao.html`, `fabricante/detalhe-demanda.html`) **e**
+  (`detalhes-solicitacao.html`, `fabricator/detalhe-demanda.html`) **e**
   por `perfil.html`, essas classes foram extraídas para um componente
   novo, `css/components/cards.css`, em vez de ficarem presas a
   `detalhes-solicitacao.css`.
 - Como a página é compartilhada pelos dois painéis, o link "← Voltar ao
   painel" é ajustado em `js/perfil.js` a partir de `document.referrer`
-  (volta para `fabricante/index.html` ou `client/index.html` conforme de
+  (volta para `fabricator/index.html` ou `client/index.html` conforme de
   onde o usuário veio).
 - Corrigido: o botão "Criar conta" do login tinha voltado a ser um
   `<button onclick="location.href=...">` (regressão da correção já feita
@@ -404,7 +406,48 @@ Não dá para demonstrar essas telas "soltas" como o resto do protótipo.
 
 ---
 
-## 9. O que fica para depois
+## 10. Painéis da AACD e do fabricante conectados à API
+
+Depois do login/cadastro/perfil, os dois painéis que antes eram 100%
+simulados (`js/prototipo.js` e `js/fabricator.js`) também foram conectados
+à API real, usando as mesmas convenções de `js/api.js`. O arquivo
+`js/prototipo.js` passou a:
+
+- Buscar o usuário autenticado em `GET /api/me` ao carregar qualquer
+  página (redireciona para o login se a sessão não for válida — essas
+  páginas agora exigem estar logado, assim como `perfil.html`).
+- Buscar `solicitacoes` (`GET /api/solicitacoes`) e `parceiros`
+  (`GET /api/parceiros`) em vez de usar arrays fixos no código.
+- Fazer `POST`/`PATCH` reais para criar e editar uma solicitação, e
+  `POST .../historico` para um novo registro na linha do tempo — nenhuma
+  dessas ações mexe mais em um array local, todas esperam a resposta da
+  API antes de atualizar a tela.
+
+`js/fabricator.js` foi ajustado para não filtrar mais "quais demandas são
+minhas" no cliente — quem decide isso agora é o back-end (ver
+`docs/backend.md`), a partir da organização autenticada. As ações
+Aceitar/Recusar/Iniciar produção/Concluir viraram um único `PATCH
+/api/solicitacoes/{protocolo}` com `{"status": "..."}`; o back-end é quem
+registra o evento correspondente na linha do tempo.
+
+### Duas pendências desta conversão
+
+- **Página "Histórico" da AACD** continua com uma lista estática de
+  amostra — o contrato da API ainda não tem um endpoint agregado
+  ("todos os eventos de todas as solicitações da organização"), só o
+  histórico de uma solicitação específica. Fica para quando esse endpoint
+  for definido.
+- **`js/prototipo.js`/`js/fabricator.js` não puderam ser testados contra
+  o back-end real** (ele ainda não existe/não foi incluído neste
+  repositório). Para validar a integração ponta a ponta, foi usado um
+  mock local só para esta sessão de trabalho (servindo os mesmos
+  arquivos estáticos e respondendo nas rotas do contrato) — não faz parte
+  do projeto, só serviu para confirmar que o front-end chama as rotas
+  certas, no formato certo, e trata certo a resposta.
+
+---
+
+## 11. O que fica para depois
 
 - **Páginas de Termos e Privacidade**: a página de Privacidade existe mas
   está vazia; a de Termos ainda nem foi criada — conteúdo pendente de
@@ -417,5 +460,8 @@ Não dá para demonstrar essas telas "soltas" como o resto do protótipo.
   se a professora pedir essa precisão, vale abrir o Figma e usar o
   conta-gotas (eyedropper) diretamente nos componentes.
 - **Contrato da API**: os endpoints em `docs/backend.md` foram pensados
-  para FastAPI; precisam ser revisados/ajustados junto com o colega que
-  vai construir o back-end real em Flask + MongoDB.
+  e já confirmados para FastAPI (não Flask, como havia sido cogitado
+  antes) — ainda assim, nomes de rota e de campo podem precisar de ajuste
+  fino conforme a implementação real do back-end avançar.
+- **Endpoint agregado de histórico** para a página "Histórico" da AACD
+  (ver seção 10).

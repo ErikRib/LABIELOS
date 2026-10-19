@@ -11,10 +11,71 @@
     max-width: 720px;
 }
 
+/* Em telas largas, "Segurança da conta" (a mais alta, com 3 formulários)
+   ocupa uma coluna inteira ao lado de "Dados pessoais" + "Organização"
+   empilhados — evita o espaço em branco à direita que sobrava com uma
+   única coluna estreita. No mobile, o empilhamento acima é mantido. */
+@media (min-width: 860px) {
+
+    .perfil-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+            "dados      seguranca"
+            "organizacao seguranca";
+        align-items: start;
+
+        max-width: 980px;
+    }
+
+    .perfil-card-dados {
+        grid-area: dados;
+    }
+
+    .perfil-card-seguranca {
+        grid-area: seguranca;
+    }
+
+    .perfil-card-organizacao {
+        grid-area: organizacao;
+    }
+}
+
 
 /* =========================
-   FOTO DE PERFIL
+   FORMULÁRIOS DO PERFIL
 ========================= */
+
+/* Um seletor por id tem mais especificidade que ".form-grid[hidden]"
+   (ver forms.css) — sem repetir a regra de esconder aqui, o formulário
+   "Confirmar novo e-mail" voltaria a aparecer mesmo com o atributo
+   "hidden". */
+#formConfirmarEmail[hidden] {
+    display: none;
+}
+
+/* Mesmo padrão de .cadastro-form: cada bloco do formulário (foto, campos,
+   aviso, botão) empilhado com espaçamento uniforme, em vez de depender
+   da margem de cada elemento (sem isso, o botão ficava colado no último
+   campo, sem nenhum respiro). */
+#formPerfil,
+#formEmail,
+#formConfirmarEmail,
+#formSenha {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    gap: 20px;
+}
+
+/* Dentro do flex column acima, os elementos de largura total (a área da
+   foto e a grade de campos) precisam dizer isso explicitamente, já que
+   o container não estica mais os filhos por padrão. */
+.perfil-foto-area,
+.form-grid {
+    width: 100%;
+}
 
 .perfil-foto-area {
     display: flex;
@@ -22,8 +83,6 @@
     flex-wrap: wrap;
 
     gap: 20px;
-
-    margin-bottom: 20px;
 }
 
 .perfil-foto {

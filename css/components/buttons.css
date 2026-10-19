@@ -14,6 +14,14 @@
     border-radius: 8px;
 
     font-family: var(--fonte-texto);
+    /*
+       <button> tem um tamanho de fonte menor por padrão do navegador
+       (controle de formulário), diferente de <a>/<div>, que herdam o
+       tamanho normal do texto. Sem fixar isso aqui, um <button class="btn">
+       e um <a class="btn"> com o mesmo texto saem com alturas diferentes.
+    */
+    font-size: 0.9rem;
+    line-height: 1.4;
     font-weight: 600;
 
     text-decoration: none;

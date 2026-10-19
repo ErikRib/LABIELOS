@@ -10,6 +10,14 @@ A documentação considera somente o que existe atualmente no front-end.
 Funcionalidades de back-end, banco de dados, autenticação real e
 integrações futuras não são tratadas como recursos concluídos.
 
+> **Atualização:** partes deste documento (principalmente a seção 5,
+> sobre a área autenticada da AACD) foram escritas antes da conexão com
+> uma API real. Login, cadastro, perfil e os painéis da AACD/fabricante
+> já consomem dados de uma API — ver
+> [`design-system.md`](./design-system.md), seções 8 e 10, para o estado
+> atual. Os trechos abaixo que mencionam "dados simulados" descrevem o
+> estágio anterior do projeto.
+
 ------------------------------------------------------------------------
 
 ## 2. Tecnologias utilizadas
@@ -45,7 +53,7 @@ LABIELOS/
 ├── docs/
 ├── html/
 │   ├── client/
-│   ├── fabricante/
+│   ├── fabricator/
 │   ├── contato.html
 │   └── login.html
 ├── js/
@@ -90,7 +98,7 @@ Contém as páginas complementares da aplicação.
 A pasta `client/` representa atualmente o protótipo da área autenticada
 utilizada pela AACD.
 
-A pasta `fabricante/` representa o protótipo da área autenticada utilizada
+A pasta `fabricator/` representa o protótipo da área autenticada utilizada
 pelo parceiro de manufatura (ver
 [`design-system.md`](./design-system.md) para os detalhes).
 
@@ -323,7 +331,7 @@ Entre os próximos desenvolvimentos previstos para o front-end estão:
 
 ### Área dos parceiros / FabLabs
 
-Uma primeira versão desta área já foi desenvolvida em `html/fabricante/`
+Uma primeira versão desta área já foi desenvolvida em `html/fabricator/`
 (Visão geral, Demandas e Detalhes da demanda) — ver
 [`design-system.md`](./design-system.md) para os detalhes. Essa versão é
 uma base demonstrável, não o fluxo definitivo: o comportamento completo do

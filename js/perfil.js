@@ -5,8 +5,8 @@ const aviso = (seletor, texto) => { $(seletor).textContent = texto; };
 // Esta página é compartilhada pelos dois painéis (AACD e fabricante), então
 // o link de "voltar" é ajustado conforme de onde o usuário veio.
 const linkVoltar = $('#linkVoltar');
-if (linkVoltar && document.referrer.includes('/html/fabricante/')) {
-  linkVoltar.href = '/html/fabricante/index.html';
+if (linkVoltar && document.referrer.includes('/html/fabricator/')) {
+  linkVoltar.href = '/html/fabricator/index.html';
 }
 async function carregarPerfil() {
   try {

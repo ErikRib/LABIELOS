@@ -1,14 +1,15 @@
 /*
-   Protótipo da área do fabricante (parceiro de manufatura).
-   Reaproveita os dados e funções simuladas de prototipo.js
-   (solicitacoes, historicoSolicitacoes, parceiros, badgeClass,
-   textoAtribuidos) e o motor de filtros de filtros.js. Assim como
-   prototipo.js, este arquivo tem finalidade apenas de demonstração
-   da interface.
-*/
+   Área do fabricante (parceiro de manufatura). Reaproveita de
+   prototipo.js os dados vindos da API (solicitacoes, parceiros,
+   usuarioLogado), as funções utilitárias (badgeClass, textoAtribuidos) e
+   a promessa compartilhada "window.dadosIniciaisProntos", já que os dois
+   arquivos têm cada um seu próprio listener de DOMContentLoaded.
 
-const parceiroLogado = 'Instituto Mauá de Tecnologia';
-const usuarioFabricante = { nome: 'Ana Souza', organizacao: parceiroLogado };
+   A visibilidade de quais solicitações aparecem aqui é decidida pelo
+   back-end (ver docs/backend.md): a API só retorna, para uma organização
+   do tipo fabricante, as solicitações atribuídas a ela — este arquivo não
+   filtra mais isso no cliente.
+*/
 
 const CHAVE_COLUNAS_DEMANDAS = 'labielosFabricanteColunas';
 
@@ -26,9 +27,11 @@ const COLUNAS_DEMANDAS = [
 
 const COLUNAS_PADRAO = ['protocolo', 'solicitacao', 'requerente', 'prioridade', 'status'];
 
-// Filtra, de solicitacoes (prototipo.js), só as demandas atribuídas a este parceiro.
+// As solicitações já vêm filtradas pela API para esta organização —
+// esta função só existe para manter o nome descritivo nos lugares que a
+// chamam.
 function demandasDoParceiro() {
-  return solicitacoes.filter(s => (s.atribuido || []).includes(parceiroLogado));
+  return solicitacoes;
 }
 
 // Define quais botões de ação (Aceitar/Recusar/Iniciar produção/Concluir)
@@ -49,45 +52,36 @@ function acaoDaDemanda(status) {
   }
 }
 
-// Acrescenta um evento automático de mudança de status à linha do tempo
-// (historicoSolicitacoes), assinado pelo parceiro logado.
-function registrarEventoDemanda(protocolo, titulo, descricao) {
-  if (!historicoSolicitacoes[protocolo]) historicoSolicitacoes[protocolo] = [];
-  historicoSolicitacoes[protocolo].push({
-    data: new Date().toLocaleString('pt-BR'),
-    tipo: 'Status',
-    autor: `${usuarioFabricante.nome} (${usuarioFabricante.organizacao})`,
-    titulo,
-    descricao
-  });
-}
-
 // Executa a transição de status escolhida (Aceitar/Recusar/Iniciar
-// produção/Concluir) e re-renderiza tudo que depende da demanda:
-// resumo, tabelas, ações da página de detalhe e o próprio detalhe.
-function aplicarAcaoDemanda(protocolo, acao) {
-  const s = solicitacoes.find(item => item.protocolo === protocolo);
-  if (!s) return;
-
-  const mapa = {
-    'aceitar': { status: 'Em análise', titulo: 'Demanda aceita pelo parceiro', descricao: 'Demanda aceita e encaminhada para análise técnica.' },
-    'recusar': { status: 'Recusada', titulo: 'Demanda recusada pelo parceiro', descricao: 'Parceiro informou indisponibilidade para atender a demanda.' },
-    'iniciar-producao': { status: 'Em produção', titulo: 'Status alterado para Em produção', descricao: 'Produção iniciada pelo parceiro de manufatura.' },
-    'concluir': { status: 'Concluída', titulo: 'Status alterado para Concluída', descricao: 'Produção finalizada e pronta para retirada/entrega.' }
+// produção/Concluir) via PATCH na API — o back-end é quem registra o
+// evento correspondente na linha do tempo — e re-renderiza tudo que
+// depende da demanda: resumo, tabelas, ações da página de detalhe e o
+// próprio detalhe.
+async function aplicarAcaoDemanda(protocolo, acao) {
+  const mapaStatus = {
+    'aceitar': 'Em análise',
+    'recusar': 'Recusada',
+    'iniciar-producao': 'Em produção',
+    'concluir': 'Concluída'
   };
+  const novoStatus = mapaStatus[acao];
+  if (!novoStatus) return;
 
-  const transicao = mapa[acao];
-  if (!transicao) return;
+  try {
+    await api(`/api/solicitacoes/${encodeURIComponent(protocolo)}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status: novoStatus })
+    });
+    await carregarSolicitacoes();
 
-  s.status = transicao.status;
-  s.ultimaAtualizacao = new Date().toLocaleString('pt-BR');
-  registrarEventoDemanda(protocolo, transicao.titulo, transicao.descricao);
-
-  preencherResumoFabricante();
-  renderDemandasRecentes();
-  renderDemandasFabricante();
-  renderAcoesDemandaDetalhe();
-  if (typeof renderDetalheSolicitacao === 'function') renderDetalheSolicitacao();
+    preencherResumoFabricante();
+    renderDemandasRecentes();
+    renderDemandasFabricante();
+    renderAcoesDemandaDetalhe();
+    if (typeof renderDetalheSolicitacao === 'function') await renderDetalheSolicitacao();
+  } catch (erro) {
+    alert(erro.message);
+  }
 }
 
 // Linha com colunas fixas, usada só na tabela "Demandas recentes" do
@@ -101,7 +95,7 @@ function linhaDemandaResumo(s) {
       <td><span class="badge prioridade-${badgeClass(s.prioridade)}">${s.prioridade}</span></td>
       <td><span class="badge status-${badgeClass(s.status)}">${s.status}</span></td>
       <td class="celula-acoes">
-        <a class="btn btn-acao-tabela btn-secundario" href="/html/fabricante/detalhe-demanda.html?protocolo=${encodeURIComponent(s.protocolo)}">Ver detalhes</a>
+        <a class="btn btn-acao-tabela btn-secundario" href="/html/fabricator/detalhe-demanda.html?protocolo=${encodeURIComponent(s.protocolo)}">Ver detalhes</a>
         ${acaoDaDemanda(s.status).map(a => `<button type="button" class="btn btn-acao-tabela ${a.classe}" data-protocolo="${s.protocolo}" data-acao="${a.acao}">${a.label}</button>`).join('')}
       </td>
     </tr>`;
@@ -141,11 +135,11 @@ function renderDemandasRecentes() {
 }
 
 // Card de capacidade produtiva do parceiro logado, no dashboard
-// (reaproveita os dados de "parceiros", definidos em prototipo.js).
+// (reaproveita os dados de "parceiros", já carregados por prototipo.js).
 function renderCapacidadeParceiro() {
   const bloco = document.querySelector('#capacidadeParceiro');
   if (!bloco) return;
-  const p = parceiros.find(item => item.nome === parceiroLogado);
+  const p = parceiros.find(item => item.nome === usuarioLogado.organizacao);
   if (!p) return;
 
   bloco.innerHTML = `
@@ -209,7 +203,7 @@ function linhaDemandaTabela(s, colunas) {
     <tr>
       ${celulas}
       <td class="celula-acoes">
-        <a class="btn btn-acao-tabela btn-secundario" href="/html/fabricante/detalhe-demanda.html?protocolo=${encodeURIComponent(s.protocolo)}">Ver detalhes</a>
+        <a class="btn btn-acao-tabela btn-secundario" href="/html/fabricator/detalhe-demanda.html?protocolo=${encodeURIComponent(s.protocolo)}">Ver detalhes</a>
         ${acoes}
       </td>
     </tr>`;
@@ -314,10 +308,18 @@ function renderAcoesDemandaDetalhe() {
   ativarAcoesDemanda(container);
 }
 
-// Ponto de entrada: cada função abaixo só age se os elementos da
-// página atual existirem, então este arquivo pode ser carregado em
+// Ponto de entrada: espera prototipo.js terminar de carregar usuário,
+// solicitações e parceiros (window.dadosIniciaisProntos) antes de
+// renderizar qualquer coisa — cada função abaixo só age se os elementos
+// da página atual existirem, então este arquivo pode ser carregado em
 // qualquer página da área do fabricante.
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    await window.dadosIniciaisProntos;
+  } catch {
+    return; // já foi redirecionado para o login.
+  }
+
   preencherResumoFabricante();
   renderDemandasRecentes();
   renderCabecalhoDemandas();

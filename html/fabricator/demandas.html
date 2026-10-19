@@ -3,7 +3,7 @@
   Lista completa das demandas atribuídas a este parceiro, com filtros
   avançados (contém/igual/diferente/entre, conforme o tipo da coluna)
   e um seletor de colunas visíveis (a escolha do usuário é lembrada no
-  localStorage). Ver js/filtros.js (motor de filtros) e js/fabricante.js.
+  localStorage). Ver js/filtros.js (motor de filtros) e js/fabricator.js.
 -->
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -20,7 +20,7 @@
   <link rel="stylesheet" href="/css/components/table.css">
   <link rel="stylesheet" href="/css/components/forms.css">
 
-  <link rel="stylesheet" href="/css/pages/fabricante.css">
+  <link rel="stylesheet" href="/css/pages/fabricator.css">
   <link rel="icon" type="image/png" href="/content/img/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,20 +28,21 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
   <script src="/js/filtros.js" defer></script>
+  <script src="/js/api.js" defer></script>
   <script src="/js/prototipo.js" defer></script>
-  <script src="/js/fabricante.js" defer></script>
+  <script src="/js/fabricator.js" defer></script>
 </head>
 
-<body data-pagina="fabricante-demandas">
+<body data-pagina="fabricator-demandas">
 
   <header class="painel-header">
 
     <nav class="nav-principal painel-nav" aria-label="Navegação principal">
-      <a href="/html/fabricante/index.html" title="LABIELOS" class="nav-logo"><img
+      <a href="/html/fabricator/index.html" title="LABIELOS" class="nav-logo"><img
           src="/content/img/logo-simples.png" alt="Logo do LABIELOS"></a>
       <ul class="nav-links" id="navLinks">
-        <li><a data-pagina="fabricante-inicio" href="/html/fabricante/index.html">Visão geral</a></li>
-        <li><a data-pagina="fabricante-demandas" href="/html/fabricante/demandas.html">Demandas</a></li>
+        <li><a data-pagina="fabricator-inicio" href="/html/fabricator/index.html">Visão geral</a></li>
+        <li><a data-pagina="fabricator-demandas" href="/html/fabricator/demandas.html">Demandas</a></li>
       </ul>
 
       <div class="nav-acoes">
