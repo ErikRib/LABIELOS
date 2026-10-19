@@ -141,6 +141,11 @@
     text-decoration: underline;
 }
 
+/* Recuperação de senha ainda não existe: texto neutro, não parece um link. */
+.login-opcoes span {
+    color: var(--cor-texto-secundario);
+}
+
 /* O modificador já existia no projeto e mantém o botão com largura total. */
 .btn-login {
     width: 100%;

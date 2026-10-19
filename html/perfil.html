@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Meu perfil | LABIELOS</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <link rel="stylesheet" href="/css/components/navbar.css">
+    <link rel="stylesheet" href="/css/components/buttons.css">
+    <link rel="stylesheet" href="/css/components/forms.css">
+    <link rel="stylesheet" href="/css/components/cards.css">
+
+    <link rel="stylesheet" href="/css/pages/perfil.css">
+
+    <link rel="icon" type="image/png" href="/content/img/favicon.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Conectado à API real (ver js/api.js); diferente do restante do
+         protótipo, esta página não funciona sem o back-end no ar. -->
+    <script src="/js/api.js" defer></script>
+    <script src="/js/perfil.js" defer></script>
+</head>
+
+<body>
+
+    <header class="painel-header">
+        <nav class="nav-principal painel-nav" aria-label="Navegação principal">
+            <a href="/index.html" title="LABIELOS" class="nav-logo"><img
+                    src="/content/img/logo-simples.png" alt="Logo do LABIELOS"></a>
+            <ul class="nav-links"></ul>
+            <div class="nav-acoes">
+                <button class="btn btn-secundario btn-acao" type="button" id="btnSair">Sair</button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="painel-main">
+
+        <!-- Volta para o painel de onde o usuário veio (AACD ou fabricante);
+             o destino é ajustado em js/perfil.js a partir do referenciador. -->
+        <div class="detalhe-navegacao">
+            <a class="voltar-link" href="/html/client/index.html" id="linkVoltar">← Voltar ao painel</a>
+        </div>
+
+        <section class="pagina-cabecalho">
+            <div>
+                <p class="eyebrow">Minha conta</p>
+                <h1>Meu perfil</h1>
+                <p>Gerencie seus dados pessoais e as configurações de segurança da sua conta.</p>
+            </div>
+        </section>
+
+        <div class="perfil-layout">
+
+            <article class="painel-bloco" aria-labelledby="titulo-dados">
+                <header class="bloco-cabecalho">
+                    <h2 id="titulo-dados">Dados pessoais</h2>
+                </header>
+
+                <form id="formPerfil">
+                    <div class="perfil-foto-area">
+                        <img id="fotoPreview" class="perfil-foto" src="/content/img/user.png"
+                            alt="Prévia da foto de perfil">
+                        <div class="campo">
+                            <label for="foto">Alterar foto de perfil</label>
+                            <input id="foto" name="foto" type="file" accept="image/png,image/jpeg,image/webp">
+                            <small class="campo-ajuda">JPG, PNG ou WebP, até 2 MB.</small>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="campo">
+                            <label for="nomePerfil">Nome *</label>
+                            <input id="nomePerfil" name="nome" autocomplete="given-name" required maxlength="80">
+                        </div>
+                        <div class="campo">
+                            <label for="sobrenomePerfil">Sobrenome *</label>
+                            <input id="sobrenomePerfil" name="sobrenome" autocomplete="family-name" required
+                                maxlength="80">
+                        </div>
+                        <div class="campo">
+                            <label for="telefonePerfil">Telefone</label>
+                            <input id="telefonePerfil" name="telefone" type="tel" autocomplete="tel"
+                                placeholder="(11) 99999-9999" maxlength="20">
+                        </div>
+                    </div>
+
+                    <p id="mensagemPerfil" class="perfil-aviso" role="status"></p>
+
+                    <button class="btn btn-principal btn-acao" type="submit">Salvar alterações</button>
+                </form>
+            </article>
+
+            <article class="painel-bloco" aria-labelledby="titulo-seguranca">
+                <header class="bloco-cabecalho">
+                    <h2 id="titulo-seguranca">Segurança da conta</h2>
+                </header>
+
+                <dl class="detalhes-lista">
+                    <div>
+                        <dt>E-mail de acesso</dt>
+                        <dd id="emailAtual">Carregando...</dd>
+                    </div>
+                </dl>
+
+                <form id="formEmail" class="form-grid">
+                    <div class="campo">
+                        <label for="senhaAtualEmail">Senha atual *</label>
+                        <input id="senhaAtualEmail" type="password" autocomplete="current-password" required>
+                    </div>
+                    <div class="campo">
+                        <label for="novoEmail">Novo e-mail</label>
+                        <input id="novoEmail" type="email" autocomplete="email" required
+                            placeholder="novo@exemplo.com">
+                    </div>
+                    <p class="campo-ajuda campo amplo">
+                        A alteração definitiva exige confirmação enviada ao novo endereço de e-mail.
+                    </p>
+                    <button class="btn btn-secundario btn-acao" type="submit">Enviar código de confirmação</button>
+                </form>
+
+                <form id="formConfirmarEmail" class="form-grid" hidden>
+                    <div class="campo">
+                        <label for="codigoEmail">Código recebido no novo e-mail *</label>
+                        <input id="codigoEmail" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required>
+                    </div>
+                    <button class="btn btn-secundario btn-acao" type="submit">Confirmar novo e-mail</button>
+                </form>
+
+                <hr class="perfil-separador">
+
+                <h3>Alterar senha</h3>
+
+                <form id="formSenha" class="form-grid">
+                    <div class="campo">
+                        <label for="senhaAtual">Senha atual *</label>
+                        <input id="senhaAtual" type="password" autocomplete="current-password" required>
+                    </div>
+                    <div class="campo">
+                        <label for="novaSenha">Nova senha *</label>
+                        <input id="novaSenha" type="password" autocomplete="new-password" minlength="8" required>
+                    </div>
+                    <button class="btn btn-secundario btn-acao" type="submit">Alterar senha</button>
+                </form>
+
+                <p id="mensagemSeguranca" class="perfil-aviso" role="status"></p>
+            </article>
+
+            <article class="painel-bloco" aria-labelledby="titulo-organizacao">
+                <header class="bloco-cabecalho">
+                    <h2 id="titulo-organizacao">Organização</h2>
+                </header>
+                <p id="minhasOrganizacoes" class="texto-detalhe">Carregando vínculos institucionais...</p>
+            </article>
+
+        </div>
+
+    </main>
+
+</body>
+
+</html>

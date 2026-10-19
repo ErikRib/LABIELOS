@@ -288,44 +288,124 @@ css/
 │   ├── navbar.css                 — acento em hover/foco
 │   ├── modal.css                  — acento em foco
 │   ├── accessibility.css          — acento em foco, alto contraste
-│   ├── forms.css                  — glow de foco realinhado à paleta
-│   └── table.css                  — [novo] filtros avançados + seletor de colunas
+│   ├── forms.css                  — glow de foco + correção do [hidden]
+│   ├── table.css                  — filtros avançados + seletor de colunas
+│   └── cards.css                  — [novo] .painel-bloco/.bloco-cabecalho/
+│                                     .eyebrow/.detalhes-lista/.voltar-link,
+│                                     extraído para reuso por 3 páginas
 └── pages/
-    ├── fabricante.css             — [novo] layout das páginas do fabricante
+    ├── fabricante.css             — layout das páginas do fabricante
     ├── detalhes-solicitacao.css   — formulário de novo registro na timeline
+    ├── perfil.css                 — [novo/reescrito] só o que é específico
+    │                                 da página "Meu perfil"
     ├── historico.css              — lista de chips
     ├── home.css                   — lista ordenada "Como funciona"
     ├── solicitacoes.css           — limpeza (filtros migraram p/ table.css)
-    └── cadastro.css, contato.css, login.css — glow de foco realinhado
+    ├── cadastro.css               — estilos movidos do <style> embutido
+    └── contato.css, login.css     — glow de foco realinhado
 
 html/
 ├── index.html                         — paleta, fontes, lista ordenada, bug de script
-├── login.html                         — botão → link, fontes
-├── cadastro.html                      — ids únicos, fontes
+├── login.html                         — botão → link, fontes, conectado à API
+├── cadastro.html                      — ids únicos, fontes, conectado à API,
+│                                         <style> embutido removido
+├── perfil.html                        — [novo/reescrito] conectado à API
 ├── contato.html                       — fontes
 ├── client/
 │   ├── index.html, solicitacoes.html,
 │   │   parceiros.html, historico.html — fontes, header/footer semânticos
 │   └── detalhes-solicitacao.html      — formulário de novo registro, header/footer
-└── fabricante/                        — [novo] index.html, demandas.html,
+└── fabricante/                        — index.html, demandas.html,
                                           detalhe-demanda.html
 
 js/
 ├── prototipo.js   — nova solicitação #0003, filtros da AACD, registro de timeline
-├── fabricante.js  — [novo] toda a lógica do painel do fabricante
-├── filtros.js     — [novo] motor de filtros avançados (reutilizável)
-├── acessibilidade.js, interface.js, cadastro.js — comentários explicativos
+├── fabricante.js  — toda a lógica do painel do fabricante
+├── filtros.js     — motor de filtros avançados (reutilizável)
+├── api.js         — [novo] wrapper de fetch para a API real
+├── login.js       — [novo] login conectado à API
+├── perfil.js      — [novo] perfil conectado à API
+├── cadastro.js    — cadastro conectado à API (etapas 4-6: busca de
+│                     organização, nova organização, confirmação)
+├── acessibilidade.js, interface.js — comentários explicativos
 
 docs/
-└── design-system.md   — este arquivo
+├── design-system.md   — este arquivo
+└── backend.md, database.md — contrato de referência da API (FastAPI,
+                                descartado como implementação, mantido
+                                como ponto de partida para o Flask real)
+
+README_API.md (raiz do projeto) — resumo da versão com API
 ```
 
 ---
 
-## 8. O que fica para depois (não mexido nesta sessão)
+## 8. Login, cadastro e perfil "de verdade" (conectados a uma API)
 
-- **Cadastro — seção "Organização"** (`html/cadastro.html`, etapa 3): o
-  aluno está desenhando essa parte com outra ferramenta; não foi alterada.
+Diferente de todo o resto do site (que é 100% simulado no navegador, sem
+back-end), as telas **Login** (`html/login.html`), **Cadastro**
+(`html/cadastro.html`) e **Meu perfil** (`html/perfil.html`) foram
+conectadas a uma API real, via `js/api.js` (um wrapper fino de `fetch`,
+com `credentials: 'same-origin'` e sessão por cookie).
+
+Essa integração foi desenhada em conjunto com o ChatGPT, lado a lado com
+um back-end de referência em FastAPI + MongoDB Atlas (documentado em
+`docs/backend.md`/`docs/database.md`). **Essa parte do back-end foi
+descartada** — o colega responsável pelo back vai usar Flask + MongoDB —
+mas o contrato de endpoints descrito nesses dois arquivos ainda serve como
+referência do que o front-end espera (rotas, formato de entrada/saída em
+JSON). Vale revisar esses dois arquivos com calma antes do colega começar,
+já que os nomes de rota/campos podem precisar de ajuste para bater com o
+que ele decidir implementar em Flask.
+
+**Importante:** diferente das telas de prototipagem (AACD/fabricante),
+estas três páginas **não funcionam sem um back-end no ar** — ao abrir
+`perfil.html` sem a API rodando, a página redireciona direto para
+`login.html` (é o comportamento esperado de `js/perfil.js`, não um bug).
+Não dá para demonstrar essas telas "soltas" como o resto do protótipo.
+
+### O que foi revisado/ajustado nesta rodada
+
+- `html/perfil.html` foi **reconstruída do zero**: a versão anterior não
+  reaproveitava o cabeçalho/navegação dos outros painéis (`.painel-header`
+  `.painel-nav`), nem os cartões (`.painel-bloco`/`.bloco-cabecalho`), nem
+  `forms.css` — por isso teve que reinventar esses estilos localmente,
+  com pequenas diferenças (cores, foco, espaçamento) do resto do site.
+  A nova versão reaproveita tudo isso; `css/pages/perfil.css` ficou só com
+  o que é mesmo específico da página (foto de perfil, layout, etc).
+- Como `.painel-bloco`/`.bloco-cabecalho`/`.eyebrow`/`.detalhes-lista`/
+  `.voltar-link` agora são usados por duas páginas de detalhe diferentes
+  (`detalhes-solicitacao.html`, `fabricante/detalhe-demanda.html`) **e**
+  por `perfil.html`, essas classes foram extraídas para um componente
+  novo, `css/components/cards.css`, em vez de ficarem presas a
+  `detalhes-solicitacao.css`.
+- Como a página é compartilhada pelos dois painéis, o link "← Voltar ao
+  painel" é ajustado em `js/perfil.js` a partir de `document.referrer`
+  (volta para `fabricante/index.html` ou `client/index.html` conforme de
+  onde o usuário veio).
+- Corrigido: o botão "Criar conta" do login tinha voltado a ser um
+  `<button onclick="location.href=...">` (regressão da correção já feita
+  nesta sessão) — voltou a ser um `<a href>`.
+- Corrigido um bug de CSS que já tinha aparecido duas vezes antes nesta
+  sessão: `.form-grid[hidden]` e `.cadastro-container[hidden]` precisaram
+  de uma regra explícita de `display: none`, porque a classe já definia
+  `display: grid`/`flex` com a mesma especificidade do `[hidden]` do
+  navegador — sem isso, o formulário "Confirmar novo e-mail" aparecia
+  mesmo escondido.
+- `html/cadastro.html` tinha dois blocos `<style>` embutidos no
+  `<head>` — movidos para `css/pages/cadastro.css`, no mesmo padrão do
+  resto do arquivo.
+- Alguns `alert()` de erro em `js/cadastro.js` foram trocados por
+  parágrafos de status (`role="status"`), consistente com o padrão já
+  usado em `login.js`/`perfil.js` para as demais mensagens.
+- Confirmado (sem alterações necessárias): o link "Meu perfil" foi
+  adicionado de forma consistente no menu de perfil de todas as páginas
+  autenticadas (AACD e fabricante).
+
+---
+
+## 9. O que fica para depois
+
 - **Páginas de Termos e Privacidade**: a página de Privacidade existe mas
   está vazia; a de Termos ainda nem foi criada — conteúdo pendente de
   definição.
@@ -336,3 +416,6 @@ docs/
 - **Valores exatos de hex por estado de botão**: o Figma não os declara;
   se a professora pedir essa precisão, vale abrir o Figma e usar o
   conta-gotas (eyedropper) diretamente nos componentes.
+- **Contrato da API**: os endpoints em `docs/backend.md` foram pensados
+  para FastAPI; precisam ser revisados/ajustados junto com o colega que
+  vai construir o back-end real em Flask + MongoDB.

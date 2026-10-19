@@ -2,6 +2,15 @@
    FORMULÁRIOS
 ========================= */
 
+/* Sem isso, o atributo "hidden" é ignorado: ".form-grid" já define
+   "display: grid", e essa regra sozinha tem a mesma especificidade do
+   "[hidden]" do navegador — então o grid "vence" e o elemento aparece
+   mesmo escondido. Aqui ".form-grid[hidden]" é mais específica e volta
+   a esconder de verdade. */
+.form-grid[hidden] {
+    display: none;
+}
+
 .form-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);

@@ -1,0 +1,77 @@
+/* =========================
+   LAYOUT DA PÁGINA
+========================= */
+
+.perfil-layout {
+    display: flex;
+    flex-direction: column;
+
+    gap: 24px;
+
+    max-width: 720px;
+}
+
+
+/* =========================
+   FOTO DE PERFIL
+========================= */
+
+.perfil-foto-area {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 20px;
+
+    margin-bottom: 20px;
+}
+
+.perfil-foto {
+    width: 88px;
+    height: 88px;
+
+    object-fit: cover;
+    border-radius: 50%;
+
+    border: 1px solid var(--cor-borda);
+}
+
+
+/* =========================
+   MENSAGENS DE STATUS
+========================= */
+
+.perfil-aviso {
+    margin-top: 4px;
+
+    font-size: 0.9rem;
+}
+
+.perfil-aviso:empty {
+    display: none;
+}
+
+
+/* =========================
+   SEPARADOR DA SEÇÃO DE SENHA
+========================= */
+
+.perfil-separador {
+    margin: 24px 0;
+
+    border: none;
+    border-top: 1px solid var(--cor-borda);
+}
+
+
+/* =========================
+   RESPONSIVIDADE
+========================= */
+
+@media (max-width: 480px) {
+
+    .perfil-foto-area {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

@@ -1,0 +1,136 @@
+/*
+   Componentes genéricos de "cartão" reutilizados em páginas de detalhe
+   (solicitação, demanda) e no perfil: o bloco em si, seu cabeçalho, o
+   rótulo pequeno (eyebrow), a lista de pares rótulo/valor e o link de
+   "voltar" usado no topo dessas páginas.
+*/
+
+/* =========================
+   LINK DE VOLTAR
+========================= */
+
+.detalhe-navegacao {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    margin-bottom: 12px;
+}
+
+.voltar-link {
+    color: var(--cor-primaria);
+
+    font-size: 0.9rem;
+    font-weight: 600;
+
+    text-decoration: none;
+}
+
+.voltar-link:hover {
+    text-decoration: underline;
+}
+
+.detalhe-protocolo {
+    padding-left: 12px;
+
+    border-left: 1px solid var(--cor-borda);
+
+    color: var(--cor-texto-secundario);
+
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+
+/* =========================
+   BLOCOS (CARTÕES)
+========================= */
+
+.painel-bloco {
+    padding: 24px;
+
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--borda-radius);
+
+    background-color: var(--cor-fundo);
+}
+
+.bloco-cabecalho {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 16px;
+
+    margin-bottom: 20px;
+}
+
+.bloco-cabecalho h2 {
+    font-size: 1.2rem;
+}
+
+.eyebrow {
+    margin-bottom: 4px;
+
+    color: var(--cor-texto-secundario);
+
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.texto-detalhe {
+    color: var(--cor-texto-secundario);
+
+    font-size: 0.95rem;
+}
+
+
+/* =========================
+   LISTA DE INFORMAÇÕES (DT/DD)
+========================= */
+
+.detalhes-lista {
+    display: flex;
+    flex-direction: column;
+
+    gap: 16px;
+}
+
+.detalhes-lista div {
+    padding-bottom: 12px;
+
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.detalhes-lista div:last-child {
+    padding-bottom: 0;
+
+    border-bottom: none;
+}
+
+.detalhes-lista dt {
+    margin-bottom: 4px;
+
+    color: var(--cor-texto-secundario);
+
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.detalhes-lista dd {
+    color: var(--cor-texto);
+
+    font-weight: 600;
+}
+
+
+/* =========================
+   RESPONSIVIDADE
+========================= */
+
+@media (max-width: 480px) {
+
+    .painel-bloco {
+        padding: 20px;
+    }
+}

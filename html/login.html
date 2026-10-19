@@ -47,11 +47,8 @@
                 <p>Utilize suas credenciais para acessar o LABIELOS.</p>
             </div>
 
-            <!--
-                Por enquanto o formulário direciona diretamente para o painel.
-                Quando existir backend/autenticação real, o action deverá ser substituído.
-            -->
-            <form class="login-form" action="/html/client/index.html">
+            <!-- Login autenticado via API. -->
+            <form class="login-form" id="formLogin">
 
                 <div class="campo">
                     <label for="email">E-mail</label>
@@ -71,7 +68,7 @@
                         <span>Lembrar de mim</span>
                     </label>
 
-                    <a href="#">Esqueci minha senha</a>
+                    <span>Recuperação de senha: em desenvolvimento</span>
                 </div>
 
                 <button type="submit" class="btn btn-principal btn-login">Entrar</button>
@@ -80,8 +77,9 @@
                     <span>Ou</span>
                 </div>
 
-                <button type="button" class="btn btn-secundario btn-login" onclick="location.href='/html/cadastro.html'">Criar conta</button>
+                <a href="/html/cadastro.html" class="btn btn-secundario btn-login">Criar conta</a>
 
+            <p id="mensagemLogin" role="status"></p>
             </form>
 
         </section>
@@ -103,6 +101,8 @@
         </div>
     </footer>
 
+<script src="/js/api.js" defer></script>
+<script src="/js/login.js" defer></script>
 </body>
 
 </html>
