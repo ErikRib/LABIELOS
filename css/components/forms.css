@@ -56,7 +56,7 @@
 
     border-color: var(--cor-primaria);
 
-    box-shadow: 0 0 0 3px rgba(3, 68, 126, 0.12);
+    box-shadow: 0 0 0 3px rgba(11, 39, 64, 0.12);
 }
 
 .campo textarea {

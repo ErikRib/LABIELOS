@@ -1,0 +1,217 @@
+<!--
+  Painel do FABRICANTE — Detalhes da demanda.
+  Estrutura equivalente a html/client/detalhes-solicitacao.html (mesmo
+  fluxo de status e linha do tempo, vindos de js/prototipo.js), mas com
+  os botões de ação específicos do fabricante (Aceitar/Recusar/Iniciar
+  produção/Concluir) renderizados em #acoesDemanda por js/fabricante.js.
+-->
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalhes da demanda</title>
+
+  <link rel="stylesheet" href="/css/style.css">
+
+  <link rel="stylesheet" href="/css/components/navbar.css">
+  <link rel="stylesheet" href="/css/components/badges.css">
+  <link rel="stylesheet" href="/css/components/buttons.css">
+  <link rel="stylesheet" href="/css/components/forms.css">
+  <link rel="stylesheet" href="/css/components/modal.css">
+
+  <link rel="stylesheet" href="/css/pages/detalhes-solicitacao.css">
+
+  <link rel="icon" type="image/png" href="/content/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <script src="/js/prototipo.js" defer></script>
+  <script src="/js/fabricante.js" defer></script>
+</head>
+
+<body data-pagina="fabricante-demandas">
+  <header class="painel-header">
+    <nav class="nav-principal painel-nav" aria-label="Navegação principal">
+      <a href="/html/fabricante/index.html" class="nav-logo"><img src="/content/img/logo-simples.png"
+          alt="Logo do LABIELOS"></a>
+      <ul class="nav-links">
+        <li><a data-pagina="fabricante-inicio" href="/html/fabricante/index.html">Visão geral</a></li>
+        <li><a data-pagina="fabricante-demandas" href="/html/fabricante/demandas.html">Demandas</a></li>
+      </ul>
+      <div class="nav-acoes">
+        <div class="nav-perfil-wrap">
+          <button class="nav-perfil" type="button" aria-expanded="false" aria-haspopup="true">
+            <img src="/content/img/user.png" alt="Foto de perfil do usuário">
+            <span class="nav-identidade"><strong>Ana Souza</strong><small>Instituto Mauá de Tecnologia</small></span>
+            <span class="nav-seta" aria-hidden="true">▾</span>
+          </button>
+          <div class="perfil-menu" hidden>
+            <div class="perfil-menu-identidade"><strong>Ana Souza</strong><span>Instituto Mauá de Tecnologia</span></div>
+            <a href="#" class="perfil-menu-item">Meu perfil</a>
+            <a href="/index.html" class="perfil-menu-item perfil-sair">Sair</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main class="painel-main detalhe-pagina" id="paginaDetalheSolicitacao">
+    <section class="detalhe-cabecalho">
+
+      <div class="detalhe-cabecalho-info">
+        <div class="detalhe-navegacao">
+          <a class="voltar-link" href="/html/fabricante/demandas.html">
+            ← Voltar para demandas
+          </a>
+          <span class="detalhe-protocolo" data-detalhe="protocolo">
+            #0001
+          </span>
+        </div>
+
+        <h1 data-detalhe="solicitacao">Demanda</h1>
+
+        <p>
+          Visualize os dados, arquivos, andamento e todo o histórico desta demanda.
+        </p>
+      </div>
+
+      <div class="detalhe-acoes" id="acoesDemanda"></div>
+
+    </section>
+
+    <section class="detalhe-layout">
+      <div class="detalhe-coluna-principal">
+        <article class="painel-bloco">
+          <header class="bloco-cabecalho">
+            <div>
+              <p class="eyebrow">Andamento</p>
+              <h2>Fluxo da solicitação</h2>
+            </div><span data-detalhe="status"></span>
+          </header>
+          <ol class="fluxo-solicitacao" id="fluxoSolicitacao"></ol>
+        </article>
+
+        <article class="painel-bloco">
+          <header class="bloco-cabecalho">
+            <div>
+              <p class="eyebrow">Acompanhamento</p>
+              <h2>Histórico da solicitação</h2>
+            </div>
+          </header>
+          <div class="timeline" id="timelineSolicitacao"></div>
+
+          <form class="form-registro-timeline" id="formRegistroTimeline">
+            <div class="form-grid">
+              <div class="campo"><label>Tipo de registro</label>
+                <select name="tipo">
+                  <option value="Comentário">Comentário</option>
+                  <option value="Anexo">Anexo</option>
+                </select>
+              </div>
+              <div class="campo amplo"><label>Mensagem</label>
+                <textarea name="mensagem" placeholder="Descreva uma atualização, observação ou solicitação relacionada a este registro."></textarea>
+              </div>
+              <div class="campo amplo campo-arquivo">
+                <label for="arquivoRegistro">Anexar arquivo (opcional)</label>
+                <input id="arquivoRegistro" name="arquivo" type="file">
+              </div>
+            </div>
+            <div class="form-registro-acoes">
+              <button type="submit" class="btn btn-principal btn-acao">Adicionar registro</button>
+            </div>
+          </form>
+        </article>
+      </div>
+
+      <aside class="detalhe-coluna-lateral">
+        <article class="painel-bloco detalhe-resumo-card">
+          <header class="bloco-cabecalho">
+            <h2>Informações</h2>
+          </header>
+          <dl class="detalhes-lista">
+            <div>
+              <dt>Requerente</dt>
+              <dd data-detalhe="requerente"></dd>
+            </div>
+            <div>
+              <dt>Prioridade</dt>
+              <dd data-detalhe="prioridade"></dd>
+            </div>
+            <div>
+              <dt>Categoria</dt>
+              <dd data-detalhe="categoria"></dd>
+            </div>
+            <div>
+              <dt>Material</dt>
+              <dd data-detalhe="material"></dd>
+            </div>
+            <div>
+              <dt>Abertura</dt>
+              <dd data-detalhe="abertura"></dd>
+            </div>
+            <div>
+              <dt>Prazo</dt>
+              <dd data-detalhe="prazo"></dd>
+            </div>
+            <div>
+              <dt>Última atualização</dt>
+              <dd data-detalhe="ultimaAtualizacao"></dd>
+            </div>
+          </dl>
+        </article>
+
+        <article class="painel-bloco">
+          <header class="bloco-cabecalho">
+            <h2>Arquivo 3D anexado</h2>
+          </header>
+          <div class="anexo-card" id="anexoSolicitacao"></div>
+        </article>
+
+        <article class="painel-bloco">
+          <header class="bloco-cabecalho">
+            <h2>Descrição</h2>
+          </header>
+          <p class="texto-detalhe" data-detalhe="descricao"></p>
+        </article>
+      </aside>
+    </section>
+  </main>
+
+  <button class="btn-topo" id="btnTopo">↑</button>
+
+  <dialog class="modal modal-visualizador" id="modalVisualizarArquivo">
+    <header class="modal-cabecalho">
+      <div>
+        <p>Arquivo 3D</p>
+        <h2 data-viewer="nome">Visualização do anexo</h2>
+      </div><button class="modal-fechar" type="button" data-fechar-modal aria-label="Fechar">×</button>
+    </header>
+    <div class="modal-corpo">
+      <div class="viewer-3d" aria-label="Pré-visualização 3D demonstrativa do arquivo anexado">
+        <svg viewBox="0 0 520 320" role="img" aria-label="Representação tridimensional em wireframe para o protótipo">
+          <g class="wireframe">
+            <path d="M150 220 L255 255 L370 205 L266 168 Z" />
+            <path d="M150 220 L150 125 L266 78 L266 168" />
+            <path d="M266 78 L370 116 L370 205" />
+            <path d="M150 125 L255 162 L370 116" />
+            <path d="M255 162 L255 255" />
+            <path d="M205 103 L205 201 M315 98 L315 229 M150 172 L370 160" />
+          </g>
+        </svg>
+        <span class="viewer-eixo eixo-x">X</span><span class="viewer-eixo eixo-y">Y</span><span
+          class="viewer-eixo eixo-z">Z</span>
+      </div>
+      <div class="viewer-info"><strong data-viewer="nome-info"></strong><span data-viewer="meta"></span>
+        <p>Pré-visualização demonstrativa para o protótipo. No sistema final, esta área pode usar um visualizador real
+          do STL/OBJ/3MF.</p>
+      </div>
+    </div>
+  </dialog>
+
+</body>
+
+</html>

@@ -1,0 +1,135 @@
+<!--
+  Painel do FABRICANTE (parceiro de manufatura) — Visão geral.
+  Mostra o resumo das demandas atribuídas a este parceiro, as demandas
+  mais recentes e a capacidade produtiva cadastrada. Reaproveita os
+  componentes (navbar, badges, botões, tabela) e os dados simulados de
+  js/prototipo.js; a lógica própria do fabricante está em js/fabricante.js.
+-->
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Início - Painel do Fabricante</title>
+  <link rel="stylesheet" href="/css/style.css">
+
+  <link rel="stylesheet" href="/css/components/navbar.css">
+  <link rel="stylesheet" href="/css/components/badges.css">
+  <link rel="stylesheet" href="/css/components/buttons.css">
+  <link rel="stylesheet" href="/css/components/table.css">
+  <link rel="stylesheet" href="/css/components/forms.css">
+
+  <link rel="stylesheet" href="/css/pages/dashboard.css">
+  <link rel="stylesheet" href="/css/pages/parceiros.css">
+  <link rel="stylesheet" href="/css/pages/fabricante.css">
+  <link rel="icon" type="image/png" href="/content/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <script src="/js/prototipo.js" defer></script>
+  <script src="/js/fabricante.js" defer></script>
+</head>
+
+<body data-pagina="fabricante-inicio">
+
+  <header class="painel-header">
+
+    <nav class="nav-principal painel-nav" aria-label="Navegação principal">
+      <a href="/html/fabricante/index.html" title="LABIELOS" class="nav-logo"><img
+          src="/content/img/logo-simples.png" alt="Logo do LABIELOS"></a>
+      <ul class="nav-links" id="navLinks">
+        <li><a data-pagina="fabricante-inicio" href="/html/fabricante/index.html">Visão geral</a></li>
+        <li><a data-pagina="fabricante-demandas" href="/html/fabricante/demandas.html">Demandas</a></li>
+      </ul>
+
+      <div class="nav-acoes">
+        <div class="nav-perfil-wrap">
+          <button class="nav-perfil" type="button" aria-expanded="false" aria-haspopup="true">
+            <img src="/content/img/user.png" alt="Foto de perfil do usuário">
+            <span class="nav-identidade"><strong>Ana Souza</strong><small>Instituto Mauá de Tecnologia</small></span>
+            <span class="nav-seta" aria-hidden="true">▾</span>
+          </button>
+          <div class="perfil-menu" hidden>
+            <div class="perfil-menu-identidade"><strong>Ana Souza</strong><span>Instituto Mauá de Tecnologia</span></div>
+            <a href="#" class="perfil-menu-item">Meu perfil</a>
+            <a href="/index.html" class="perfil-menu-item perfil-sair">Sair</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+  </header>
+
+  <main class="painel-main">
+
+    <section class="painel-boas-vindas">
+      <h1>Olá, Ana Souza!</h1>
+      <p>Acompanhe as demandas atribuídas ao Instituto Mauá de Tecnologia.</p>
+    </section>
+
+    <section class="painel-resumo" aria-label="Resumo das demandas">
+
+      <article class="resumo-card">
+        <h2>Aguardando aceite</h2>
+        <p data-resumo-fabricante="aceite">0</p>
+      </article>
+
+      <article class="resumo-card">
+        <h2>Em análise</h2>
+        <p data-resumo-fabricante="analise">0</p>
+      </article>
+
+      <article class="resumo-card">
+        <h2>Em produção</h2>
+        <p data-resumo-fabricante="producao">0</p>
+      </article>
+
+      <article class="resumo-card">
+        <h2>Concluídas</h2>
+        <p data-resumo-fabricante="concluidas">0</p>
+      </article>
+
+    </section>
+
+    <div class="painel-fabricante-grid">
+
+      <section class="tabela-solic-recente" aria-labelledby="titulo-demandas-recentes">
+        <div class="barra-filtros">
+          <h2 id="titulo-demandas-recentes">Demandas recentes</h2>
+          <a href="/html/fabricante/demandas.html" class="btn btn-secundario btn-acao">Ver todas</a>
+        </div>
+
+        <div class="tabela-wrap">
+          <table id="tabelaDemandasRecentes">
+            <thead>
+              <tr>
+                <th>Protocolo</th>
+                <th>Demanda</th>
+                <th>Requerente</th>
+                <th>Prioridade</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section aria-labelledby="titulo-capacidade">
+        <h2 id="titulo-capacidade" class="acess-item-screen-reader">Capacidade produtiva</h2>
+        <div id="capacidadeParceiro"></div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <button type="button" class="btn-topo" id="btnTopo" aria-label="Voltar ao topo">↑</button>
+
+</body>
+
+</html>

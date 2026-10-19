@@ -3,22 +3,56 @@
 ========================= */
 
 :root {
-    --cor-primaria: #102A43;
-    --cor-primaria-hover: #3B82A0;
-    --cor-secundaria: #7CC4DA;
+    /*
+       Paleta alinhada ao Design System LABIELOS (Figma).
+       Primária / Secundária / Neutra / Sucesso / Erro / Alerta
+       são os tokens oficiais do design system; --cor-acento é o
+       azul "Gestalt" do protótipo, reservado para estados de
+       hover/foco e componentes de interface (nunca texto pequeno
+       branco, pois falha WCAG AA abaixo de texto grande).
+    */
+    --cor-primaria: #0B2740;
+    --cor-secundaria: #174C68;
+    --cor-acento: #3B82A0;
 
     --cor-texto: #1a1a1a;
     --cor-texto-secundario: #555555;
     --cor-texto-claro: #ffffff;
 
     --cor-fundo: #ffffff;
-    --cor-fundo-secundario: #f5f7f9;
+    --cor-fundo-secundario: #EDF6F8;
     --cor-borda: #d9e1e8;
 
     --cor-hover: #f8fafc;
 
-    --fonte-titulo: "Plus Jakarta Sans", sans-serif;
+    /* Cores semânticas */
+    --cor-sucesso: #2E9A7B;
+    --cor-sucesso-fundo: #e3f5ef;
+    --cor-sucesso-texto: #1f6e58;
+
+    --cor-erro: #C94B4B;
+    --cor-erro-fundo: #fbebeb;
+    --cor-erro-texto: #8c3434;
+
+    --cor-alerta: #C5BA27;
+    --cor-alerta-fundo: #fbf6d9;
+    --cor-alerta-texto: #6b5e14;
+
+    --cor-info-fundo: #e7f1f5;
+    --cor-info-texto: #1f5a73;
+
+    /* Tipografia: família única Inter, conforme Design System */
+    --fonte-titulo: "Inter", sans-serif;
     --fonte-texto: "Inter", sans-serif;
+
+    /* Escala tipográfica (desktop) do Design System */
+    --fs-h1: 2.5rem;
+    --fs-h2: 2rem;
+    --fs-h3: 1.6rem;
+    --fs-h4: 1.25rem;
+    --fs-corpo-1: 1.125rem;
+    --fs-corpo-2: 1rem;
+    --fs-corpo-3: 0.875rem;
 
     --borda-radius: 12px;
     --transicao: 0.3s ease;
@@ -65,8 +99,10 @@ body {
 
 h1,
 h2,
-h3 {
+h3,
+h4 {
     font-family: var(--fonte-titulo);
+    font-weight: 600;
 }
 
 
@@ -96,7 +132,7 @@ h3 {
 .pagina-cabecalho h1 {
     margin-bottom: 4px;
 
-    font-size: 2rem;
+    font-size: var(--fs-h2);
 }
 
 .pagina-cabecalho p {
@@ -133,7 +169,7 @@ h3 {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background-color: var(--cor-secundaria);
+    background-color: var(--cor-acento);
 }
 
 /* =========================

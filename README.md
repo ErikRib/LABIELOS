@@ -39,6 +39,7 @@ A documentação técnica do projeto está disponível no diretório [`docs/`](.
 ### Documentos disponíveis
 
 - [`frontend.md`](./docs/frontend.md) — estrutura, páginas, componentes, funcionalidades e estado atual do front-end.
+- [`design-system.md`](./docs/design-system.md) — Design System (Figma) aplicado ao projeto, painel do fabricante, filtros avançados e demais mudanças.
 
 Novos documentos serão adicionados conforme outras partes da aplicação forem desenvolvidas.
 

@@ -10,6 +10,10 @@
 
     margin-top: 24px;
     margin-bottom: 24px;
+
+    /* Lista de categorias de evento: sem marcadores, sem recuo. */
+    list-style: none;
+    padding-left: 0;
 }
 
 .historico-chip {

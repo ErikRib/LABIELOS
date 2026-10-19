@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
   <script src="/js/prototipo.js" defer></script>
 </head>
@@ -64,9 +64,13 @@
         <p>Registro das principais movimentações realizadas nas solicitações.</p>
       </div>
     </section>
-    <section class="historico-resumo"><span class="historico-chip">Criações</span><span
-        class="historico-chip">Alterações de status</span><span class="historico-chip">Atualizações de
-        parceiros</span><span class="historico-chip">Conclusões</span></section>
+    <!-- Categorias de evento representadas no histórico (apenas informativas, sem filtro associado). -->
+    <ul class="historico-resumo">
+      <li class="historico-chip">Criações</li>
+      <li class="historico-chip">Alterações de status</li>
+      <li class="historico-chip">Atualizações de parceiros</li>
+      <li class="historico-chip">Conclusões</li>
+    </ul>
     <section class="area-listagem">
       <div class="tabela-wrap">
         <table id="tabelaHistorico">

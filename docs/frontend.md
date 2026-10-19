@@ -45,7 +45,7 @@ LABIELOS/
 ├── docs/
 ├── html/
 │   ├── client/
-│   ├── prod/
+│   ├── fabricante/
 │   ├── contato.html
 │   └── login.html
 ├── js/
@@ -90,8 +90,9 @@ Contém as páginas complementares da aplicação.
 A pasta `client/` representa atualmente o protótipo da área autenticada
 utilizada pela AACD.
 
-A pasta `prod/` contém uma versão da página inicial utilizada durante o
-desenvolvimento.
+A pasta `fabricante/` representa o protótipo da área autenticada utilizada
+pelo parceiro de manufatura (ver
+[`design-system.md`](./design-system.md) para os detalhes).
 
 ### `js/`
 
@@ -322,12 +323,15 @@ Entre os próximos desenvolvimentos previstos para o front-end estão:
 
 ### Área dos parceiros / FabLabs
 
-Será desenvolvida uma interface específica para os parceiros
-responsáveis pela produção das próteses.
+Uma primeira versão desta área já foi desenvolvida em `html/fabricante/`
+(Visão geral, Demandas e Detalhes da demanda) — ver
+[`design-system.md`](./design-system.md) para os detalhes. Essa versão é
+uma base demonstrável, não o fluxo definitivo: o comportamento completo do
+painel do fabricante ainda está sendo definido.
 
-Essa área deverá permitir que os produtores interajam com as
-solicitações encaminhadas pela AACD e acompanhem as etapas relacionadas
-à produção.
+Essa área deverá continuar evoluindo para permitir que os produtores
+interajam com as solicitações encaminhadas pela AACD e acompanhem as
+etapas relacionadas à produção.
 
 Também está prevista a utilização do endereço cadastrado pelo parceiro
 para apresentar à AACD o **ponto de retirada da prótese em um mapa**. A

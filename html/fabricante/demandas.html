@@ -1,0 +1,102 @@
+<!--
+  Painel do FABRICANTE — Demandas.
+  Lista completa das demandas atribuídas a este parceiro, com filtros
+  avançados (contém/igual/diferente/entre, conforme o tipo da coluna)
+  e um seletor de colunas visíveis (a escolha do usuário é lembrada no
+  localStorage). Ver js/filtros.js (motor de filtros) e js/fabricante.js.
+-->
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demandas - Painel do Fabricante</title>
+  <link rel="stylesheet" href="/css/style.css">
+
+  <link rel="stylesheet" href="/css/components/navbar.css">
+  <link rel="stylesheet" href="/css/components/badges.css">
+  <link rel="stylesheet" href="/css/components/buttons.css">
+  <link rel="stylesheet" href="/css/components/table.css">
+  <link rel="stylesheet" href="/css/components/forms.css">
+
+  <link rel="stylesheet" href="/css/pages/fabricante.css">
+  <link rel="icon" type="image/png" href="/content/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <script src="/js/filtros.js" defer></script>
+  <script src="/js/prototipo.js" defer></script>
+  <script src="/js/fabricante.js" defer></script>
+</head>
+
+<body data-pagina="fabricante-demandas">
+
+  <header class="painel-header">
+
+    <nav class="nav-principal painel-nav" aria-label="Navegação principal">
+      <a href="/html/fabricante/index.html" title="LABIELOS" class="nav-logo"><img
+          src="/content/img/logo-simples.png" alt="Logo do LABIELOS"></a>
+      <ul class="nav-links" id="navLinks">
+        <li><a data-pagina="fabricante-inicio" href="/html/fabricante/index.html">Visão geral</a></li>
+        <li><a data-pagina="fabricante-demandas" href="/html/fabricante/demandas.html">Demandas</a></li>
+      </ul>
+
+      <div class="nav-acoes">
+        <div class="nav-perfil-wrap">
+          <button class="nav-perfil" type="button" aria-expanded="false" aria-haspopup="true">
+            <img src="/content/img/user.png" alt="Foto de perfil do usuário">
+            <span class="nav-identidade"><strong>Ana Souza</strong><small>Instituto Mauá de Tecnologia</small></span>
+            <span class="nav-seta" aria-hidden="true">▾</span>
+          </button>
+          <div class="perfil-menu" hidden>
+            <div class="perfil-menu-identidade"><strong>Ana Souza</strong><span>Instituto Mauá de Tecnologia</span></div>
+            <a href="#" class="perfil-menu-item">Meu perfil</a>
+            <a href="/index.html" class="perfil-menu-item perfil-sair">Sair</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+  </header>
+
+  <main class="painel-main">
+
+    <section class="pagina-cabecalho">
+      <div>
+        <h1>Demandas</h1>
+        <p>Consulte, filtre e responda às demandas atribuídas ao seu laboratório.</p>
+      </div>
+    </section>
+
+    <section class="area-listagem">
+      <div class="barra-filtros">
+        <p id="contadorDemandas"></p>
+        <div class="barra-filtros-acoes">
+          <button id="limparFiltrosFabricante" class="btn-texto">Limpar filtros</button>
+          <div class="colunas-wrap" id="colunasWrap">
+            <button id="botaoColunas" type="button" class="btn btn-secundario btn-acao">Colunas</button>
+            <div class="colunas-painel" id="colunasPainel" hidden></div>
+          </div>
+        </div>
+      </div>
+      <div class="tabela-wrap">
+        <table id="tabelaDemandasFabricante">
+          <thead>
+            <tr id="linhaColunasDemandas"></tr>
+            <tr class="filtros-linha" id="linhaFiltrosDemandas"></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <button type="button" class="btn-topo" id="btnTopo" aria-label="Voltar ao topo">↑</button>
+
+</body>
+
+</html>

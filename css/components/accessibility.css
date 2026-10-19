@@ -98,7 +98,7 @@ select:focus-visible,
 textarea:focus-visible {
     outline:
         3px solid
-        var(--cor-secundaria);
+        var(--cor-acento);
 
     outline-offset: 3px;
 }
@@ -117,8 +117,8 @@ textarea:focus-visible {
 
 body.alto-contraste {
     --cor-primaria: #ffff00;
-    --cor-primaria-hover: #ffffff;
     --cor-secundaria: #ffff00;
+    --cor-acento: #ffffff;
 
     --cor-texto: #ffffff;
     --cor-texto-secundario: #ffffff;

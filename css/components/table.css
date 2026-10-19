@@ -75,3 +75,210 @@
 .tabela-wrap tbody tr:last-child td {
     border-bottom: none;
 }
+
+
+/* =========================
+   LINHA DE FILTROS AVANÇADOS
+========================= */
+
+.filtros-linha th {
+    padding: 10px;
+
+    background-color: var(--cor-fundo);
+    vertical-align: top;
+}
+
+.filtro-coluna {
+    display: flex;
+    flex-direction: column;
+
+    gap: 4px;
+}
+
+/* Campo principal: o input de texto/data com o botão de modo (ícone)
+   sobreposto dentro da própria caixa, à direita. */
+.filtro-campo {
+    position: relative;
+}
+
+.filtro-valor {
+    width: 100%;
+    min-width: 90px;
+
+    padding: 8px 26px 8px 10px;
+
+    border: 1px solid var(--cor-borda);
+    border-radius: 6px;
+
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto);
+
+    font-family: var(--fonte-texto);
+    font-size: 0.85rem;
+}
+
+.filtro-valor-secundario {
+    margin-top: 4px;
+    padding-right: 10px;
+}
+
+.filtro-valor::placeholder {
+    color: var(--cor-texto-secundario);
+}
+
+.filtro-valor:focus {
+    outline: none;
+
+    border-color: var(--cor-primaria);
+}
+
+/* Botão com o ícone (▾) embutido no campo: abre o menu de modos.
+   É só um atalho — digitar direto no campo já filtra normalmente. */
+.filtro-modo-botao {
+    position: absolute;
+
+    top: 50%;
+    right: 4px;
+
+    transform: translateY(-50%);
+
+    width: 20px;
+    height: 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 4px;
+
+    background-color: transparent;
+    color: var(--cor-texto-secundario);
+
+    font-size: 0.7rem;
+    line-height: 1;
+
+    cursor: pointer;
+}
+
+.filtro-modo-botao:hover,
+.filtro-modo-botao[aria-expanded="true"] {
+    background-color: var(--cor-fundo-secundario);
+    color: var(--cor-primaria);
+}
+
+.filtro-modo-menu[hidden] {
+    display: none;
+}
+
+.filtro-modo-menu {
+    position: absolute;
+
+    top: calc(100% + 4px);
+    right: 0;
+
+    min-width: 130px;
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 4px;
+
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+
+    background-color: var(--cor-fundo);
+    box-shadow: 0 14px 34px rgba(11, 39, 64, 0.12);
+
+    z-index: 1200;
+}
+
+.filtro-modo-opcao {
+    padding: 6px 10px;
+
+    border: none;
+    border-radius: 6px;
+
+    background-color: transparent;
+    color: var(--cor-texto);
+
+    text-align: left;
+
+    font-family: var(--fonte-texto);
+    font-size: 0.8rem;
+
+    cursor: pointer;
+}
+
+.filtro-modo-opcao:hover {
+    background-color: var(--cor-fundo-secundario);
+}
+
+.filtro-modo-opcao.ativo {
+    color: var(--cor-primaria);
+    font-weight: 700;
+}
+
+
+/* =========================
+   SELETOR DE COLUNAS
+========================= */
+
+.colunas-wrap {
+    position: relative;
+}
+
+.colunas-painel[hidden] {
+    display: none;
+}
+
+.colunas-painel {
+    position: absolute;
+
+    top: calc(100% + 8px);
+    right: 0;
+
+    width: 240px;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 2px;
+
+    padding: 10px;
+
+    border: 1px solid var(--cor-borda);
+    border-radius: 10px;
+
+    background-color: var(--cor-fundo);
+    box-shadow: 0 14px 34px rgba(11, 39, 64, 0.12);
+
+    z-index: 1100;
+}
+
+.colunas-painel-item {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 8px 6px;
+
+    border-radius: 6px;
+
+    font-size: 0.9rem;
+
+    cursor: pointer;
+}
+
+.colunas-painel-item:hover {
+    background-color: var(--cor-fundo-secundario);
+}
+
+.colunas-painel-item input[type="checkbox"] {
+    accent-color: var(--cor-primaria);
+}
+
+.colunas-painel-item input[type="checkbox"]:disabled {
+    accent-color: var(--cor-texto-secundario);
+}

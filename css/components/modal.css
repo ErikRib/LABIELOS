@@ -82,7 +82,7 @@
 }
 
 .modal-fechar:focus-visible {
-    outline: 3px solid var(--cor-secundaria);
+    outline: 3px solid var(--cor-acento);
     outline-offset: 3px;
 }
 

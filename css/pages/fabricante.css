@@ -1,0 +1,106 @@
+/*
+   Estilos exclusivos das páginas do fabricante (html/fabricante/*.html).
+   Navbar, badges, botões, tabela e modais vêm de css/components/; o
+   layout de cards (resumo-card, parceiro-card) vem de css/pages/dashboard.css
+   e css/pages/parceiros.css, reaproveitados aqui.
+*/
+
+/* =========================
+   VISÃO GERAL - FABRICANTE
+========================= */
+
+.painel-fabricante-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+
+    gap: 20px;
+
+    margin-bottom: 32px;
+}
+
+#capacidadeParceiro {
+    display: flex;
+    flex-direction: column;
+
+    padding: 20px;
+
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--borda-radius);
+
+    background-color: var(--cor-fundo);
+}
+
+
+/* =========================
+   TABELA DE DEMANDAS
+========================= */
+
+.celula-acoes {
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 8px;
+}
+
+.btn-acao-tabela {
+    padding: 6px 12px;
+
+    font-size: 0.8rem;
+}
+
+
+/* =========================
+   BARRA DE FILTROS
+========================= */
+
+.area-listagem {
+    width: 100%;
+}
+
+.barra-filtros {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 16px;
+
+    /* Espaço entre a barra e a tabela logo abaixo. */
+    margin-bottom: 14px;
+}
+
+.barra-filtros-acoes {
+    display: flex;
+    align-items: center;
+
+    gap: 16px;
+}
+
+.barra-filtros p {
+    color: var(--cor-texto-secundario);
+
+    font-size: 0.9rem;
+}
+
+
+/* =========================
+   RESPONSIVIDADE
+========================= */
+
+@media (max-width: 1000px) {
+
+    .painel-fabricante-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 700px) {
+
+    .celula-acoes {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .btn-acao-tabela {
+        width: 100%;
+    }
+}

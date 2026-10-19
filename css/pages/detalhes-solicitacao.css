@@ -195,7 +195,7 @@
 
     color: var(--cor-primaria);
 
-    box-shadow: 0 0 0 4px rgba(0, 168, 198, 0.12);
+    box-shadow: 0 0 0 4px rgba(59, 130, 160, 0.12);
 }
 
 @keyframes preencher-fluxo {
@@ -313,6 +313,24 @@
     color: var(--cor-texto-secundario);
 
     font-size: 0.85rem;
+}
+
+/* =========================
+   NOVO REGISTRO NA TIMELINE
+========================= */
+
+.form-registro-timeline {
+    margin-top: 24px;
+    padding-top: 24px;
+
+    border-top: 1px solid var(--cor-borda);
+}
+
+.form-registro-acoes {
+    display: flex;
+    justify-content: flex-end;
+
+    margin-top: 16px;
 }
 
 /* =========================

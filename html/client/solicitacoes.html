@@ -21,8 +21,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
+  <script src="/js/filtros.js" defer></script>
   <script src="/js/prototipo.js" defer></script>
 </head>
 
@@ -84,14 +85,7 @@
               <th>Prioridade</th>
               <th>Status</th>
             </tr>
-            <tr class="filtros-linha">
-              <th><input data-filtro="protocolo" aria-label="Filtrar protocolo" placeholder="Filtrar..."></th>
-              <th><input data-filtro="solicitacao" aria-label="Filtrar solicitação" placeholder="Filtrar..."></th>
-              <th><input data-filtro="requerente" aria-label="Filtrar requerente" placeholder="Filtrar..."></th>
-              <th><input data-filtro="atribuido" aria-label="Filtrar atribuído" placeholder="Filtrar..."></th>
-              <th><input data-filtro="prioridade" aria-label="Filtrar prioridade" placeholder="Filtrar..."></th>
-              <th><input data-filtro="status" aria-label="Filtrar status" placeholder="Filtrar..."></th>
-            </tr>
+            <tr class="filtros-linha" id="linhaFiltrosSolicitacoes"></tr>
           </thead>
           <tbody></tbody>
         </table>
@@ -99,13 +93,13 @@
     </section>
   </main><button class="btn-topo" id="btnTopo">↑</button>
   <dialog class="modal" id="modalNovaSolicitacao">
-    <div class="modal-cabecalho">
+    <header class="modal-cabecalho">
       <div>
         <p>Cadastro</p>
         <h2>Nova solicitação</h2>
       </div>
       <button class="modal-fechar" type="button" data-fechar-modal aria-label="Fechar">×</button>
-    </div>
+    </header>
     <form id="formNovaSolicitacao">
       <div class="modal-corpo">
         <div class="form-grid">
@@ -146,10 +140,10 @@
           </div>
         </div>
       </div>
-      <div class="modal-acoes">
+      <footer class="modal-acoes">
         <button type="button" class="btn btn-secundario btn-acao" data-fechar-modal>Cancelar</button>
         <button type="submit" class="btn btn-principal btn-acao">Criar solicitação</button>
-      </div>
+      </footer>
     </form>
   </dialog>
 </body>

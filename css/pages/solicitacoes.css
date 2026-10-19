@@ -47,41 +47,6 @@
 }
 
 /* =========================
-   FILTROS DA TABELA
-========================= */
-
-.filtros-linha th {
-    padding: 8px 10px;
-
-    background-color: var(--cor-fundo);
-}
-
-.filtros-linha input {
-    width: 100%;
-
-    padding: 8px 10px;
-
-    border: 1px solid var(--cor-borda);
-    border-radius: 6px;
-
-    background-color: var(--cor-fundo);
-    color: var(--cor-texto);
-
-    font-family: var(--fonte-texto);
-    font-size: 0.85rem;
-}
-
-.filtros-linha input:focus {
-    outline: none;
-
-    border-color: var(--cor-primaria);
-}
-
-.filtros-linha input::placeholder {
-    color: var(--cor-texto-secundario);
-}
-
-/* =========================
    RESPONSIVIDADE
 ========================= */
 

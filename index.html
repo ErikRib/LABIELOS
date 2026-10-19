@@ -28,13 +28,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
 
     <!-- Scripts já existentes no projeto -->
     <script src="/js/acessibilidade.js" defer></script>
     <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
-    <script src="https://cdn.userway.org/widget.js" data-account="yhU6qPJU60" data-position="6"></script></script>
+    <script src="https://cdn.userway.org/widget.js" data-account="yhU6qPJU60" data-position="6"></script>
     <script src="/js/interface.js" defer></script>
 </head>
 
@@ -145,47 +145,48 @@
                 </p>
             </div>
 
-            <div class="fluxo">
-                <article class="etapa">
-                    <span class="numero">1</span>
+            <!-- Sequência numerada de 5 etapas: marcada como lista ordenada para refletir a ordem real do processo. -->
+            <ol class="fluxo">
+                <li class="etapa">
+                    <span class="numero" aria-hidden="true">1</span>
                     <div>
                         <h3>A AACD cria a solicitação</h3>
                         <p>A AACD registra uma nova demanda com as informações necessárias para a produção.</p>
                     </div>
-                </article>
+                </li>
 
-                <article class="etapa">
-                    <span class="numero">2</span>
+                <li class="etapa">
+                    <span class="numero" aria-hidden="true">2</span>
                     <div>
                         <h3>Seleciona um parceiro</h3>
                         <p>A AACD consulta os parceiros credenciados e escolhe para qual deseja encaminhar a solicitação.</p>
                     </div>
-                </article>
+                </li>
 
-                <article class="etapa">
-                    <span class="numero">3</span>
+                <li class="etapa">
+                    <span class="numero" aria-hidden="true">3</span>
                     <div>
                         <h3>LABIELOS centraliza</h3>
                         <p>Solicitações, documentos, informações e atualizações ficam concentrados em um único ambiente.</p>
                     </div>
-                </article>
+                </li>
 
-                <article class="etapa">
-                    <span class="numero">4</span>
+                <li class="etapa">
+                    <span class="numero" aria-hidden="true">4</span>
                     <div>
                         <h3>Parceiro realiza a produção</h3>
                         <p>O parceiro recebe a solicitação e atualiza o andamento da produção pela plataforma.</p>
                     </div>
-                </article>
+                </li>
 
-                <article class="etapa">
-                    <span class="numero">5</span>
+                <li class="etapa">
+                    <span class="numero" aria-hidden="true">5</span>
                     <div>
                         <h3>Acompanhamento</h3>
                         <p>AACD e parceiro acompanham o histórico e o status da solicitação até sua conclusão.</p>
                     </div>
-                </article>
-            </div>
+                </li>
+            </ol>
 
         </section>
 

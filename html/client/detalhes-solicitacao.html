@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
   <script src="/js/prototipo.js" defer></script>
 </head>
@@ -91,31 +91,52 @@
     <section class="detalhe-layout">
       <div class="detalhe-coluna-principal">
         <article class="painel-bloco">
-          <div class="bloco-cabecalho">
+          <header class="bloco-cabecalho">
             <div>
               <p class="eyebrow">Andamento</p>
               <h2>Fluxo da solicitação</h2>
             </div><span data-detalhe="status"></span>
-          </div>
+          </header>
           <ol class="fluxo-solicitacao" id="fluxoSolicitacao"></ol>
         </article>
 
         <article class="painel-bloco">
-          <div class="bloco-cabecalho">
+          <header class="bloco-cabecalho">
             <div>
               <p class="eyebrow">Acompanhamento</p>
               <h2>Histórico da solicitação</h2>
             </div>
-          </div>
+          </header>
           <div class="timeline" id="timelineSolicitacao"></div>
+
+          <form class="form-registro-timeline" id="formRegistroTimeline">
+            <div class="form-grid">
+              <div class="campo"><label>Tipo de registro</label>
+                <select name="tipo">
+                  <option value="Comentário">Comentário</option>
+                  <option value="Anexo">Anexo</option>
+                </select>
+              </div>
+              <div class="campo amplo"><label>Mensagem</label>
+                <textarea name="mensagem" placeholder="Descreva uma atualização, observação ou solicitação relacionada a este registro."></textarea>
+              </div>
+              <div class="campo amplo campo-arquivo">
+                <label for="arquivoRegistro">Anexar arquivo (opcional)</label>
+                <input id="arquivoRegistro" name="arquivo" type="file">
+              </div>
+            </div>
+            <div class="form-registro-acoes">
+              <button type="submit" class="btn btn-principal btn-acao">Adicionar registro</button>
+            </div>
+          </form>
         </article>
       </div>
 
       <aside class="detalhe-coluna-lateral">
         <article class="painel-bloco detalhe-resumo-card">
-          <div class="bloco-cabecalho">
+          <header class="bloco-cabecalho">
             <h2>Informações</h2>
-          </div>
+          </header>
           <dl class="detalhes-lista">
             <div>
               <dt>Requerente</dt>
@@ -153,16 +174,16 @@
         </article>
 
         <article class="painel-bloco">
-          <div class="bloco-cabecalho">
+          <header class="bloco-cabecalho">
             <h2>Arquivo 3D anexado</h2>
-          </div>
+          </header>
           <div class="anexo-card" id="anexoSolicitacao"></div>
         </article>
 
         <article class="painel-bloco">
-          <div class="bloco-cabecalho">
+          <header class="bloco-cabecalho">
             <h2>Descrição</h2>
-          </div>
+          </header>
           <p class="texto-detalhe" data-detalhe="descricao"></p>
         </article>
       </aside>
@@ -170,13 +191,13 @@
   </main>
 
   <dialog class="modal" id="modalNovaSolicitacao">
-    <div class="modal-cabecalho">
+    <header class="modal-cabecalho">
       <div>
         <p>Cadastro</p>
         <h2>Nova solicitação</h2>
       </div>
       <button class="modal-fechar" type="button" data-fechar-modal aria-label="Fechar">×</button>
-    </div>
+    </header>
     <form id="formNovaSolicitacao">
       <div class="modal-corpo">
         <div class="form-grid">
@@ -217,21 +238,21 @@
           </div>
         </div>
       </div>
-      <div class="modal-acoes">
+      <footer class="modal-acoes">
         <button type="button" class="btn btn-secundario btn-acao" data-fechar-modal>Cancelar</button>
         <button type="submit" class="btn btn-principal btn-acao">Criar solicitação</button>
-      </div>
+      </footer>
     </form>
   </dialog>
   <button class="btn-topo" id="btnTopo">↑</button>
 
   <dialog class="modal" id="modalEditarSolicitacao">
-    <div class="modal-cabecalho">
+    <header class="modal-cabecalho">
       <div>
         <p>Edição</p>
         <h2>Editar solicitação</h2>
       </div><button class="modal-fechar" type="button" data-fechar-modal aria-label="Fechar">×</button>
-    </div>
+    </header>
     <form id="formEditarSolicitacao">
       <div class="modal-corpo">
         <div class="form-grid">
@@ -270,19 +291,19 @@
           </div>
         </div>
       </div>
-      <div class="modal-acoes"><button type="button" class="btn btn-secundario btn-acao"
+      <footer class="modal-acoes"><button type="button" class="btn btn-secundario btn-acao"
           data-fechar-modal>Cancelar</button><button type="submit" class="btn btn-principal btn-acao">Salvar
-          alterações</button></div>
+          alterações</button></footer>
     </form>
   </dialog>
 
   <dialog class="modal modal-visualizador" id="modalVisualizarArquivo">
-    <div class="modal-cabecalho">
+    <header class="modal-cabecalho">
       <div>
         <p>Arquivo 3D</p>
         <h2 data-viewer="nome">Visualização do anexo</h2>
       </div><button class="modal-fechar" type="button" data-fechar-modal aria-label="Fechar">×</button>
-    </div>
+    </header>
     <div class="modal-corpo">
       <div class="viewer-3d" aria-label="Pré-visualização 3D demonstrativa do arquivo anexado">
         <svg viewBox="0 0 520 320" role="img" aria-label="Representação tridimensional em wireframe para o protótipo">

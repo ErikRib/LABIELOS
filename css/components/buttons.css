@@ -43,21 +43,45 @@
     transform: translateY(-2px);
 }
 
+.btn-principal:active {
+    background-color: color-mix(in srgb, var(--cor-primaria) 85%, black);
+}
+
+.btn-principal:disabled,
+.btn-principal[aria-disabled="true"] {
+    background-color: var(--cor-fundo-secundario);
+    color: var(--cor-texto-secundario);
+
+    cursor: not-allowed;
+    transform: none;
+}
+
 
 /* SECUNDÁRIO */
 
 .btn-secundario {
-    border: 1px solid var(--cor-primaria);
+    border: 1px solid var(--cor-secundaria);
 
     background-color: transparent;
-    color: var(--cor-primaria);
+    color: var(--cor-secundaria);
 }
 
 .btn-secundario:hover {
-    background-color: var(--cor-primaria);
+    background-color: var(--cor-secundaria);
     color: var(--cor-texto-claro);
 
     transform: translateY(-2px);
+}
+
+.btn-secundario:disabled,
+.btn-secundario[aria-disabled="true"] {
+    border-color: var(--cor-borda);
+
+    background-color: transparent;
+    color: var(--cor-texto-secundario);
+
+    cursor: not-allowed;
+    transform: none;
 }
 
 /* BOTÃO LIMPAR FILTROS */
@@ -78,7 +102,7 @@
 }
 
 .btn-texto:hover {
-    color: var(--cor-secundaria);
+    color: var(--cor-acento);
 }
 
 /* BOTÃO DE LOGIN */
@@ -129,7 +153,7 @@
 }
 
 .btn-topo:hover {
-    background-color: var(--cor-secundaria);
+    background-color: var(--cor-acento);
 
     transform: translateY(-3px);
 }
@@ -142,6 +166,6 @@
 }
 
 .btn-topo:focus-visible {
-    outline: 3px solid var(--cor-secundaria);
+    outline: 3px solid var(--cor-acento);
     outline-offset: 3px;
 }
