@@ -1,2 +1,9 @@
 Doc-PI/
 .vscode/
+# Ignora o ambiente virtual e arquivos temporários do Python.
+.venv/
+__pycache__/
+*.pyc
+
+# Impede que arquivos com senhas sejam enviados ao GitHub.
+.env
