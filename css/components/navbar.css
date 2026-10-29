@@ -252,6 +252,23 @@
 }
 
 /* =========================
+   NAVEGAÇÃO - SITE PÚBLICO
+========================= */
+
+@media (min-width: 1001px) {
+
+    .site-nav {
+        grid-template-columns: auto 1fr;
+    }
+
+    .site-nav .nav-links {
+        justify-self: end;
+        justify-content: flex-end;
+    }
+
+}
+
+/* =========================
    RESPONSIVIDADE
 ========================= */
 
