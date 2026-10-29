@@ -1,206 +1,275 @@
 <!DOCTYPE html>
 
 <html lang="pt-BR">
+
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Cadastro</title>
-<!-- CSS global e componentes reutilizados no site público -->
-<link href="/css/style.css" rel="stylesheet"/>
-<link href="/css/components/navbar.css" rel="stylesheet"/>
-<link href="/css/components/buttons.css" rel="stylesheet"/>
-<link href="/css/components/accessibility.css" rel="stylesheet"/>
-<link href="/css/components/footer.css" rel="stylesheet"/>
-<!-- CSS exclusivo da tela de cadastro -->
-<link href="/css/pages/cadastro.css" rel="stylesheet"/>
-<link href="/content/img/favicon.png" rel="icon" type="image/png"/>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-<script defer="" src="/js/acessibilidade.js"></script>
-<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
-<script data-account="yhU6qPJU60" data-position="6" src="https://cdn.userway.org/widget.js"></script>
-<script defer="" src="/js/interface.js"></script>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+
+    <title>Cadastro</title>
+
+    <!-- CSS global e componentes reutilizados no site público -->
+    <link href="/css/style.css" rel="stylesheet" />
+    <link href="/css/components/navbar.css" rel="stylesheet" />
+    <link href="/css/components/buttons.css" rel="stylesheet" />
+    <link href="/css/components/accessibility.css" rel="stylesheet" />
+    <link href="/css/components/footer.css" rel="stylesheet" />
+
+    <!-- CSS exclusivo da tela de cadastro -->
+    <link href="/css/pages/cadastro.css" rel="stylesheet" />
+    <link href="/content/img/favicon.png" rel="icon" type="image/png" />
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+
+    <script defer="" src="/js/acessibilidade.js"></script>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script data-account="yhU6qPJU60" data-position="6" src="https://cdn.userway.org/widget.js"></script>
+    <script defer="" src="/js/interface.js"></script>
+
 </head>
+
 <body>
-<!-- =========================
+    <!-- =========================
          ÁREA DE CADASTRO
     ========================== -->
-<main class="cadastro-pagina">
-<section aria-labelledby="titulo-cadastro-1" class="cadastro-container" id="cadastroPage1">
-<!-- Texto introdutório do card -->
-<header class="cadastro-texto">
-<span class="cadastro-tag">Crie sua conta</span>
-<h1 id="titulo-cadastro-1">Cadastre-se no LABIELOS</h1>
-<p>Preencha os campos abaixo para criar sua conta.</p>
-</header>
-<form class="cadastro-form">
-<div class="campo">
-<label for="nome">Nome *</label>
-<input autocomplete="given-name" id="nome" name="firstname" placeholder="Primeiro nome" required="" type="text"/>
-</div>
-<div class="campo">
-<label for="segundoNome">Sobrenome *</label>
-<input autocomplete="family-name" id="segundoNome" name="lastname" placeholder="Segundo nome" required="" type="text"/>
-</div>
-<div class="campo">
-<label for="email">E-mail *</label>
-<input autocomplete="email" id="email" name="email" placeholder="nome@exemplo.com" required="" type="email"/>
-</div>
-<div class="campo">
-<label for="senha">Senha *</label>
-<input autocomplete="new-password" id="senha" minlength="8" name="senha" placeholder="Digite sua senha" required="" type="password"/>
-</div>
-<div class="campo">
-<label for="confirmeSenha">Confirme a senha *</label>
-<input autocomplete="new-password" id="confirmeSenha" minlength="8" name="confirmeSenha" placeholder="Digite sua senha" required="" type="password"/>
-</div>
-<div class="cadastro-opcoes">
-<label class="termos-cadastro">
-<input name="termos" required="" type="checkbox"/>
-<span>Li e concordo com os <a href="/html/termos.html" rel="noopener noreferrer" target="_blank">termos de serviço</a></span>
-</label>
-</div>
-<button class="btn btn-principal btn-cadastro" id="btnNextCadastro1" type="submit">Próximo</button>
-</form>
-</section>
-<section aria-labelledby="titulo-cadastro-2" class="cadastro-container" hidden="" id="cadastroPage2">
-<!-- Texto introdutório do card -->
-<header class="cadastro-texto">
-<span class="cadastro-tag">Identificação</span>
-<h1 id="titulo-cadastro-2">Como você pretende utilizar o LABIELOS?</h1>
-<p>Selecione o tipo de organização que você representa.</p>
-</header>
-<form class="cadastro-form">
-<fieldset class="campo campo-perfil">
-<legend>Tipo de organização</legend>
-<label class="opcao-perfil">
-<input name="identificacao" required="" type="radio" value="organizacao"/>
-<span class="opcao-perfil-texto">
-<strong>Organização solicitante</strong>
-<span>
+    <main class="cadastro-pagina">
+        
+        <section aria-labelledby="titulo-cadastro-1" class="cadastro-container" id="cadastroPage1">
+
+            <!-- Texto introdutório do card -->
+            <header class="cadastro-texto">
+                <span class="cadastro-tag">Crie sua conta</span>
+                <h1 id="titulo-cadastro-1">Cadastre-se no LABIELOS</h1>
+                <p>Preencha os campos abaixo para criar sua conta.</p>
+            </header>
+
+            <form class="cadastro-form">
+
+                <div class="campo">
+                    <label for="nome">Nome *</label>
+                    <input autocomplete="given-name" id="nome" name="firstname" placeholder="Primeiro nome" required=""
+                        type="text" />
+                </div>
+
+                <div class="campo">
+                    <label for="segundoNome">Sobrenome *</label>
+                    <input autocomplete="family-name" id="segundoNome" name="lastname" placeholder="Segundo nome"
+                        required="" type="text" />
+                </div>
+
+                <div class="campo">
+                    <label for="email">E-mail *</label>
+                    <input autocomplete="email" id="email" name="email" placeholder="nome@exemplo.com" required=""
+                        type="email" />
+                </div>
+
+                <div class="campo">
+                    <label for="senha">Senha *</label>
+                    <input autocomplete="new-password" id="senha" minlength="8" name="senha"
+                        placeholder="Digite sua senha" required="" type="password" />
+                </div>
+
+                <div class="campo">
+                    <label for="confirmeSenha">Confirme a senha *</label>
+                    <input autocomplete="new-password" id="confirmeSenha" minlength="8" name="confirmeSenha"
+                        placeholder="Digite sua senha" required="" type="password" />
+                </div>
+
+                <div class="cadastro-opcoes">
+                    <label class="termos-cadastro">
+                        <input name="termos" required="" type="checkbox" />
+                        <span>Li e concordo com os <a href="/html/termos.html" rel="noopener noreferrer"
+                                target="_blank">termos de serviço</a></span>
+                    </label>
+                </div>
+
+                <button class="btn btn-principal btn-cadastro" id="btnNextCadastro1" type="submit">Próximo</button>
+            </form>
+
+        </section>
+
+        <section aria-labelledby="titulo-cadastro-2" class="cadastro-container" hidden="" id="cadastroPage2">
+
+            <!-- Texto introdutório do card -->
+            <header class="cadastro-texto">
+                <span class="cadastro-tag">Identificação</span>
+                <h1 id="titulo-cadastro-2">Como você pretende utilizar o LABIELOS?</h1>
+                <p>Selecione o tipo de organização que você representa.</p>
+            </header>
+
+            <form class="cadastro-form">
+                <fieldset class="campo campo-perfil">
+                    <legend>Tipo de organização</legend>
+                    <label class="opcao-perfil">
+                        <input name="identificacao" required="" type="radio" value="organizacao" />
+                        <span class="opcao-perfil-texto">
+                            <strong>Organização solicitante</strong>
+                            <span>
                                 Instituições de saúde e organizações
                                 que solicitam próteses.
                             </span>
-</span>
-</label>
-<label class="opcao-perfil">
-<input name="identificacao" required="" type="radio" value="fabricante"/>
-<span class="opcao-perfil-texto">
-<strong>Fabricante</strong>
-<span>
+                        </span>
+                    </label>
+
+                    <label class="opcao-perfil">
+                        <input name="identificacao" required="" type="radio" value="fabricante" />
+                        <span class="opcao-perfil-texto">
+                            <strong>Fabricante</strong>
+                            <span>
                                 Laboratórios e fabricantes responsáveis
                                 pela produção de próteses.
                             </span>
-</span>
-</label>
-</fieldset>
-<div class="cadastro-botoes">
-<button class="btn btn-secundario" id="btnBackCadastro2" type="button">
+                        </span>
+                    </label>
+
+                </fieldset>
+
+                <div class="cadastro-botoes">
+                    <button class="btn btn-secundario" id="btnBackCadastro2" type="button">
                         Voltar
                     </button>
-<button class="btn btn-principal" id="btnNextCadastro2" type="submit">
+                    <button class="btn btn-principal" id="btnNextCadastro2" type="submit">
                         Próximo
                     </button>
-</div>
-</form>
-</section>
-<section aria-labelledby="titulo-cadastro-3" class="cadastro-container" hidden="" id="cadastroPage3">
-<!-- Texto introdutório do card -->
-<header class="cadastro-texto">
-<span class="cadastro-tag">ORGANIZAÇÃO</span>
-<h1 id="titulo-cadastro-3">Sua organização já está cadastrada?</h1>
-<p>Informe se você já faz parte de uma organização cadastrada ou deseja solicitar o cadastro de uma
+                </div>
+
+            </form>
+
+        </section>
+
+        <section aria-labelledby="titulo-cadastro-3" class="cadastro-container" hidden="" id="cadastroPage3">
+
+            <!-- Texto introdutório do card -->
+            <header class="cadastro-texto">
+                <span class="cadastro-tag">ORGANIZAÇÃO</span>
+                <h1 id="titulo-cadastro-3">Sua organização já está cadastrada?</h1>
+                <p>Informe se você já faz parte de uma organização cadastrada ou deseja solicitar o cadastro de uma
                     nova.</p>
-</header>
-<form class="cadastro-form" id="formCadastro3">
-<fieldset class="campo campo-perfil">
-<legend>Selecione uma opção</legend>
-<label class="opcao-perfil">
-<input name="vinculo" required="" type="radio" value="existente"/>
-<span class="opcao-perfil-texto">
-<strong>Organização existente</strong>
-<span>
+            </header>
+
+            <form class="cadastro-form" id="formCadastro3">
+                <fieldset class="campo campo-perfil">
+                    <legend>Selecione uma opção</legend>
+                    <label class="opcao-perfil">
+                        <input name="vinculo" required="" type="radio" value="existente" />
+                        <span class="opcao-perfil-texto">
+                            <strong>Organização existente</strong>
+                            <span>
                                 Já faço parte de uma organização
                                 cadastrada no LABIELOS.
                             </span>
-</span>
-</label>
-<label class="opcao-perfil">
-<input name="vinculo" required="" type="radio" value="nova"/>
-<span class="opcao-perfil-texto">
-<strong>Nova organização</strong>
-<span>
+                        </span>
+                    </label>
+                    <label class="opcao-perfil">
+                        <input name="vinculo" required="" type="radio" value="nova" />
+                        <span class="opcao-perfil-texto">
+                            <strong>Nova organização</strong>
+                            <span>
                                 Minha organização ainda não possui
                                 cadastro no LABIELOS.
                             </span>
-</span>
-</label>
-</fieldset>
-<div class="cadastro-botoes">
-<button class="btn btn-secundario" id="btnBackCadastro3" type="button">
+                        </span>
+                    </label>
+                </fieldset>
+                <div class="cadastro-botoes">
+                    <button class="btn btn-secundario" id="btnBackCadastro3" type="button">
                         Voltar
                     </button>
-<button class="btn btn-principal" id="btnNextCadastro3" type="submit">
+                    <button class="btn btn-principal" id="btnNextCadastro3" type="submit">
                         Próximo
                     </button>
-</div>
-</form>
-</section>
-<!-- ETAPA 4: ORGANIZAÇÃO EXISTENTE -->
-<section aria-labelledby="titulo-cadastro-4" class="cadastro-container" hidden="" id="cadastroPage4">
-<header class="cadastro-texto">
-<span class="cadastro-tag">ORGANIZAÇÃO EXISTENTE</span>
-<h1 id="titulo-cadastro-4">
-            Encontre sua organização
-        </h1>
-<p>
-            Pesquise a organização da qual você faz parte
-            para solicitar seu ingresso.
-        </p>
-</header>
+                </div>
+            </form>
+        </section>
+        <!-- ETAPA 4: ORGANIZAÇÃO EXISTENTE -->
+        <section aria-labelledby="titulo-cadastro-4" class="cadastro-container" hidden="" id="cadastroPage4">
+            <header class="cadastro-texto">
+                <span class="cadastro-tag">ORGANIZAÇÃO EXISTENTE</span>
+                <h1 id="titulo-cadastro-4">
+                    Encontre sua organização
+                </h1>
+                <p>
+                    Pesquise a organização da qual você faz parte
+                    para solicitar seu ingresso.
+                </p>
+            </header>
 
-<form class="cadastro-form" id="formCadastro4">
-<div class="campo"><label for="buscarOrganizacao">Nome da organização *</label><input autocomplete="off" id="buscarOrganizacao" minlength="2" name="buscarOrganizacao" placeholder="Ex.: AACD" required="" type="search"/></div>
-<fieldset class="campo campo-perfil"><legend>Resultados da pesquisa</legend><div aria-live="polite" class="resultado-organizacoes" id="resultadoOrganizacoes"><p>Digite pelo menos 2 caracteres para pesquisar.</p></div></fieldset>
-<div class="campo"><label for="justificativaIngresso">Justificativa (opcional)</label><textarea id="justificativaIngresso" maxlength="500" name="justificativa" placeholder="Explique brevemente seu vínculo com a organização." rows="3"></textarea></div>
-<p id="mensagemCadastro4" class="cadastro-aviso" role="status"></p>
-<div class="cadastro-botoes"><button class="btn btn-secundario" id="btnBackCadastro4" type="button">Voltar</button><button class="btn btn-principal" type="submit">Solicitar ingresso</button></div>
-</form></section>
-<section aria-labelledby="titulo-cadastro-5" class="cadastro-container" hidden="" id="cadastroPage5">
-<header class="cadastro-texto"><span class="cadastro-tag">NOVA ORGANIZAÇÃO</span><h1 id="titulo-cadastro-5">Cadastre sua organização</h1><p>Informe os dados institucionais para solicitar a criação da organização.</p></header>
-<form class="cadastro-form" id="formCadastro5">
-<div class="campo"><label for="nomeOrganizacaoNova">Nome da organização *</label><input id="nomeOrganizacaoNova" maxlength="150" name="nomeOrganizacao" required=""/></div>
-<div class="campo"><label for="cnpjOrganizacao">CNPJ *</label><input id="cnpjOrganizacao" inputmode="numeric" name="cnpj" placeholder="00.000.000/0000-00" required=""/></div>
-<div class="campo"><label for="emailInstitucional">E-mail institucional *</label><input autocomplete="email" id="emailInstitucional" name="emailInstitucional" required="" type="email"/></div>
-<div class="campo"><label for="telefoneInstitucional">Telefone institucional *</label><input autocomplete="tel" id="telefoneInstitucional" name="telefoneInstitucional" required="" type="tel"/></div>
-<div class="campo"><label for="cargoResponsavel">Seu cargo na organização *</label><input id="cargoResponsavel" maxlength="100" name="cargoResponsavel" required=""/></div>
-<p class="cadastro-aviso">Os endereços e locais de retirada poderão ser cadastrados posteriormente no perfil institucional. A criação e as permissões dependem de aprovação.</p>
-<p id="mensagemCadastro5" class="cadastro-aviso" role="status"></p>
-<div class="cadastro-botoes"><button class="btn btn-secundario" id="btnBackCadastro5" type="button">Voltar</button><button class="btn btn-principal" type="submit">Solicitar cadastro</button></div>
-</form></section><section aria-labelledby="titulo-cadastro-6" class="cadastro-container" hidden="" id="cadastroPage6">
-<header class="cadastro-texto"><span class="cadastro-tag">CONFIRMAÇÃO</span><h1 id="titulo-cadastro-6">Solicitação preparada</h1><p id="mensagemConfirmacao" role="status">Esta é uma demonstração. Nenhum cadastro foi enviado.</p></header>
-<p class="cadastro-aviso">Na versão integrada, sua solicitação será analisada antes da liberação do acesso.</p>
-<button class="btn btn-secundario btn-cadastro" id="btnRevisarCadastro" type="button">Revisar dados</button>
-</section></main>
-<!-- =========================
+            <form class="cadastro-form" id="formCadastro4">
+                <div class="campo"><label for="buscarOrganizacao">Nome da organização *</label><input autocomplete="off"
+                        id="buscarOrganizacao" minlength="2" name="buscarOrganizacao" placeholder="Ex.: AACD"
+                        required="" type="search" /></div>
+                <fieldset class="campo campo-perfil">
+                    <legend>Resultados da pesquisa</legend>
+                    <div aria-live="polite" class="resultado-organizacoes" id="resultadoOrganizacoes">
+                        <p>Digite pelo menos 2 caracteres para pesquisar.</p>
+                    </div>
+                </fieldset>
+                <div class="campo"><label for="justificativaIngresso">Justificativa (opcional)</label><textarea
+                        id="justificativaIngresso" maxlength="500" name="justificativa"
+                        placeholder="Explique brevemente seu vínculo com a organização." rows="3"></textarea></div>
+                <p id="mensagemCadastro4" class="cadastro-aviso" role="status"></p>
+                <div class="cadastro-botoes"><button class="btn btn-secundario" id="btnBackCadastro4"
+                        type="button">Voltar</button><button class="btn btn-principal" type="submit">Solicitar
+                        ingresso</button></div>
+            </form>
+        </section>
+        <section aria-labelledby="titulo-cadastro-5" class="cadastro-container" hidden="" id="cadastroPage5">
+            <header class="cadastro-texto"><span class="cadastro-tag">NOVA ORGANIZAÇÃO</span>
+                <h1 id="titulo-cadastro-5">Cadastre sua organização</h1>
+                <p>Informe os dados institucionais para solicitar a criação da organização.</p>
+            </header>
+            <form class="cadastro-form" id="formCadastro5">
+                <div class="campo"><label for="nomeOrganizacaoNova">Nome da organização *</label><input
+                        id="nomeOrganizacaoNova" maxlength="150" name="nomeOrganizacao" required="" /></div>
+                <div class="campo"><label for="cnpjOrganizacao">CNPJ *</label><input id="cnpjOrganizacao"
+                        inputmode="numeric" name="cnpj" placeholder="00.000.000/0000-00" required="" /></div>
+                <div class="campo"><label for="emailInstitucional">E-mail institucional *</label><input
+                        autocomplete="email" id="emailInstitucional" name="emailInstitucional" required=""
+                        type="email" /></div>
+                <div class="campo"><label for="telefoneInstitucional">Telefone institucional *</label><input
+                        autocomplete="tel" id="telefoneInstitucional" name="telefoneInstitucional" required=""
+                        type="tel" /></div>
+                <div class="campo"><label for="cargoResponsavel">Seu cargo na organização *</label><input
+                        id="cargoResponsavel" maxlength="100" name="cargoResponsavel" required="" /></div>
+                <p class="cadastro-aviso">Os endereços e locais de retirada poderão ser cadastrados posteriormente no
+                    perfil institucional. A criação e as permissões dependem de aprovação.</p>
+                <p id="mensagemCadastro5" class="cadastro-aviso" role="status"></p>
+                <div class="cadastro-botoes"><button class="btn btn-secundario" id="btnBackCadastro5"
+                        type="button">Voltar</button><button class="btn btn-principal" type="submit">Solicitar
+                        cadastro</button></div>
+            </form>
+        </section>
+        <section aria-labelledby="titulo-cadastro-6" class="cadastro-container" hidden="" id="cadastroPage6">
+            <header class="cadastro-texto"><span class="cadastro-tag">CONFIRMAÇÃO</span>
+                <h1 id="titulo-cadastro-6">Solicitação preparada</h1>
+                <p id="mensagemConfirmacao" role="status">Esta é uma demonstração. Nenhum cadastro foi enviado.</p>
+            </header>
+            <p class="cadastro-aviso">Na versão integrada, sua solicitação será analisada antes da liberação do acesso.
+            </p>
+            <button class="btn btn-secundario btn-cadastro" id="btnRevisarCadastro" type="button">Revisar dados</button>
+        </section>
+    </main>
+    <!-- =========================
          RODAPÉ COMPARTILHADO
     ========================== -->
-<footer class="footer-principal">
-<div class="footer-conteudo">
-<nav aria-label="Links do rodapé" class="footer-links">
-<a href="/index.html">Inicio</a>
-<a href="/html/privacidade.html">Privacidade</a>
-<a href="/html/termos.html">Termos</a>
-<a href="/html/contato.html">Contato</a>
-</nav>
-<p class="footer-copy-outros">© 2026 - LABIELOS · Todos os direitos reservados</p>
-</div>
-</footer>
-<button aria-label="Voltar ao topo da página" class="btn-topo" id="btnTopo" title="Voltar ao topo" type="button">
+    <footer class="footer-principal">
+        <div class="footer-conteudo">
+            <nav aria-label="Links do rodapé" class="footer-links">
+                <a href="/index.html">Início</a>
+                <a href="/html/contato.html">Contato</a>
+                <a href="/html/termos.html">Termos de Uso</a>
+                <a href="/html/privacidade.html">Política de Privacidade</a>
+            </nav>
+            <p class="footer-copy-outros">© 2026 - LABIELOS · Todos os direitos reservados</p>
+        </div>
+    </footer>
+    <button aria-label="Voltar ao topo da página" class="btn-topo" id="btnTopo" title="Voltar ao topo" type="button">
         ↑
     </button>
-<script src="/js/api.js" defer></script>
-<script src="/js/cadastro.js" defer></script>
+    <script src="/js/api.js" defer></script>
+    <script src="/js/cadastro.js" defer></script>
 </body>
+
 </html>
