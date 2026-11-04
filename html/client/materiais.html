@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Materiais para doação | LABIELOS</title>
+  <link rel="stylesheet" href="/css/style.css">
+
+  <link rel="stylesheet" href="/css/components/navbar.css">
+  <link rel="stylesheet" href="/css/components/badges.css">
+  <link rel="stylesheet" href="/css/components/buttons.css">
+  <link rel="stylesheet" href="/css/components/table.css">
+  <link rel="stylesheet" href="/css/components/forms.css">
+  <link rel="stylesheet" href="/css/components/modal.css">
+
+  <link rel="stylesheet" href="/css/pages/fabricator.css">
+  <link rel="stylesheet" href="/css/pages/materiais.css">
+  <link rel="icon" type="image/png" href="/content/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <script src="/js/api.js" defer></script>
+  <script src="/js/prototipo.js" defer></script>
+  <script src="/js/materiais.js" defer></script>
+</head>
+
+<body data-pagina="materiais" data-materiais-modo="consulta">
+
+  <header class="painel-header">
+
+    <nav class="nav-principal painel-nav" aria-label="Navegação principal">
+      <a href="/html/client/index.html" title="LABIELOS" class="nav-logo"><img
+          src="/content/img/logo-simples.png" alt="Logo do LABIELOS"></a>
+      <ul class="nav-links" id="navLinks">
+        <li><a data-pagina="inicio" href="/html/client/index.html">Início</a></li>
+        <li><a data-pagina="solicitacoes" href="/html/client/solicitacoes.html">Solicitações</a></li>
+        <li><a data-pagina="parceiros" href="/html/client/parceiros.html">Parceiros</a></li>
+        <li><a data-pagina="materiais" href="/html/client/materiais.html">Materiais</a></li>
+        <li><a data-pagina="historico" href="/html/client/historico.html">Histórico</a></li>
+      </ul>
+
+      <div class="nav-acoes">
+        <div class="nav-perfil-wrap">
+          <button class="nav-perfil" type="button" aria-expanded="false" aria-haspopup="true">
+            <img src="/content/img/user.png" alt="Foto de perfil do usuário">
+            <span class="nav-identidade"><strong></strong><small></small></span>
+            <span class="nav-seta" aria-hidden="true">▾</span>
+          </button>
+          <div class="perfil-menu" hidden>
+            <div class="perfil-menu-identidade"><strong></strong><span></span></div>
+            <a href="/html/perfil.html" class="perfil-menu-item">Meu perfil</a>
+            <a href="/index.html" class="perfil-menu-item perfil-sair">Sair</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+  </header>
+
+  <main class="painel-main">
+
+    <section class="pagina-cabecalho">
+      <div>
+        <h1>Materiais para doação</h1>
+        <p>Consulte os insumos de impressão 3D que os parceiros disponibilizaram para produções doadas.</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="tituloResumoMateriais">
+      <h2 id="tituloResumoMateriais" class="materiais-subtitulo">Resumo por material</h2>
+      <div class="materiais-resumo" id="resumoMateriais"></div>
+    </section>
+
+    <section class="area-listagem" aria-labelledby="tituloEstoque">
+      <h2 id="tituloEstoque" class="materiais-subtitulo">Estoque por parceiro</h2>
+      <div class="materiais-filtros">
+        <div class="campo">
+          <label for="buscaMaterial">Buscar</label>
+          <input id="buscaMaterial" type="search" placeholder="Material, cor ou parceiro">
+        </div>
+        <div class="campo">
+          <label for="filtroTipoMaterial">Tipo</label>
+          <select id="filtroTipoMaterial"></select>
+        </div>
+        <div class="campo">
+          <label for="filtroSituacaoMaterial">Situação</label>
+          <select id="filtroSituacaoMaterial"></select>
+        </div>
+      </div>
+      <div class="barra-filtros">
+        <p id="contadorMateriais"></p>
+        <button id="limparFiltrosMateriais" type="button" class="btn-texto">Limpar filtros</button>
+      </div>
+      <p id="mensagemMateriais" class="mensagem-materiais" role="status"></p>
+      <div class="tabela-wrap">
+        <table id="tabelaMateriais">
+          <thead>
+            <tr>
+              <th>Material</th>
+              <th>Tipo</th>
+              <th>Cor</th>
+              <th>Quantidade</th>
+              <th>Parceiro</th>
+              <th>Situação</th>
+              <th>Atualizado em</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <button type="button" class="btn-topo" id="btnTopo" aria-label="Voltar ao topo">↑</button>
+
+</body>
+
+</html>

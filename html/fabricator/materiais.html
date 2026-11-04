@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Materiais para doação - Painel do Fabricante</title>
+  <link rel="stylesheet" href="/css/style.css">
+
+  <link rel="stylesheet" href="/css/components/navbar.css">
+  <link rel="stylesheet" href="/css/components/badges.css">
+  <link rel="stylesheet" href="/css/components/buttons.css">
+  <link rel="stylesheet" href="/css/components/table.css">
+  <link rel="stylesheet" href="/css/components/forms.css">
+  <link rel="stylesheet" href="/css/components/modal.css">
+
+  <link rel="stylesheet" href="/css/pages/fabricator.css">
+  <link rel="stylesheet" href="/css/pages/materiais.css">
+  <link rel="icon" type="image/png" href="/content/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <script src="/js/api.js" defer></script>
+  <script src="/js/prototipo.js" defer></script>
+  <script src="/js/materiais.js" defer></script>
+</head>
+
+<body data-pagina="fabricator-materiais" data-materiais-modo="gestao">
+
+  <header class="painel-header">
+
+    <nav class="nav-principal painel-nav" aria-label="Navegação principal">
+      <a href="/html/fabricator/index.html" title="LABIELOS" class="nav-logo"><img
+          src="/content/img/logo-simples.png" alt="Logo do LABIELOS"></a>
+      <ul class="nav-links" id="navLinks">
+        <li><a data-pagina="fabricator-inicio" href="/html/fabricator/index.html">Visão geral</a></li>
+        <li><a data-pagina="fabricator-demandas" href="/html/fabricator/demandas.html">Demandas</a></li>
+        <li><a data-pagina="fabricator-materiais" href="/html/fabricator/materiais.html">Materiais</a></li>
+      </ul>
+
+      <div class="nav-acoes">
+        <div class="nav-perfil-wrap">
+          <button class="nav-perfil" type="button" aria-expanded="false" aria-haspopup="true">
+            <img src="/content/img/user.png" alt="Foto de perfil do usuário">
+            <span class="nav-identidade"><strong></strong><small></small></span>
+            <span class="nav-seta" aria-hidden="true">▾</span>
+          </button>
+          <div class="perfil-menu" hidden>
+            <div class="perfil-menu-identidade"><strong></strong><span></span></div>
+            <a href="/html/perfil.html" class="perfil-menu-item">Meu perfil</a>
+            <a href="/index.html" class="perfil-menu-item perfil-sair">Sair</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+  </header>
+
+  <main class="painel-main">
+
+    <section class="pagina-cabecalho">
+      <div>
+        <h1>Materiais para doação</h1>
+        <p>Informe às instituições solicitantes quais insumos sua organização tem disponíveis para produções doadas.</p>
+      </div>
+      <div class="pagina-acoes">
+        <button type="button" class="btn btn-principal btn-acao" id="btnNovoMaterial">+ Registrar material</button>
+      </div>
+    </section>
+
+    <section aria-labelledby="tituloResumoMateriais">
+      <h2 id="tituloResumoMateriais" class="materiais-subtitulo">Resumo do seu estoque</h2>
+      <div class="materiais-resumo" id="resumoMateriais"></div>
+    </section>
+
+    <section class="area-listagem" aria-labelledby="tituloEstoque">
+      <h2 id="tituloEstoque" class="materiais-subtitulo">Itens cadastrados</h2>
+      <div class="materiais-filtros">
+        <div class="campo">
+          <label for="buscaMaterial">Buscar</label>
+          <input id="buscaMaterial" type="search" placeholder="Material, cor ou observação">
+        </div>
+        <div class="campo">
+          <label for="filtroTipoMaterial">Tipo</label>
+          <select id="filtroTipoMaterial"></select>
+        </div>
+        <div class="campo">
+          <label for="filtroSituacaoMaterial">Situação</label>
+          <select id="filtroSituacaoMaterial"></select>
+        </div>
+      </div>
+      <div class="barra-filtros">
+        <p id="contadorMateriais"></p>
+        <button id="limparFiltrosMateriais" type="button" class="btn-texto">Limpar filtros</button>
+      </div>
+      <p id="mensagemMateriais" class="mensagem-materiais" role="status"></p>
+      <div class="tabela-wrap">
+        <table id="tabelaMateriais">
+          <thead>
+            <tr>
+              <th>Material</th>
+              <th>Tipo</th>
+              <th>Cor</th>
+              <th>Quantidade</th>
+              <th>Estoque mínimo</th>
+              <th>Situação</th>
+              <th>Atualizado em</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <button type="button" class="btn-topo" id="btnTopo" aria-label="Voltar ao topo">↑</button>
+
+  <dialog class="modal" id="modalMaterial" aria-labelledby="tituloModalMaterial">
+    <header class="modal-cabecalho">
+      <div>
+        <p>Materiais para doação</p>
+        <h2 id="tituloModalMaterial" data-modal-material-titulo>Registrar material</h2>
+      </div>
+      <button class="modal-fechar" type="button" data-fechar-modal aria-label="Fechar">×</button>
+    </header>
+    <form id="formMaterial">
+      <div class="modal-corpo">
+        <div class="form-grid">
+          <div class="campo">
+            <label for="campoMaterial">Material</label>
+            <input id="campoMaterial" name="material" required maxlength="60" list="listaMateriaisComuns" placeholder="Ex.: PLA">
+            <datalist id="listaMateriaisComuns">
+              <option value="PLA"></option>
+              <option value="PETG"></option>
+              <option value="TPU"></option>
+              <option value="ABS"></option>
+              <option value="Nylon"></option>
+              <option value="Resina padrão"></option>
+              <option value="Resina flexível"></option>
+            </datalist>
+          </div>
+          <div class="campo">
+            <label for="campoTipo">Tipo</label>
+            <select id="campoTipo" name="tipo" required></select>
+          </div>
+          <div class="campo">
+            <label for="campoCor">Cor</label>
+            <input id="campoCor" name="cor" maxlength="40" placeholder="Ex.: Branco">
+          </div>
+          <div class="campo">
+            <label for="campoQuantidade">Quantidade disponível</label>
+            <div class="campo-com-unidade">
+              <input id="campoQuantidade" name="quantidade" type="number" min="0" step="0.01" required>
+              <select name="unidade" aria-label="Unidade" required></select>
+            </div>
+          </div>
+          <div class="campo">
+            <label for="campoEstoqueMinimo">Estoque mínimo</label>
+            <input id="campoEstoqueMinimo" name="estoque_minimo" type="number" min="0" step="0.01" aria-describedby="ajudaEstoqueMinimo">
+            <small class="campo-ajuda" id="ajudaEstoqueMinimo">Opcional. Abaixo disso, aparece como "Estoque baixo".</small>
+          </div>
+          <div class="campo amplo">
+            <label for="campoObservacoes">Observações</label>
+            <textarea id="campoObservacoes" name="observacoes" maxlength="500" placeholder="Ex.: Bobinas de 1 kg, validade até 12/2027, retirada no laboratório."></textarea>
+          </div>
+        </div>
+        <p class="erro-campo" id="erroMaterial" role="alert"></p>
+      </div>
+      <footer class="modal-acoes">
+        <button type="button" class="btn btn-secundario btn-acao" data-fechar-modal>Cancelar</button>
+        <button type="submit" class="btn btn-principal btn-acao">Salvar</button>
+      </footer>
+    </form>
+  </dialog>
+
+</body>
+
+</html>

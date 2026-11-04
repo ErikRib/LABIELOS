@@ -11,8 +11,8 @@ Funcionalidades de back-end, banco de dados, autenticação real e
 integrações futuras não são tratadas como recursos concluídos.
 
 > **Atualização:** partes deste documento (principalmente a seção 5,
-> sobre a área autenticada da AACD) foram escritas antes da conexão com
-> uma API real. Login, cadastro, perfil e os painéis da AACD/fabricante
+> sobre a área autenticada da organização solicitante) foram escritas antes da conexão com
+> uma API real. Login, cadastro, perfil e os painéis da organização solicitante/fabricante
 > já consomem dados de uma API — ver
 > [`design-system.md`](./design-system.md), seções 8 e 10, para o estado
 > atual. Os trechos abaixo que mencionam "dados simulados" descrevem o
@@ -52,10 +52,15 @@ LABIELOS/
 │   └── style.css
 ├── docs/
 ├── html/
-│   ├── client/
-│   ├── fabricator/
+│   ├── client/          (inclui materiais.html)
+│   ├── fabricator/      (inclui materiais.html)
+│   ├── admin.html       (administração da organização)
+│   ├── cadastro.html
 │   ├── contato.html
-│   └── login.html
+│   ├── login.html
+│   ├── perfil.html
+│   ├── privacidade.html
+│   └── termos.html
 ├── js/
 │   ├── acessibilidade.js
 │   ├── interface.js
@@ -64,6 +69,9 @@ LABIELOS/
 │   ├── cadastro.js
 │   ├── perfil.js
 │   ├── prototipo.js
+│   ├── nova-solicitacao.js
+│   ├── materiais.js
+│   ├── admin.js
 │   ├── fabricator.js
 │   └── filtros.js
 ├── index.html
@@ -91,6 +99,7 @@ Em `css/components/` encontram-se estilos reutilizáveis, incluindo:
 -   footer;
 -   formulários;
 -   modal;
+-   assistente em etapas (`stepper.css`, usado pela nova solicitação);
 -   barra de navegação;
 -   tabelas.
 
@@ -102,7 +111,7 @@ e áreas da aplicação.
 Contém as páginas complementares da aplicação.
 
 A pasta `client/` representa atualmente o protótipo da área autenticada
-utilizada pela AACD.
+utilizada pela organização solicitante.
 
 A pasta `fabricator/` representa o protótipo da área autenticada utilizada
 pelo parceiro de manufatura (ver
@@ -124,15 +133,21 @@ O arquivo `index.html` representa a página pública inicial do LABIELOS.
 Atualmente a página apresenta:
 
 -   identidade visual do LABIELOS;
--   apresentação resumida da plataforma;
--   seção sobre o projeto;
--   explicação do fluxo da plataforma;
--   informações relacionadas à privacidade e segurança;
--   navegação para a página de login;
+-   apresentação resumida da plataforma, com atalhos para login e
+    cadastro de organização;
+-   seção "Sobre" com quatro frentes: solicitações guiadas, parceiros
+    conectados, materiais para doação e acompanhamento;
+-   fluxo da plataforma em cinco etapas (cadastro e aprovação da
+    organização → solicitação em 4 etapas → escolha de parceiros →
+    produção → acompanhamento);
+-   seção "Para quem" com os três perfis de acesso (instituições solicitantes, parceiros de
+    manufatura e administradores de organização);
+-   bloco de privacidade e segurança com link para a Política de
+    Privacidade;
 -   recursos de acessibilidade.
 
-A página apresenta o LABIELOS como um hub digital destinado a conectar a
-AACD aos parceiros responsáveis pela manufatura aditiva, centralizando
+A página apresenta o LABIELOS como um hub digital destinado a conectar
+instituições de saúde e reabilitação aos parceiros responsáveis pela manufatura aditiva, centralizando
 solicitações, informações e acompanhamento do processo.
 
 ### 4.2 Login
@@ -150,10 +165,10 @@ com o projeto.
 
 ------------------------------------------------------------------------
 
-## 5. Área autenticada --- protótipo da AACD
+## 5. Área autenticada --- protótipo da organização solicitante
 
 A pasta `html/client/` contém a área atualmente desenvolvida para
-representar a utilização da plataforma pela AACD.
+representar a utilização da plataforma pela organização solicitante.
 
 As informações exibidas nessa área são buscadas em uma API real por meio
 do arquivo `js/prototipo.js` (ver seção 7 e
@@ -186,21 +201,34 @@ solicitações.
 O protótipo possui recursos de filtragem e acesso aos detalhes das
 solicitações existentes.
 
-Também existe uma interface para cadastro de nova solicitação, contendo
-informações como:
+### 5.2.1 Nova solicitação (assistente em 4 etapas)
 
--   nome da solicitação;
--   requerente;
--   instituições atribuídas;
--   prioridade;
--   categoria;
--   prazo desejado;
--   material;
--   descrição;
--   arquivo 3D.
+O botão "+ Nova solicitação" (Início, Solicitações e Detalhes) abre um
+modal em etapas, implementado em `js/nova-solicitacao.js` +
+`css/components/stepper.css`. O HTML do modal é **gerado pelo script**
+(antes estava copiado em três páginas): basta a página ter um botão
+`.btn-nova-solicitacao` e carregar `api.js`, `prototipo.js` e
+`nova-solicitacao.js`, nessa ordem.
 
-Os formatos de arquivo apresentados no protótipo incluem STL, OBJ, 3MF,
-STEP/STP e IGES/IGS.
+| Etapa | Conteúdo |
+|---|---|
+| 1. Informações da peça | Solicitação, requerente (automático, só leitura), prioridade, categoria (com sugestões), prazo desejado (opcional, não aceita data passada) e material (sugere os materiais com estoque em `GET /api/materiais`). |
+| 2. Arquivo e especificações | Descrição/especificações, arquivo 3D (clique ou arraste; STL, OBJ, 3MF, STEP/STP, IGES/IGS até 50 MB) e parceiros atribuídos — lista vinda de `GET /api/parceiros`, com cidade, materiais e disponibilidade. |
+| 3. Revisão | Resumo de tudo, com "Editar" para voltar a uma etapa sem perder o preenchimento. |
+| 4. Envio | `POST /api/solicitacoes`; mostra o protocolo criado com "Ver solicitação"/"Concluir", ou o erro da API com "Tentar novamente". |
+
+Comportamentos:
+
+-   cada etapa valida só os próprios campos antes de avançar;
+-   os círculos do stepper de etapas já concluídas são clicáveis;
+-   clicar fora do modal **não** fecha (evita perder o preenchimento);
+    fechar pelo "×", "Cancelar" ou Esc pede confirmação se houver algo
+    preenchido;
+-   no celular, os rótulos do stepper dão lugar à legenda "Etapa X de 4";
+-   a legenda também é anunciada para leitores de tela (`aria-live`).
+
+O formato da requisição está em
+[`integracao-backend.md`](./integracao-backend.md), seção 5.
 
 ### 5.3 Detalhes da solicitação
 
@@ -236,6 +264,54 @@ São exibidos dados vindos da API (`GET /api/parceiros`), como:
 
 A página `html/client/historico.html` representa o histórico das
 solicitações e suas alterações ao longo do processo.
+
+### 5.6 Materiais para doação
+
+A página `html/client/materiais.html` mostra os insumos de impressão 3D
+(filamentos, resinas etc.) que os parceiros declararam disponíveis para
+produções doadas (`GET /api/materiais`):
+
+-   resumo por material (total por unidade, quantos parceiros têm
+    estoque);
+-   tabela com material, tipo, cor, quantidade, parceiro, situação
+    (Disponível / Estoque baixo / Esgotado) e data de atualização;
+-   busca por texto e filtros por tipo e situação.
+
+------------------------------------------------------------------------
+
+## 5A. Área do fabricante --- materiais
+
+`html/fabricator/materiais.html` usa o mesmo script (`js/materiais.js`,
+modo `data-materiais-modo="gestao"`) para o parceiro **manter o próprio
+estoque**: adicionar, editar e remover itens (material, tipo, cor,
+quantidade + unidade, estoque mínimo e observações). Abaixo do estoque
+mínimo o item aparece como "Estoque baixo" para a organização solicitante.
+
+Para facilitar o acesso, a **Visão geral** do fabricante tem o cartão
+"Materiais para doação", com o resumo do estoque (itens registrados, com
+estoque baixo e esgotados) e os botões "+ Registrar material" e "Ver
+estoque". O primeiro abre `materiais.html?novo=1`, que já mostra o
+formulário de registro aberto. Com o estoque vazio, a página mostra um
+convite com o botão "+ Registrar primeiro material".
+
+------------------------------------------------------------------------
+
+## 5B. Administração da organização
+
+`html/admin.html` (+ `js/admin.js`, `css/pages/admin.css`) é compartilhada
+pelos dois painéis, como `perfil.html`. Só aparece para quem tem vínculo
+de **administrador ativo** — o item "Administração" é inserido no menu de
+perfil por `prototipo.js`, e `perfil.html` mostra o botão "Administrar
+organização".
+
+-   cartão da organização (tipo, status, contadores de pedidos
+    pendentes, membros e administradores) e seletor quando o usuário
+    administra mais de uma;
+-   aba **Pedidos de ingresso**: nome, e-mail, cargo, justificativa e
+    data, com Aprovar / Recusar;
+-   aba **Membros**: busca, papel (Administrador/Membro), "Tornar admin" /
+    "Remover admin" e "Remover" — sem ações sobre o próprio usuário;
+-   sem permissão, mostra um aviso em vez do conteúdo.
 
 ------------------------------------------------------------------------
 
@@ -304,11 +380,27 @@ usuário autenticado, as solicitações e os parceiros na API real (`GET
 (nova solicitação, edição, mudança de status, registro de linha do tempo)
 de volta via `POST`/`PATCH`, usando `js/api.js`. Também implementa a
 renderização das tabelas, filtros, modais, detalhes das solicitações e o
-menu de perfil da área da AACD.
+menu de perfil da área da organização solicitante.
 
 A única exceção é a página "Histórico": ela ainda mostra uma amostra
 estática, porque o contrato da API não tem (ainda) um endpoint agregado
 por organização — ver [`design-system.md`](./design-system.md), seção 10.
+
+### `nova-solicitacao.js`
+
+Assistente "Nova solicitação" em 4 etapas (ver seção 5.2.1). Gera o
+próprio HTML do modal, valida etapa a etapa e envia um único
+`POST /api/solicitacoes` (JSON, ou `multipart/form-data` quando há
+arquivo 3D).
+
+### `materiais.js`
+
+Materiais para doação: consulta (solicitante) e gestão do estoque (fabricante),
+conforme `data-materiais-modo` no `<body>`. Ver seções 5.6 e 5A.
+
+### `admin.js`
+
+Administração da organização: pedidos de ingresso e membros. Ver seção 5B.
 
 ### `fabricator.js`
 
@@ -349,7 +441,7 @@ desenvolvimento e os testes da aplicação.
 O front-end encontra-se **em desenvolvimento**.
 
 Já existe uma base visual significativa para a área pública e para as
-experiências da AACD e do fabricante, permitindo demonstrar o
+experiências da organização solicitante e do fabricante, permitindo demonstrar o
 funcionamento esperado da plataforma e validar os principais fluxos de
 interface.
 
@@ -358,8 +450,8 @@ perfil e os dois painéis autenticados — ver
 [`design-system.md`](./design-system.md), seções 8 e 10), mas o back-end
 e o banco de dados em si ainda não foram implementados. Enquanto isso não
 acontece, essas telas só funcionam com um servidor respondendo a esse
-contrato (um mock local, por exemplo) — não dá mais para abri-las
-"soltas" sem back-end, como era possível na etapa anterior do projeto.
+contrato — não dá mais para abri-las "soltas" sem back-end, como era
+possível na etapa anterior do projeto.
 
 ------------------------------------------------------------------------
 
@@ -376,23 +468,28 @@ uma base demonstrável, não o fluxo definitivo: o comportamento completo do
 painel do fabricante ainda está sendo definido.
 
 Essa área deverá continuar evoluindo para permitir que os produtores
-interajam com as solicitações encaminhadas pela AACD e acompanhem as
+interajam com as solicitações encaminhadas pela organização solicitante e acompanhem as
 etapas relacionadas à produção.
 
 Também está prevista a utilização do endereço cadastrado pelo parceiro
-para apresentar à AACD o **ponto de retirada da prótese em um mapa**. A
+para apresentar à organização solicitante o **ponto de retirada da prótese em um mapa**. A
 implementação técnica desse recurso ainda será definida durante o
 desenvolvimento.
 
 ### Endpoint agregado de histórico
 
-A página "Histórico" da AACD (`html/client/historico.html`) ainda mostra
+A página "Histórico" da organização solicitante (`html/client/historico.html`) ainda mostra
 uma amostra estática porque falta definir, no contrato da API, um
 endpoint que agregue os eventos de todas as solicitações de uma
 organização (hoje só existe o histórico de uma solicitação específica —
 ver [`backend.md`](./backend.md)).
 
 ### Integração com o back-end real
+
+O contrato completo que o front-end espera (inclusive das telas novas) e
+um checklist para a equipe do back-end estão em
+[`integracao-backend.md`](./integracao-backend.md).
+
 
 `js/prototipo.js` e `js/fabricator.js` já chamam a API descrita em
 [`backend.md`](./backend.md)/[`database.md`](./database.md), mas só

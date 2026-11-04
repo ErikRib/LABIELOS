@@ -1,5 +1,5 @@
 /*
-   Área autenticada da AACD (painel do solicitante).
+   Área autenticada da organização solicitante (painel do solicitante).
    Diferente da versão anterior deste arquivo, os dados aqui vêm de uma
    API real (ver js/api.js e docs/backend.md — seção "Solicitações,
    demandas, parceiros e histórico"), não de arrays fixos no código.
@@ -57,9 +57,15 @@ function metadadosArquivo(file) {
 // o login — nenhuma página deste painel faz sentido sem estar logado.
 async function carregarUsuarioAtual() {
   try {
-    const { user } = await api('/api/me');
-    usuarioLogado = { nome: `${user.nome} ${user.sobrenome}`.trim(), organizacao: user.organizacao || '' };
+    const { user, memberships = [] } = await api('/api/me');
+    usuarioLogado = {
+      id: user.id,
+      nome: `${user.nome} ${user.sobrenome}`.trim(),
+      organizacao: user.organizacao || '',
+      memberships
+    };
     atualizarIdentidadeNav(usuarioLogado);
+    adicionarLinkAdministracao(memberships);
   } catch {
     location.href = '/html/login.html';
     throw new Error('Sessão inválida, redirecionando para o login.');
@@ -77,6 +83,26 @@ function atualizarIdentidadeNav(usuario) {
     if (org) org.textContent = usuario.organizacao;
   });
   document.querySelectorAll('.perfil-name').forEach(el => { el.textContent = usuario.nome; });
+  document.querySelectorAll('.perfil-org').forEach(el => { if (usuario.organizacao) el.textContent = usuario.organizacao; });
+}
+
+// Se o usuário for administrador ativo de alguma organização, adiciona
+// o atalho "Administração" no menu de perfil (antes de "Sair").
+function adicionarLinkAdministracao(memberships) {
+  if (!usuarioAdministra(memberships)) return;
+  document.querySelectorAll('.perfil-menu').forEach(menu => {
+    if (menu.querySelector('.perfil-menu-admin')) return;
+    const link = document.createElement('a');
+    link.href = '/html/admin.html';
+    link.className = 'perfil-menu-item perfil-menu-admin';
+    link.textContent = 'Administração';
+    menu.insertBefore(link, menu.querySelector('.perfil-sair'));
+  });
+}
+
+// true se algum vínculo for de administrador ativo.
+function usuarioAdministra(memberships) {
+  return (memberships || []).some(m => m.role === 'admin' && m.membership_status === 'active');
 }
 
 // Busca a lista de solicitações visíveis para a organização autenticada
@@ -210,7 +236,7 @@ function ativarLinhasClicaveis(container) {
    PÁGINA DE DETALHES
 ========================= */
 
-// Preenche toda a página de detalhes (AACD ou fabricante) a partir do
+// Preenche toda a página de detalhes (solicitante ou fabricante) a partir do
 // protocolo na URL: dados gerais, fluxo de status, linha do tempo e
 // anexo. Reaproveitada pelas duas áreas do site.
 async function renderDetalheSolicitacao() {
@@ -322,6 +348,29 @@ function prepararRegistroTimeline() {
   });
 }
 
+// Gera os checkboxes de "Atribuídos" a partir dos parceiros vindos da
+// API (GET /api/parceiros), em vez de uma lista fixa no HTML.
+// "selecionados" marca os que já estão atribuídos (edição).
+function opcoesParceirosHTML(selecionados = []) {
+  if (!parceiros.length) {
+    return '<p class="campo-ajuda">Nenhum parceiro credenciado disponível no momento.</p>';
+  }
+  return parceiros.map(p => `
+    <label class="opcao-parceiro">
+      <input type="checkbox" name="atribuido" value="${escaparHTML(p.nome)}" ${selecionados.includes(p.nome) ? 'checked' : ''}>
+      <span class="opcao-parceiro-texto">
+        <strong>${escaparHTML(p.nome)}</strong>
+        <small>${escaparHTML(p.cidade || '')}${p.materiais ? ` · ${escaparHTML(p.materiais)}` : ''}</small>
+      </span>
+      ${p.status ? `<span class="badge parceiro-${badgeClass(p.status)}">${escaparHTML(p.status)}</span>` : ''}
+    </label>`).join('');
+}
+
+// Escapa texto vindo da API antes de interpolar em innerHTML.
+function escaparHTML(valor) {
+  return String(valor ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
 // Garante que pelo menos um parceiro foi marcado em "Atribuídos".
 function validarAtribuidos(form, erroId) {
   const selecionados = [...form.querySelectorAll('input[name="atribuido"]:checked')].map(i => i.value);
@@ -334,7 +383,7 @@ function validarAtribuidos(form, erroId) {
   return selecionados;
 }
 
-// Liga o modal "Editar solicitação" (só existe na área da AACD): abre
+// Liga o modal "Editar solicitação" (só existe na área da organização solicitante): abre
 // preenchido com os dados atuais e, ao salvar, envia as mudanças para a
 // API (PATCH) e recarrega a página de detalhes.
 function prepararEdicaoSolicitacao(s) {
@@ -352,7 +401,8 @@ function prepararEdicaoSolicitacao(s) {
     form.elements.prazo.value = /^\d{2}\/\d{2}\/\d{4}$/.test(s.prazo || '') ? s.prazo.split('/').reverse().join('-') : '';
     form.elements.material.value = s.material === 'A definir' ? '' : s.material;
     form.elements.descricao.value = s.descricao;
-    form.querySelectorAll('input[name="atribuido"]').forEach(c => c.checked = (s.atribuido || []).includes(c.value));
+    const opcoes = form.querySelector('.opcoes-atribuicao');
+    if (opcoes) opcoes.innerHTML = opcoesParceirosHTML(s.atribuido || []);
   };
 
   if (!btn.dataset.configurado) {
@@ -404,85 +454,27 @@ function prepararEdicaoSolicitacao(s) {
 
 
 /* =========================
-   MODAIS GENÉRICOS E NOVA SOLICITAÇÃO
+   MODAIS GENÉRICOS
 ========================= */
 
 // Comportamento genérico de todos os <dialog class="modal">: fechar
-// pelo "×", pelo clique fora, e abrir/enviar o modal "Nova solicitação".
+// pelo "×" e pelo clique fora. O modal "Nova solicitação" (assistente em
+// 4 etapas) tem lógica própria em js/nova-solicitacao.js e marca
+// data-fechar-fora="false" para não perder o preenchimento num clique
+// acidental fora da caixa.
 function prepararModais() {
   document.querySelectorAll('[data-fechar-modal]').forEach(btn => {
     btn.addEventListener('click', () => btn.closest('dialog')?.close());
   });
 
-  document.querySelectorAll('.btn-nova-solicitacao').forEach(btn => {
-    btn.addEventListener('click', () => document.querySelector('#modalNovaSolicitacao')?.showModal());
-  });
-
   document.querySelectorAll('dialog.modal').forEach(dialog => {
+    if (dialog.dataset.fecharFora === 'false') return;
     dialog.addEventListener('click', e => {
       const rect = dialog.getBoundingClientRect();
       const fora = e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom;
       if (fora) dialog.close();
     });
   });
-
-  const form = document.querySelector('#formNovaSolicitacao');
-  if (form && !form.dataset.configurado) {
-    form.dataset.configurado = 'true';
-    const arquivoInput = form.querySelector('input[name="arquivo3d"]');
-    arquivoInput?.addEventListener('change', () => {
-      const area = form.querySelector('[data-arquivo-selecionado]');
-      const arquivo = arquivoInput.files[0];
-      if (!area) return;
-      if (!arquivo) { area.hidden = true; area.textContent = ''; return; }
-      area.hidden = false;
-      area.textContent = `${arquivo.name} · ${formatarTamanhoArquivo(arquivo.size)}`;
-    });
-
-    form.addEventListener('submit', async e => {
-      e.preventDefault();
-      const atribuidos = validarAtribuidos(form, 'erroAtribuidos');
-      if (!atribuidos) return;
-      const dados = new FormData(form);
-      const arquivo = form.elements.arquivo3d.files[0];
-
-      const campos = {
-        solicitacao: dados.get('solicitacao'),
-        atribuido: atribuidos,
-        prioridade: dados.get('prioridade'),
-        categoria: dados.get('categoria'),
-        prazo: dados.get('prazo') ? dados.get('prazo').split('-').reverse().join('/') : 'A definir',
-        material: dados.get('material') || 'A definir',
-        descricao: dados.get('descricao')
-      };
-
-      try {
-        let corpo;
-        if (arquivo) {
-          corpo = new FormData();
-          Object.entries(campos).forEach(([chave, valor]) => {
-            corpo.append(chave, Array.isArray(valor) ? JSON.stringify(valor) : valor);
-          });
-          corpo.append('arquivo3d', arquivo);
-        } else {
-          corpo = JSON.stringify(campos);
-        }
-        const nova = await api('/api/solicitacoes', { method: 'POST', body: corpo });
-
-        form.reset();
-        form.querySelector('[data-arquivo-selecionado]')?.setAttribute('hidden', '');
-        document.querySelector('#modalNovaSolicitacao')?.close();
-
-        await carregarSolicitacoes();
-        preencherResumo();
-        renderTabelaSolicitacoes();
-        renderTabelaInicio();
-        alert(`Solicitação ${nova.protocolo} criada.`);
-      } catch (erro) {
-        alert(erro.message);
-      }
-    });
-  }
 }
 
 
@@ -540,10 +532,10 @@ function renderHistorico() {
   const tbody = document.querySelector('#tabelaHistorico tbody');
   if (!tbody) return;
   const eventos = [
-    ['10/09/2026 08:10', '#0002', 'Status alterado', 'Órtese craniana', 'Em análise', 'Instituto Mauá de Tecnologia'],
-    ['09/09/2026 16:40', '#0001', 'Status alterado', 'Colete ortopédico', 'Em produção', 'Instituto Mauá de Tecnologia'],
-    ['09/09/2026 10:00', '#0002', 'Parceiro atribuído', 'Órtese craniana', 'Em análise', 'Instituto Mauá de Tecnologia'],
-    ['08/09/2026 11:05', '#0001', 'Parceiro atribuído', 'Colete ortopédico', 'Em análise', 'Instituto Mauá de Tecnologia'],
+    ['10/09/2026 08:10', '#0002', 'Status alterado', 'Órtese craniana', 'Em análise', 'FabLab Exemplo'],
+    ['09/09/2026 16:40', '#0001', 'Status alterado', 'Colete ortopédico', 'Em produção', 'FabLab Exemplo'],
+    ['09/09/2026 10:00', '#0002', 'Parceiro atribuído', 'Órtese craniana', 'Em análise', 'FabLab Exemplo'],
+    ['08/09/2026 11:05', '#0001', 'Parceiro atribuído', 'Colete ortopédico', 'Em análise', 'FabLab Exemplo'],
     ['08/09/2026 10:32', '#0001', 'Solicitação criada', 'Colete ortopédico', 'Aberta', 'Não atribuído']
   ];
   tbody.innerHTML = eventos.map(e => `<tr><td>${e[0]}</td><td>${e[1]}</td><td>${e[2]}</td><td>${e[3]}</td><td><span class="badge status-${badgeClass(e[4])}">${e[4]}</span></td><td>${e[5]}</td></tr>`).join('');

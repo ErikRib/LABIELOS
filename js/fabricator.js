@@ -160,6 +160,29 @@ function renderCapacidadeParceiro() {
 }
 
 
+// Cartão "Materiais para doação" da visão geral: resumo do estoque da
+// própria organização (GET /api/materiais) com atalho para registrar.
+async function renderResumoMateriaisFabricante() {
+  const el = document.querySelector('#resumoMateriaisFabricante');
+  if (!el) return;
+  try {
+    const itens = await api('/api/materiais');
+    if (!itens.length) {
+      el.textContent = 'Nenhum material registrado. Registre os insumos que sua organização pode usar em produções doadas.';
+      return;
+    }
+    const situacao = m => m.situacao || (Number(m.quantidade) <= 0 ? 'Esgotado' : 'Disponível');
+    const baixo = itens.filter(m => situacao(m) === 'Estoque baixo').length;
+    const esgotado = itens.filter(m => situacao(m) === 'Esgotado').length;
+    const alertas = [baixo && `${baixo} com estoque baixo`, esgotado && `${esgotado} esgotado${esgotado > 1 ? 's' : ''}`].filter(Boolean);
+    el.innerHTML = `<strong>${itens.length} ${itens.length === 1 ? 'item registrado' : 'itens registrados'}</strong>`
+      + (alertas.length ? ` · ${alertas.join(' · ')}` : ' · todos disponíveis');
+  } catch {
+    el.textContent = 'Não foi possível carregar o estoque agora.';
+  }
+}
+
+
 /* =========================
    PÁGINA DE DEMANDAS - COLUNAS CONFIGURÁVEIS
 ========================= */
@@ -290,7 +313,7 @@ function prepararSeletorColunas() {
 ========================= */
 
 // Desenha os botões de ação no topo da página de detalhe da demanda
-// (equivalente, do lado do fabricante, ao "Editar solicitação" da AACD).
+// (equivalente, do lado do fabricante, ao "Editar solicitação" da organização solicitante).
 function renderAcoesDemandaDetalhe() {
   const container = document.querySelector('#acoesDemanda');
   if (!container) return;
@@ -325,6 +348,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderCabecalhoDemandas();
   renderDemandasFabricante();
   renderCapacidadeParceiro();
+  renderResumoMateriaisFabricante();
   renderAcoesDemandaDetalhe();
   prepararSeletorColunas();
 

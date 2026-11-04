@@ -115,7 +115,7 @@
 
 .sobre-cards {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
 
     gap: 20px;
 }
@@ -259,6 +259,63 @@
 
     background:
         linear-gradient(135deg, rgba(11, 39, 64, 0.05), rgba(59, 130, 160, 0.08));
+}
+
+
+/* =========================
+   PARA QUEM
+========================= */
+
+.perfis-cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    gap: 20px;
+}
+
+.perfil-card {
+    min-height: auto;
+}
+
+.perfil-lista {
+    margin-top: 16px;
+    padding-left: 0;
+
+    list-style: none;
+}
+
+.perfil-lista li {
+    position: relative;
+
+    padding: 6px 0 6px 22px;
+
+    color: var(--cor-texto);
+
+    font-size: 0.92rem;
+    font-weight: 500;
+}
+
+.perfil-lista li::before {
+    content: "✓";
+
+    position: absolute;
+    left: 0;
+
+    color: var(--cor-sucesso-texto);
+
+    font-weight: 700;
+}
+
+.privacidade a {
+    color: var(--cor-secundaria);
+
+    font-weight: 600;
+}
+
+@media (max-width: 1000px) {
+    .perfis-cards {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* =========================

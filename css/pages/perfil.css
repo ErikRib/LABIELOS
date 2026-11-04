@@ -134,3 +134,8 @@
         align-items: flex-start;
     }
 }
+
+/* Atalho para a administração (visível só para admins) */
+#linkAdmin {
+    margin-top: 12px;
+}

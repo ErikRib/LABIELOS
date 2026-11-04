@@ -1,0 +1,236 @@
+/* =========================
+   ADMINISTRAÇÃO DA ORGANIZAÇÃO (html/admin.html)
+========================= */
+
+.visualmente-oculto {
+    position: absolute !important;
+
+    width: 1px;
+    height: 1px;
+
+    margin: -1px;
+
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+}
+
+.admin-seletor {
+    min-width: 260px;
+}
+
+/* .campo usa display:flex, que venceria o atributo hidden */
+.admin-seletor[hidden] {
+    display: none;
+}
+
+.admin-carregando {
+    color: var(--cor-texto-secundario);
+}
+
+.estado-sem-acesso h2 {
+    margin-bottom: 8px;
+
+    font-size: 1.2rem;
+}
+
+.estado-sem-acesso p {
+    color: var(--cor-texto-secundario);
+}
+
+
+/* CARTÃO DA ORGANIZAÇÃO */
+
+.admin-org {
+    margin-bottom: 24px;
+}
+
+.admin-org-topo {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 16px;
+
+    margin-bottom: 20px;
+}
+
+.admin-org-topo h2 {
+    font-size: 1.5rem;
+}
+
+.admin-resumo {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 16px;
+}
+
+.admin-resumo div {
+    padding: 14px 16px;
+
+    border-radius: 10px;
+
+    background-color: var(--cor-fundo-secundario);
+}
+
+.admin-resumo dt {
+    color: var(--cor-texto-secundario);
+
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.admin-resumo dd {
+    color: var(--cor-primaria);
+
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+
+/* MENSAGENS */
+
+.admin-mensagem {
+    margin-bottom: 16px;
+
+    color: var(--cor-sucesso-texto);
+
+    font-weight: 600;
+}
+
+.admin-mensagem:empty {
+    display: none;
+}
+
+.admin-mensagem.mensagem-erro {
+    color: var(--cor-erro-texto);
+}
+
+
+/* ABAS */
+
+.admin-abas {
+    display: flex;
+
+    gap: 4px;
+
+    margin-bottom: 16px;
+
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.admin-abas [role="tab"] {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 12px 16px;
+
+    border: none;
+    border-bottom: 3px solid transparent;
+
+    background: none;
+    color: var(--cor-texto-secundario);
+
+    font-family: var(--fonte-texto);
+    font-size: 0.95rem;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.admin-abas [role="tab"][aria-selected="true"] {
+    border-bottom-color: var(--cor-secundaria);
+
+    color: var(--cor-primaria);
+}
+
+.admin-abas [role="tab"]:focus-visible {
+    outline: 3px solid var(--cor-acento);
+    outline-offset: -3px;
+}
+
+.admin-aba-contador {
+    min-width: 24px;
+
+    padding: 2px 8px;
+
+    border-radius: 999px;
+
+    background-color: var(--cor-fundo-secundario);
+    color: var(--cor-secundaria);
+
+    font-size: 0.8rem;
+}
+
+.admin-busca {
+    width: min(360px, 100%);
+}
+
+.admin-justificativa {
+    max-width: 280px;
+
+    white-space: normal;
+}
+
+.texto-apoio {
+    color: var(--cor-texto-secundario);
+
+    font-size: 0.8rem;
+}
+
+.estado-vazio {
+    padding: 24px;
+
+    color: var(--cor-texto-secundario);
+
+    text-align: center;
+}
+
+
+/* BADGES */
+
+.org-active,
+.papel-admin {
+    background-color: var(--cor-sucesso-fundo);
+    color: var(--cor-sucesso-texto);
+}
+
+.org-pending {
+    background-color: var(--cor-alerta-fundo);
+    color: var(--cor-alerta-texto);
+}
+
+.papel-membro {
+    background-color: var(--cor-info-fundo);
+    color: var(--cor-info-texto);
+}
+
+.btn-perigo {
+    border: 1px solid var(--cor-erro);
+
+    background-color: transparent;
+    color: var(--cor-erro-texto);
+}
+
+.btn-perigo:hover {
+    background-color: var(--cor-erro);
+    color: var(--cor-texto-claro);
+}
+
+
+/* RESPONSIVIDADE */
+
+@media (max-width: 700px) {
+
+    .admin-resumo {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-seletor {
+        min-width: 0;
+        width: 100%;
+    }
+}

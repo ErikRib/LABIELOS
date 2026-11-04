@@ -6,7 +6,7 @@
 
 **organizations**: `name`, `cnpj` (único, se presente), `type` (`organizacao` ou `fabricante`), `institutional_email`, `phone`, `status` (`pending` ou `active`), `requested_by`, `created_at`.
 
-**memberships**: `user_id`, `org_id` (índice composto único), `role` (`requested_admin`, `admin`, `member`), `status` (`pending`, `active`, `rejected`), `justification`, `job_title`, `created_at`.
+**memberships**: `user_id`, `org_id` (índice composto único), `role` (`requested_admin`, `admin`, `member`), `status` (`pending`, `active`, `rejected`, `removed`), `justification`, `job_title`, `created_at`, `approved_by` e `approved_at` (preenchidos na aprovação — `approved_at` é devolvido como `joined_at` na lista de membros), `updated_by`/`updated_at` (última mudança de papel ou remoção, para auditoria). Remoção pela tela de administração marca `status=removed` em vez de apagar o documento.
 
 **sessions**: `user_id`, `token_hash`, `expires_at` (índice TTL). O cookie contém um token aleatório; o banco armazena somente seu hash SHA-256.
 
@@ -20,9 +20,13 @@ A API (`GET /api/solicitacoes`) deve **resolver** `requerente_id`/`atribuido` pa
 
 **parceiros**: pode ser modelado como uma extensão de `organizations` (quando `type=fabricante` e `status=active`) com os campos de capacidade que faltam: `cidade`, `impressoras` (int), `tecnologias`, `materiais`. O campo `emProducao` (quantas solicitações desse parceiro estão com `status="Em produção"`) é dado derivado — recomenda-se calculá-lo numa agregação em vez de guardá-lo solto, para não ficar desatualizado.
 
+**materiais** (materiais de impressão disponíveis para doação): `organization_id` (ref. `organizations`, tipo `fabricante` — índice), `material` (texto, ≤ 60), `tipo` (`Filamento`\|`Resina`\|`Pó`\|`Outro`), `cor`, `quantidade` (número ≥ 0), `unidade` (`kg`\|`g`\|`L`\|`mL`\|`un`), `estoque_minimo` (número ou `null`), `observacoes`, `created_at`, `updated_at`, `updated_by`.
+
+`situacao` (`Disponível`\|`Estoque baixo`\|`Esgotado`) é **derivada** de `quantidade` e `estoque_minimo` — calcular na resposta, não guardar. `parceiro` e `cidade` na resposta vêm da organização dona (`organization_id`). A organização solicitante lê os itens de todos os fabricantes ativos; um fabricante só lê e escreve os seus. Formato da API em [`integracao-backend.md`](./integracao-backend.md), seção 6.2.
+
 ## Relações
 
-Um usuário pode ter vários vínculos, cada um associado a uma organização. Um administrador de organização só aprova membros da própria organização. Uma nova organização aguarda verificação externa antes de ativação.
+Um usuário pode ter vários vínculos, cada um associado a uma organização. Um administrador de organização só aprova, promove ou remove membros da própria organização, não altera o próprio vínculo e não pode deixar a organização sem nenhum administrador ativo. Cada fabricante tem zero ou mais itens em `materiais`. Uma nova organização aguarda verificação externa antes de ativação.
 
 ## Endereços e unidades — etapa futura
 

@@ -18,6 +18,37 @@
     margin-bottom: 32px;
 }
 
+.coluna-lateral {
+    display: flex;
+    flex-direction: column;
+
+    gap: 20px;
+}
+
+/* Cartão "Materiais para doação" da visão geral */
+.cartao-materiais h2 {
+    margin-bottom: 8px;
+
+    font-size: 1.3rem;
+}
+
+.cartao-materiais-texto {
+    margin-bottom: 16px;
+
+    color: var(--cor-texto-secundario);
+}
+
+.cartao-materiais-texto strong {
+    color: var(--cor-texto);
+}
+
+.cartao-materiais-acoes {
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 10px;
+}
+
 #capacidadeParceiro {
     display: flex;
     flex-direction: column;
@@ -35,11 +66,10 @@
    TABELA DE DEMANDAS
 ========================= */
 
-.celula-acoes {
-    display: flex;
-    flex-wrap: wrap;
-
-    gap: 8px;
+/* A célula continua sendo table-cell (com display:flex no <td> a linha
+   perde o alinhamento com as demais colunas); o espaçamento fica nos botões. */
+.celula-acoes .btn-acao-tabela {
+    margin: 2px 6px 2px 0;
 }
 
 .btn-acao-tabela {
@@ -95,9 +125,9 @@
 
 @media (max-width: 700px) {
 
-    .celula-acoes {
-        flex-direction: column;
-        align-items: flex-start;
+    .celula-acoes .btn-acao-tabela {
+        display: flex;
+        width: fit-content;
     }
 
     .btn-acao-tabela {

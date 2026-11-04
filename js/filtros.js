@@ -1,6 +1,6 @@
 /*
    Motor de filtros avançados reutilizado pelas páginas de listagem
-   (Solicitações da AACD e Demandas do fabricante). Cada coluna filtrável
+   (Solicitações da organização solicitante e Demandas do fabricante). Cada coluna filtrável
    declara um tipo ('texto' ou 'data'); os modos disponíveis mudam
    conforme o tipo.
 

@@ -44,17 +44,18 @@
       <ul class="nav-links" id="navLinks">
         <li><a data-pagina="fabricator-inicio" href="/html/fabricator/index.html">Visão geral</a></li>
         <li><a data-pagina="fabricator-demandas" href="/html/fabricator/demandas.html">Demandas</a></li>
+        <li><a data-pagina="fabricator-materiais" href="/html/fabricator/materiais.html">Materiais</a></li>
       </ul>
 
       <div class="nav-acoes">
         <div class="nav-perfil-wrap">
           <button class="nav-perfil" type="button" aria-expanded="false" aria-haspopup="true">
             <img src="/content/img/user.png" alt="Foto de perfil do usuário">
-            <span class="nav-identidade"><strong>Ana Souza</strong><small>Instituto Mauá de Tecnologia</small></span>
+            <span class="nav-identidade"><strong></strong><small></small></span>
             <span class="nav-seta" aria-hidden="true">▾</span>
           </button>
           <div class="perfil-menu" hidden>
-            <div class="perfil-menu-identidade"><strong>Ana Souza</strong><span>Instituto Mauá de Tecnologia</span></div>
+            <div class="perfil-menu-identidade"><strong></strong><span></span></div>
             <a href="/html/perfil.html" class="perfil-menu-item">Meu perfil</a>
             <a href="/index.html" class="perfil-menu-item perfil-sair">Sair</a>
           </div>
@@ -67,8 +68,8 @@
   <main class="painel-main">
 
     <section class="painel-boas-vindas">
-      <h1>Olá, Ana Souza!</h1>
-      <p>Acompanhe as demandas atribuídas ao Instituto Mauá de Tecnologia.</p>
+      <h1>Olá, <span class="perfil-name"></span>!</h1>
+      <p>Acompanhe as demandas atribuídas a <span class="perfil-org">sua organização</span>.</p>
     </section>
 
     <section class="painel-resumo" aria-label="Resumo das demandas">
@@ -120,10 +121,22 @@
         </div>
       </section>
 
-      <section aria-labelledby="titulo-capacidade">
-        <h2 id="titulo-capacidade" class="acess-item-screen-reader">Capacidade produtiva</h2>
-        <div id="capacidadeParceiro"></div>
-      </section>
+      <div class="coluna-lateral">
+        <section aria-labelledby="titulo-capacidade">
+          <h2 id="titulo-capacidade" class="acess-item-screen-reader">Capacidade produtiva</h2>
+          <div id="capacidadeParceiro"></div>
+        </section>
+
+        <section class="parceiro-card cartao-materiais" aria-labelledby="titulo-materiais-doacao">
+          <p class="eyebrow">Materiais para doação</p>
+          <h2 id="titulo-materiais-doacao">Seu estoque</h2>
+          <p class="cartao-materiais-texto" id="resumoMateriaisFabricante">Carregando…</p>
+          <div class="cartao-materiais-acoes">
+            <a href="/html/fabricator/materiais.html?novo=1" class="btn btn-principal btn-acao">+ Registrar material</a>
+            <a href="/html/fabricator/materiais.html" class="btn btn-secundario btn-acao">Ver estoque</a>
+          </div>
+        </section>
+      </div>
 
     </div>
 

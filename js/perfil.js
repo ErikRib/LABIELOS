@@ -2,7 +2,7 @@
 const $ = seletor => document.querySelector(seletor);
 const aviso = (seletor, texto) => { $(seletor).textContent = texto; };
 
-// Esta página é compartilhada pelos dois painéis (AACD e fabricante), então
+// Esta página é compartilhada pelos dois painéis (solicitante e fabricante), então
 // o link de "voltar" é ajustado conforme de onde o usuário veio.
 const linkVoltar = $('#linkVoltar');
 if (linkVoltar && document.referrer.includes('/html/fabricator/')) {
@@ -11,6 +11,11 @@ if (linkVoltar && document.referrer.includes('/html/fabricator/')) {
 async function carregarPerfil() {
   try {
     const { user, memberships } = await api('/api/me');
+    // Sem referenciador útil (ex.: veio do login), usa o tipo da organização.
+    if (linkVoltar && !document.referrer.includes('/html/client/')
+      && memberships.some(m => m.membership_status === 'active' && m.organization_type === 'fabricante')) {
+      linkVoltar.href = '/html/fabricator/index.html';
+    }
     $('#nomePerfil').value = user.nome;
     $('#sobrenomePerfil').value = user.sobrenome;
     $('#telefonePerfil').value = user.telefone || '';
@@ -19,6 +24,8 @@ async function carregarPerfil() {
     $('#minhasOrganizacoes').textContent = memberships.length
       ? memberships.map(m => `${m.organization} — organização: ${m.organization_status}; vínculo: ${m.membership_status}`).join(' | ')
       : 'Nenhum vínculo institucional cadastrado.';
+    // Atalho para html/admin.html só para administradores ativos.
+    $('#linkAdmin').hidden = !memberships.some(m => m.role === 'admin' && m.membership_status === 'active');
   } catch { location.href = '/html/login.html'; }
 }
 carregarPerfil();

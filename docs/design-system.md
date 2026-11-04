@@ -72,7 +72,7 @@ adivinhar um hex que o Figma nunca declarou.
 A tela de exemplo do protótipo ("Tela 1") mostra como os tokens se combinam
 em uma aplicação real (navbar, hero escuro, cartões, tabela com badges de
 status, rodapé) — foi usada como referência para os ajustes nas páginas da
-AACD.
+organização solicitante.
 
 ---
 
@@ -145,7 +145,7 @@ classe de status foram corrigidos (ver seção 5.1 — bug encontrado).
 
 ## 4. Painel do Fabricante (novo)
 
-A AACD já tinha um painel completo (`html/client/`). O fabricante (parceiro
+A organização solicitante já tinha um painel completo (`html/client/`). O fabricante (parceiro
 de manufatura) ainda não tinha uma área própria terminada — esta sessão
 construiu uma base completa para ele em `html/fabricator/`, reaproveitando
 ao máximo os componentes e os dados simulados já existentes em
@@ -174,7 +174,7 @@ Cada ação (`js/fabricator.js`, função `aplicarAcaoDemanda`) faz um `PATCH`
 em `/api/solicitacoes/{protocolo}` com o novo status; é o back-end quem
 registra o evento correspondente na linha do tempo dessa solicitação (ver
 seção 10). Por isso, uma ação tomada no painel do fabricante aparece
-também no histórico que a AACD vê — é a mesma solicitação, no mesmo
+também no histórico que a organização solicitante vê — é a mesma solicitação, no mesmo
 back-end, não mais um objeto local compartilhado entre os dois arquivos.
 
 Uma terceira solicitação simulada (`#0003`, "Prótese de mão transradial",
@@ -183,7 +183,7 @@ aceite/recusa tivesse algo para demonstrar.
 
 ### 4.2 Linha do tempo com registro manual (estilo GLPI)
 
-Na página de detalhes (tanto da AACD quanto do fabricante), a linha do
+Na página de detalhes (tanto da organização solicitante quanto do fabricante), a linha do
 tempo agora tem um formulário **"Adicionar registro"**: tipo (Comentário ou
 Anexo), mensagem e arquivo opcional. Ao enviar, um novo evento é adicionado
 ao topo do histórico, assinado automaticamente por quem está "logado" na
@@ -230,7 +230,7 @@ reparar que ele existe.
 
 Esse motor é usado em dois lugares:
 
-- `html/client/solicitacoes.html` (AACD) — colunas fixas (Protocolo,
+- `html/client/solicitacoes.html` (solicitante) — colunas fixas (Protocolo,
   Solicitação, Requerente, Atribuído, Prioridade, Status), todas do tipo
   texto.
 - `html/fabricator/demandas.html` (fabricante) — colunas fixas mais colunas
@@ -321,7 +321,7 @@ html/
                                           detalhe-demanda.html
 
 js/
-├── prototipo.js   — nova solicitação #0003, filtros da AACD, registro de timeline
+├── prototipo.js   — nova solicitação #0003, filtros da organização solicitante, registro de timeline
 ├── fabricator.js  — toda a lógica do painel do fabricante
 ├── filtros.js     — motor de filtros avançados (reutilizável)
 ├── api.js         — [novo] wrapper de fetch para a API real
@@ -348,7 +348,7 @@ As telas **Login** (`html/login.html`), **Cadastro** (`html/cadastro.html`)
 e **Meu perfil** (`html/perfil.html`) foram as primeiras a deixar de usar
 dados simulados: foram conectadas a uma API real, via `js/api.js` (um
 wrapper fino de `fetch`, com `credentials: 'same-origin'` e sessão por
-cookie). Os painéis da AACD e do fabricante seguiram o mesmo caminho logo
+cookie). Os painéis da organização solicitante e do fabricante seguiram o mesmo caminho logo
 depois (ver seção 10) — hoje nenhuma das áreas autenticadas usa mais dados
 fixos no código.
 
@@ -363,7 +363,7 @@ Atlas) já foi confirmada — ver seção 11. Vale revisar esses dois arquivos
 com calma antes de começar a implementação real, já que os nomes de
 rota/campo podem precisar de ajuste fino.
 
-**Importante:** diferente das telas de prototipagem (AACD/fabricante),
+**Importante:** diferente das telas de prototipagem (solicitante/fabricante),
 estas três páginas **não funcionam sem um back-end no ar** — ao abrir
 `perfil.html` sem a API rodando, a página redireciona direto para
 `login.html` (é o comportamento esperado de `js/perfil.js`, não um bug).
@@ -405,11 +405,11 @@ Não dá para demonstrar essas telas "soltas" como o resto do protótipo.
   usado em `login.js`/`perfil.js` para as demais mensagens.
 - Confirmado (sem alterações necessárias): o link "Meu perfil" foi
   adicionado de forma consistente no menu de perfil de todas as páginas
-  autenticadas (AACD e fabricante).
+  autenticadas (solicitante e fabricante).
 
 ---
 
-## 10. Painéis da AACD e do fabricante conectados à API
+## 10. Painéis da organização solicitante e do fabricante conectados à API
 
 Depois do login/cadastro/perfil, os dois painéis que antes eram 100%
 simulados (`js/prototipo.js` e `js/fabricator.js`) também foram conectados
@@ -435,7 +435,7 @@ registra o evento correspondente na linha do tempo.
 
 ### Duas pendências desta conversão
 
-- **Página "Histórico" da AACD** continua com uma lista estática de
+- **Página "Histórico" da organização solicitante** continua com uma lista estática de
   amostra — o contrato da API ainda não tem um endpoint agregado
   ("todos os eventos de todas as solicitações da organização"), só o
   histórico de uma solicitação específica. Fica para quando esse endpoint
@@ -466,5 +466,32 @@ registra o evento correspondente na linha do tempo.
   e já confirmados para FastAPI (não Flask, como havia sido cogitado
   antes) — ainda assim, nomes de rota e de campo podem precisar de ajuste
   fino conforme a implementação real do back-end avançar.
-- **Endpoint agregado de histórico** para a página "Histórico" da AACD
+- **Endpoint agregado de histórico** para a página "Histórico" da organização solicitante
   (ver seção 10).
+
+---
+
+## 12. Rodada de novembro/2026 — assistente, administração e materiais
+
+- **Nova solicitação em 4 etapas** (`js/nova-solicitacao.js`,
+  `css/components/stepper.css`), seguindo o protótipo do Figma: stepper
+  numerado (atual em `--cor-secundaria`, concluídas com ✓ em tom de
+  sucesso), conteúdo em cartão claro, "Cancelar" contornado e
+  "Continuar →" em `--cor-primaria`. O modal deixou de ser copiado em
+  três HTMLs e passou a ser gerado pelo script.
+- **Parceiros atribuídos dinâmicos**: os checkboxes da nova solicitação e
+  da edição vêm de `GET /api/parceiros` (antes eram três nomes fixos).
+- **Materiais para doação**: `html/client/materiais.html` (consulta) e
+  `html/fabricator/materiais.html` (gestão), com badges
+  `material-disponivel` / `material-estoque-baixo` / `material-esgotado`
+  reaproveitando os tokens de sucesso/alerta/erro.
+- **Administração da organização**: `html/admin.html`, com abas
+  acessíveis (`role="tablist"`, setas do teclado) para pedidos e membros.
+- **`index.html`**: novos cards, fluxo atualizado, seção "Para quem" e
+  bloco de privacidade (o CSS `.privacidade` já existia sem uso).
+- **Correção**: `td.celula-acoes` tinha `display:flex`, o que desalinhava
+  a célula de ações das demais colunas (afetava também a tabela de
+  Demandas do fabricante). O espaçamento foi movido para os botões.
+
+Contrato de todas essas telas para o back-end:
+[`integracao-backend.md`](./integracao-backend.md).

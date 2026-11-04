@@ -1,0 +1,182 @@
+/* =========================
+   MATERIAIS PARA DOAÇÃO
+   (html/client/materiais.html e html/fabricator/materiais.html)
+========================= */
+
+.materiais-subtitulo {
+    margin-bottom: 14px;
+
+    font-size: 1.2rem;
+}
+
+.materiais-resumo {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+
+    gap: 16px;
+
+    margin-bottom: 36px;
+}
+
+.material-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    gap: 4px;
+
+    padding: 18px 20px;
+
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--borda-radius);
+
+    background-color: var(--cor-fundo);
+}
+
+.material-card h2 {
+    font-size: 1.2rem;
+    line-height: 1.3;
+}
+
+.material-card-total {
+    color: var(--cor-primaria);
+
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.material-card-parceiros {
+    margin-bottom: 6px;
+
+    color: var(--cor-texto-secundario);
+
+    font-size: 0.85rem;
+}
+
+.material-card .eyebrow {
+    margin-bottom: 0;
+}
+
+
+.estado-vazio-acao {
+    grid-column: 1 / -1;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 32px 20px;
+
+    border: 2px dashed var(--cor-borda);
+    border-radius: var(--borda-radius);
+
+    color: var(--cor-texto-secundario);
+
+    text-align: center;
+}
+
+/* FILTROS */
+
+.materiais-filtros {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+
+    gap: 16px;
+
+    margin-bottom: 16px;
+}
+
+.texto-apoio {
+    color: var(--cor-texto-secundario);
+
+    font-size: 0.8rem;
+}
+
+.mensagem-materiais {
+    margin-bottom: 12px;
+
+    color: var(--cor-sucesso-texto);
+
+    font-weight: 600;
+}
+
+.mensagem-materiais:empty {
+    display: none;
+}
+
+.mensagem-materiais.mensagem-erro {
+    color: var(--cor-erro-texto);
+}
+
+.estado-vazio {
+    padding: 24px;
+
+    color: var(--cor-texto-secundario);
+
+    text-align: center;
+}
+
+
+/* BADGES DE SITUAÇÃO */
+
+.material-disponivel {
+    background-color: var(--cor-sucesso-fundo);
+    color: var(--cor-sucesso-texto);
+}
+
+.material-estoque-baixo {
+    background-color: var(--cor-alerta-fundo);
+    color: var(--cor-alerta-texto);
+}
+
+.material-esgotado {
+    background-color: var(--cor-erro-fundo);
+    color: var(--cor-erro-texto);
+}
+
+
+/* FORMULÁRIO */
+
+.campo-com-unidade {
+    display: grid;
+    grid-template-columns: 1fr 90px;
+
+    gap: 8px;
+}
+
+.erro-campo {
+    margin-top: 12px;
+
+    color: var(--cor-erro-texto);
+
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.erro-campo:empty {
+    display: none;
+}
+
+.btn-perigo {
+    border: 1px solid var(--cor-erro);
+
+    background-color: transparent;
+    color: var(--cor-erro-texto);
+}
+
+.btn-perigo:hover {
+    background-color: var(--cor-erro);
+    color: var(--cor-texto-claro);
+}
+
+
+/* RESPONSIVIDADE */
+
+@media (max-width: 700px) {
+
+    .materiais-filtros {
+        grid-template-columns: 1fr;
+    }
+}
