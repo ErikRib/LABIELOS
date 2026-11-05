@@ -23,6 +23,7 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
   <script src="/js/api.js" defer></script>
+  <script src="/js/sugestoes.js" defer></script>
   <script src="/js/prototipo.js" defer></script>
   <script src="/js/materiais.js" defer></script>
 </head>
@@ -36,7 +37,9 @@
           src="/content/img/logo-simples.png" alt="Logo do LABIELOS"></a>
       <ul class="nav-links" id="navLinks">
         <li><a data-pagina="fabricator-inicio" href="/html/fabricator/index.html">Visão geral</a></li>
+        <li><a data-pagina="fabricator-fila" href="/html/fabricator/fila.html">Novas solicitações</a></li>
         <li><a data-pagina="fabricator-demandas" href="/html/fabricator/demandas.html">Demandas</a></li>
+        <li><a data-pagina="fabricator-impressoras" href="/html/fabricator/impressoras.html">Impressoras</a></li>
         <li><a data-pagina="fabricator-materiais" href="/html/fabricator/materiais.html">Materiais</a></li>
       </ul>
 
@@ -131,7 +134,7 @@
       <div class="modal-corpo">
         <div class="form-grid">
           <div class="campo">
-            <label for="campoMaterial">Material</label>
+            <label for="campoMaterial">Material de impressão</label>
             <input id="campoMaterial" name="material" required maxlength="60" list="listaMateriaisComuns" placeholder="Ex.: PLA">
             <datalist id="listaMateriaisComuns">
               <option value="PLA"></option>

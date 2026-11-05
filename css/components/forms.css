@@ -58,6 +58,28 @@
         box-shadow var(--transicao);
 }
 
+/* Seta própria nas listas: a nativa fica colada na borda direita. */
+.campo select,
+.admin-seletor select {
+    appearance: none;
+    -webkit-appearance: none;
+
+    padding-right: 42px;
+
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23555555' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 16px;
+
+    cursor: pointer;
+}
+
+.campo select[multiple] {
+    padding-right: 12px;
+
+    background-image: none;
+}
+
 .campo input:focus,
 .campo select:focus,
 .campo textarea:focus {
@@ -198,4 +220,126 @@
     .campo-atribuicoes {
         padding: 14px;
     }
+}
+
+/* =========================
+   CAMPO COM SUGESTÕES (js/sugestoes.js)
+   Texto livre + lista de sugestões no estilo da plataforma, no lugar
+   do <datalist> nativo.
+========================= */
+
+.campo-sugestoes {
+    position: relative;
+}
+
+.campo-sugestoes input {
+    padding-right: 40px;
+}
+
+.sugestoes-abrir {
+    position: absolute;
+    top: 50%;
+    right: 6px;
+
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border: none;
+    border-radius: 6px;
+
+    background: transparent;
+    color: var(--cor-texto-secundario);
+
+    cursor: pointer;
+
+    transform: translateY(-50%);
+}
+
+.sugestoes-abrir svg {
+    width: 18px;
+    height: 18px;
+
+    transition: transform var(--transicao);
+}
+
+.sugestoes-abrir:hover {
+    background-color: var(--cor-fundo-secundario);
+    color: var(--cor-primaria);
+}
+
+.campo-sugestoes.aberto .sugestoes-abrir svg {
+    transform: rotate(180deg);
+}
+
+.sugestoes-lista {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+
+    max-height: 220px;
+
+    margin: 0;
+    padding: 6px;
+
+    list-style: none;
+
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+
+    background-color: var(--cor-fundo);
+
+    box-shadow: 0 8px 24px rgba(11, 39, 64, 0.12);
+
+    overflow-y: auto;
+
+    z-index: 50;
+}
+
+.sugestoes-lista [role="option"] {
+    padding: 8px 10px;
+
+    border-radius: 6px;
+
+    color: var(--cor-texto);
+
+    font-size: 0.9rem;
+
+    cursor: pointer;
+}
+
+.sugestoes-lista [role="option"]:hover,
+.sugestoes-lista [role="option"][aria-selected="true"] {
+    background-color: var(--cor-fundo-secundario);
+    color: var(--cor-primaria);
+}
+
+.sugestoes-vazio {
+    padding: 8px 10px;
+
+    color: var(--cor-texto-secundario);
+
+    font-size: 0.85rem;
+}
+
+body.alto-contraste .sugestoes-lista {
+    border-color: #ffffff;
+
+    background-color: #000000;
+}
+
+body.alto-contraste .sugestoes-lista [role="option"] {
+    color: #ffffff;
+}
+
+body.alto-contraste .sugestoes-lista [role="option"][aria-selected="true"],
+body.alto-contraste .sugestoes-lista [role="option"]:hover {
+    background-color: #ffff00;
+    color: #000000;
 }

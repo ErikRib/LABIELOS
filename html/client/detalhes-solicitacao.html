@@ -24,7 +24,17 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
+  <!-- three.js (MIT) para o visualizador 3D: só é baixado ao clicar em "Visualizar". -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+      }
+    }
+  </script>
   <script src="/js/api.js" defer></script>
+  <script src="/js/sugestoes.js" defer></script>
   <script src="/js/prototipo.js" defer></script>
   <script src="/js/nova-solicitacao.js" defer></script>
 </head>
@@ -39,7 +49,7 @@
         <li><a data-pagina="solicitacoes" href="/html/client/solicitacoes.html">Solicitações</a></li>
         <li><a data-pagina="parceiros" href="/html/client/parceiros.html">Parceiros</a></li>
         <li><a data-pagina="materiais" href="/html/client/materiais.html">Materiais</a></li>
-        <li><a data-pagina="historico" href="/html/client/historico.html">Histórico</a></li>
+        <li><a data-pagina="relatorios" href="/html/client/relatorios.html">Relatórios</a></li>
       </ul>
       <div class="nav-acoes">
         <div class="nav-perfil-wrap">
@@ -93,8 +103,16 @@
 
     </section>
 
+    <!-- Faixa "Próxima etapa": em que pé está a solicitação e, quando a peça
+         fica pronta, os botões Aprovar / Devolver para ajuste. -->
+    <p id="mensagemSolicitante" class="mensagem-fabricante" role="status"></p>
+    <section class="barra-etapa" id="acoesSolicitante" aria-label="Próxima etapa"></section>
+
     <section class="detalhe-layout">
       <div class="detalhe-coluna-principal">
+        <!-- Motivo da última devolução para ajuste (status Em produção). -->
+        <div class="aviso-ajuste" id="ajusteSolicitacao" role="note" hidden></div>
+
         <article class="painel-bloco">
           <header class="bloco-cabecalho">
             <div>
@@ -116,14 +134,8 @@
 
           <form class="form-registro-timeline" id="formRegistroTimeline">
             <div class="form-grid">
-              <div class="campo"><label>Tipo de registro</label>
-                <select name="tipo">
-                  <option value="Comentário">Comentário</option>
-                  <option value="Anexo">Anexo</option>
-                </select>
-              </div>
-              <div class="campo amplo"><label>Mensagem</label>
-                <textarea name="mensagem" placeholder="Descreva uma atualização, observação ou solicitação relacionada a este registro."></textarea>
+              <div class="campo amplo"><label for="mensagemRegistro">Comentário</label>
+                <textarea id="mensagemRegistro" name="mensagem" placeholder="Escreva uma atualização, dúvida ou observação. Se quiser, anexe um arquivo abaixo."></textarea>
               </div>
               <div class="campo amplo campo-arquivo">
                 <label for="arquivoRegistro">Anexar arquivo (opcional)</label>
@@ -138,6 +150,28 @@
       </div>
 
       <aside class="detalhe-coluna-lateral">
+        <!-- Local de retirada: aparece quando o parceiro conclui a produção. -->
+        <article class="painel-bloco retirada-card" id="retiradaSolicitacao" hidden>
+          <header class="bloco-cabecalho">
+            <div>
+              <p class="eyebrow">Pronta para retirada</p>
+              <h2>Retirada da peça</h2>
+            </div>
+          </header>
+          <div data-retirada="conteudo"></div>
+        </article>
+
+        <!-- Produção: impressora usada e origem do material (doado ou do solicitante). -->
+        <article class="painel-bloco producao-card" id="producaoSolicitacao" hidden>
+          <header class="bloco-cabecalho">
+            <div>
+              <p class="eyebrow">Produção</p>
+              <h2>Impressora e material</h2>
+            </div>
+          </header>
+          <div data-producao="conteudo"></div>
+        </article>
+
         <article class="painel-bloco detalhe-resumo-card">
           <header class="bloco-cabecalho">
             <h2>Informações</h2>
@@ -148,7 +182,7 @@
               <dd data-detalhe="requerente"></dd>
             </div>
             <div>
-              <dt>Atribuídos</dt>
+              <dt>Parceiro responsável</dt>
               <dd data-detalhe="atribuido"></dd>
             </div>
             <div>
@@ -207,22 +241,11 @@
       <div class="modal-corpo">
         <div class="form-grid">
           <div class="campo"><label>Solicitação</label><input name="solicitacao" required></div>
-          <div class="campo"><label>Requerente</label><input name="requerente" required></div>
-          <fieldset class="campo amplo campo-atribuicoes">
-            <legend>Atribuídos</legend>
-            <div class="opcoes-atribuicao"></div>
-            <p class="erro-campo" id="erroAtribuidosEdicao" role="alert"></p>
-          </fieldset>
+          <div class="campo"><label>Requerente</label><input name="requerente" readonly aria-readonly="true"></div>
           <div class="campo"><label>Prioridade</label><select name="prioridade">
               <option>Baixa</option>
               <option>Média</option>
               <option>Alta</option>
-            </select></div>
-          <div class="campo"><label>Status</label><select name="status">
-              <option>Aberta</option>
-              <option>Em análise</option>
-              <option>Em produção</option>
-              <option>Concluída</option>
             </select></div>
           <div class="campo"><label>Categoria</label><input name="categoria" required></div>
           <div class="campo"><label>Prazo</label><input name="prazo" type="date"></div>
@@ -248,23 +271,25 @@
       </div><button class="modal-fechar" type="button" data-fechar-modal aria-label="Fechar">×</button>
     </header>
     <div class="modal-corpo">
-      <div class="viewer-3d" aria-label="Pré-visualização 3D demonstrativa do arquivo anexado">
-        <svg viewBox="0 0 520 320" role="img" aria-label="Representação tridimensional em wireframe para o protótipo">
-          <g class="wireframe">
-            <path d="M150 220 L255 255 L370 205 L266 168 Z" />
-            <path d="M150 220 L150 125 L266 78 L266 168" />
-            <path d="M266 78 L370 116 L370 205" />
-            <path d="M150 125 L255 162 L370 116" />
-            <path d="M255 162 L255 255" />
-            <path d="M205 103 L205 201 M315 98 L315 229 M150 172 L370 160" />
-          </g>
-        </svg>
-        <span class="viewer-eixo eixo-x">X</span><span class="viewer-eixo eixo-y">Y</span><span
-          class="viewer-eixo eixo-z">Z</span>
+      <!-- Visualizador real (three.js, js/visualizador-3d.js). -->
+      <div class="viewer-3d" data-viewer="area">
+        <p class="viewer-estado" data-viewer="estado" role="status">Carregando modelo…</p>
+        <div class="viewer-ferramentas" data-viewer="ferramentas" hidden>
+          <button type="button" class="btn-viewer" data-viewer="reenquadrar">Centralizar</button>
+          <button type="button" class="btn-viewer" data-viewer="malha" aria-pressed="false">Ver malha</button>
+        </div>
       </div>
-      <div class="viewer-info"><strong data-viewer="nome-info"></strong><span data-viewer="meta"></span>
-        <p>Pré-visualização demonstrativa para o protótipo. No sistema final, esta área pode usar um visualizador real
-          do STL/OBJ/3MF.</p>
+      <div class="viewer-info">
+        <div class="viewer-arquivo">
+          <strong data-viewer="nome-info"></strong>
+          <span data-viewer="meta"></span>
+        </div>
+        <dl class="viewer-dados" data-viewer="dados" hidden>
+          <div><dt>Dimensões (X × Y × Z)</dt><dd data-viewer="dimensoes"></dd></div>
+          <div><dt>Triângulos</dt><dd data-viewer="triangulos"></dd></div>
+        </dl>
+        <p class="viewer-dica" data-viewer="dica">Arraste para girar · role para aproximar · botão direito (ou dois dedos) para mover.</p>
+        <a class="btn btn-secundario btn-acao viewer-baixar" data-viewer="baixar" href="#" download>Baixar arquivo</a>
       </div>
     </div>
   </dialog>

@@ -6,7 +6,7 @@
 > o mapa tela → rota e um checklist de entrega.
 
 > **Nota:** a pasta `backend/` referenciada neste documento (com
-> `app.py`, `requirements.txt`, `.env.example`, `approve.py` etc.) **não
+> `app.py`, `requirements.txt`, `.env.example` etc.) **não
 > está incluída neste repositório** — este arquivo é só o contrato de
 > referência (rotas, formatos de entrada/saída) para quem for implementar
 > o back-end em FastAPI, não uma pasta que já existe aqui. Os nomes de
@@ -36,7 +36,7 @@ Em produção, configure `COOKIE_SECURE=true`, HTTPS, `PUBLIC_BASE_URL=https://s
 | Método | Caminho | Função |
 |---|---|---|
 | GET | `/api/organizations?q=...&tipo=...` | Busca organizações **ativas** por nome e tipo |
-| POST | `/api/auth/register` | Cria conta e solicitação institucional pendente |
+| POST | `/api/auth/register` | Cria conta. Organização nova: já ativa, usuário admin e sessão aberta. Organização existente: pedido pendente |
 | POST | `/api/auth/login` | Cria sessão segura |
 | POST | `/api/auth/logout` | Encerra sessão |
 | GET | `/api/me` | Usuário autenticado e vínculos |
@@ -45,21 +45,35 @@ Em produção, configure `COOKIE_SECURE=true`, HTTPS, `PUBLIC_BASE_URL=https://s
 | POST | `/api/me/email/start` | Valida senha e envia código ao novo e-mail |
 | POST | `/api/me/email/confirm` | Confirma código, atualiza e-mail, revoga sessões |
 | POST | `/api/me/password` | Altera senha e revoga sessões |
+| GET / PATCH | `/api/organizations/{org_id}` | Admin vê/edita os dados de cadastro (nome, CNPJ, contato e, se fabricante, a lista `enderecos`) |
+| GET | `/api/organizacao/enderecos` | Endereços de retirada da organização ativa (qualquer membro; usado nos modais do fabricante) |
+| DELETE | `/api/organizations/{org_id}` | Admin remove a organização (`409` se houver solicitações/demandas em andamento) |
 | GET | `/api/organizations/{org_id}/requests` | Admin vê pedidos pendentes |
 | POST | `/api/organizations/{org_id}/requests/{membership_id}` | Admin aprova/rejeita pedido (`{"approve":true}`) |
 | GET | `/api/organizations/{org_id}/members` | Admin lista os membros ativos |
 | PATCH | `/api/organizations/{org_id}/members/{membership_id}` | Admin altera o papel (`{"role":"admin"\|"member"}`) |
 | DELETE | `/api/organizations/{org_id}/members/{membership_id}` | Admin remove o membro (revoga sessões) |
-| GET | `/api/solicitacoes` | Lista as solicitações visíveis para a organização autenticada |
+| GET | `/api/solicitacoes` | Solicitante: as que criou. Fabricante: as que aceitou (demandas) |
+| GET | `/api/fila` | Fila global: solicitações `Aberta` ainda sem fabricante (só fabricantes) |
+| POST | `/api/solicitacoes/{protocolo}/aceitar` | Fabricante assume a solicitação da fila (atômico; `409` se outro aceitou antes) |
+| POST | `/api/solicitacoes/{protocolo}/devolver` | Fabricante devolve à fila uma demanda ainda `Em análise` |
+| POST | `/api/solicitacoes/{protocolo}/iniciar-producao` | Fabricante escolhe impressora e origem do material → `Em produção` (doado) ou `Aguardando material` (do solicitante) |
+| POST | `/api/solicitacoes/{protocolo}/material-recebido` | Fabricante confirma que recebeu o material do solicitante → `Em produção` |
+| POST | `/api/solicitacoes/{protocolo}/concluir-producao` | Fabricante informa local de retirada (e quantidade de material doado usada, com baixa no estoque) → `Pronta para retirada` |
+| POST | `/api/solicitacoes/{protocolo}/aprovar` | Solicitante aprova a peça → `Concluída` |
+| POST | `/api/solicitacoes/{protocolo}/reprovar` | Solicitante devolve para ajuste com motivo → `Em produção` |
 | GET | `/api/solicitacoes/{protocolo}` | Detalhe de uma solicitação |
+| GET | `/api/solicitacoes/{protocolo}/arquivo3d` | Download do arquivo 3D anexado (bytes) |
 | POST | `/api/solicitacoes` | Cria uma solicitação (organização solicitante) |
-| PATCH | `/api/solicitacoes/{protocolo}` | Atualiza campos e/ou o status de uma solicitação |
+| PATCH | `/api/solicitacoes/{protocolo}` | Solicitante edita os campos da solicitação (não altera status) |
 | GET | `/api/solicitacoes/{protocolo}/historico` | Linha do tempo (eventos + registros manuais) |
 | POST | `/api/solicitacoes/{protocolo}/historico` | Adiciona um registro (comentário ou anexo) à linha do tempo |
-| GET | `/api/parceiros` | Lista os parceiros de manufatura credenciados |
+| GET | `/api/parceiros` | Parceiros de manufatura com disponibilidade, impressoras, materiais para doação, locais e contato (tudo calculado) |
 | GET | `/api/materiais` | Materiais para doação (solicitante: de todos os parceiros; fabricante: os próprios) |
 | POST | `/api/materiais` | Fabricante cadastra um material disponível para doação |
 | PATCH / DELETE | `/api/materiais/{id}` | Fabricante atualiza/remove um material da própria organização |
+| GET / POST | `/api/impressoras` | Fabricante lista/registra impressoras da própria organização |
+| PATCH / DELETE | `/api/impressoras/{id}` | Fabricante atualiza/remove uma impressora da própria organização |
 
 ### Solicitações, demandas, parceiros e histórico
 
@@ -67,33 +81,35 @@ Estas rotas substituem os dados simulados que viviam em `js/prototipo.js`
 (array `solicitacoes`, `parceiros`, objeto `historicoSolicitacoes`). A
 visibilidade é definida pelo back-end a partir da sessão autenticada:
 
-- Uma organização do tipo `organizacao` (solicitante) vê, em `GET /api/solicitacoes`,
-  as solicitações que ela mesma criou.
-- Uma organização do tipo `fabricante` vê as solicitações em que o nome dela
-  aparece em `atribuido` (equivalente ao que `demandasDoParceiro()` fazia
-  localmente). O front-end não filtra mais isso no cliente — quem decide o
-  que cada organização pode ver é o back-end.
-- `PATCH /api/solicitacoes/{protocolo}` aceita um corpo parcial — por
-  exemplo, `{"status": "Em análise"}` para as ações do fabricante
-  (Aceitar/Recusar/Iniciar produção/Concluir), ou os campos editáveis da
-  organização solicitante (`solicitacao`, `requerente`, `atribuido`, `prioridade`, `categoria`,
-  `prazo`, `material`, `descricao`). Cada mudança de status deve gerar
-  automaticamente um evento em `/historico` (como `registrarEventoDemanda`
-  fazia localmente).
+- Uma organização do tipo `organizacao` vê, em `GET /api/solicitacoes`,
+  as solicitações que ela mesma criou. Ela **não escolhe parceiro**: toda
+  solicitação nova entra na fila global (`status="Aberta"`, sem fabricante).
+- Todo fabricante ativo vê a fila em `GET /api/fila`. O primeiro que chamar
+  `POST /api/solicitacoes/{protocolo}/aceitar` assume a solicitação, e ela
+  passa a aparecer só em `GET /api/solicitacoes` desse fabricante. Detalhes
+  e esboço da operação atômica em `integracao-backend.md`, seção 5.
+- **Status só muda pelas rotas de ação** (`aceitar`, `devolver`,
+  `iniciar-producao`, `material-recebido`, `concluir-producao`, `aprovar`,
+  `reprovar`), nunca pelo `PATCH`. Cada uma confere o status atual de forma
+  atômica, atualiza impressora e estoque quando for o caso e **gera o evento
+  no `/historico`**. O fluxo completo, com os corpos e os erros, está em
+  `integracao-backend.md`, seção 5.
+- `PATCH /api/solicitacoes/{protocolo}` é só para a organização solicitante
+  editar `solicitacao`, `prioridade`, `categoria`, `prazo`, `material` e
+  `descricao` (gera evento `Edição`).
 - O corpo de `solicitacao` (criação/edição) é JSON, exceto quando inclui um
   arquivo 3D — nesse caso, `multipart/form-data`, com o arquivo no campo
   `arquivo3d`, no mesmo espírito de `POST /api/me/photo`.
-- `POST /api/solicitacoes/{protocolo}/historico` recebe `{"tipo": "Comentário"|"Anexo", "mensagem": "..."}` (ou `multipart/form-data` com um arquivo, se `tipo` for `"Anexo"`), e retorna o evento criado (com `data`, `autor` definidos pelo servidor a partir da sessão).
-- Os formatos de objeto (campos de `solicitacao`, de evento do histórico, de
-  parceiro) devem espelhar o que já está em `js/prototipo.js` hoje — ver
-  esse arquivo como referência de schema enquanto o back-end não existe.
+- `POST /api/solicitacoes/{protocolo}/historico` recebe `{"tipo": "Comentário"|"Anexo", "mensagem": "..."}` (ou `multipart/form-data` com um arquivo; o front manda `"Anexo"` quando há arquivo) e retorna o evento criado (com `data`, `autor` definidos pelo servidor a partir da sessão).
+- Os formatos de objeto (solicitação, evento, parceiro, impressora,
+  material) estão em `integracao-backend.md`; o que é **guardado** no
+  MongoDB está em [`database.md`](./database.md).
 
 ## Aprovação institucional
 
-- Organização **nova**: `organizations.status=pending`, vínculo `requested_admin/pending`. **Não há promoção automática.**
-- Após verificar CNPJ, identidade e autorização institucional por procedimento externo, o administrador da plataforma pode usar temporariamente `python backend/approve.py list organizations` e `python backend/approve.py approve ID_DA_ORGANIZACAO`. **O script é uma ferramenta administrativa local, não uma rota pública.**
-- Organização **existente**: somente organizações `active` aparecem na busca. O usuário envia pedido `member/pending`, aprovado pelo administrador existente via endpoints autenticados. A interface administrativa já existe em `html/admin.html` (pedidos pendentes, membros, promoção/remoção de administradores) — contrato em `integracao-backend.md`, seção 6.1.
-- Não existe fluxo de convite, recuperação de senha, exclusão de conta ou gerenciamento de endereços/unidades nesta versão.
+- **Organização nova:** quem cadastra entra **na hora**. A organização é criada já `active`, o vínculo do usuário nasce `admin/active` e a API abre a sessão na própria resposta do cadastro (`acesso_liberado: true`). Não há verificação manual nem script de aprovação. Recomenda-se validar o CNPJ, impedir CNPJ repetido e registrar quem criou cada organização.
+- **Organização existente:** só organizações `active` aparecem na busca. O usuário envia o pedido `member/pending`, e um administrador da organização aprova ou recusa em `html/admin.html` (rotas `/api/organizations/{org_id}/requests`). Até lá, o login é recusado com `403`.
+- Não existe fluxo de convite, recuperação de senha ou exclusão de conta nesta versão. Os endereços de retirada do fabricante são gerenciados pelo admin em Administração → Dados da organização.
 
 ## Alteração de e-mail
 
@@ -107,6 +123,4 @@ Esta entrega é um **MVP de desenvolvimento**, não um sistema pronto para dados
 
 A busca por organizações usa expressão regular escapada e retorna no máximo 15 resultados. A foto é armazenada no documento do usuário e limitada a 2 MB; futuramente recomenda-se storage privado de objetos. Nunca use dados de pacientes reais para testar.
 
-Os painéis da organização solicitante e do fabricante (`js/prototipo.js`, `js/fabricator.js`) também já foram conectados às rotas `/api/solicitacoes`, `/api/solicitacoes/{protocolo}/historico` e `/api/parceiros` descritas acima — não usam mais dados fixos no código. A única tela que ainda mostra uma amostra estática é "Histórico" (solicitante), que depende de um endpoint agregado por organização ainda não definido no contrato.
-
-As telas criadas depois (assistente de nova solicitação, administração da organização e materiais para doação) estão documentadas em [`integracao-backend.md`](./integracao-backend.md).
+Todas as telas autenticadas já usam as rotas acima e não têm mais dados fixos no código. Isso inclui Relatórios, que substituiu o antigo "Histórico" e usa `GET /api/solicitacoes`. O mapa completo tela → rota e o checklist de entrega estão em [`integracao-backend.md`](./integracao-backend.md).

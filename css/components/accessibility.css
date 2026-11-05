@@ -382,20 +382,25 @@ body.alto-contraste .anexo-icone {
 body.alto-contraste .viewer-3d {
     border-color: #ffffff;
 
-    background-color: #000000;
+    background: #000000;
 }
 
-body.alto-contraste .wireframe {
-    stroke: #ffff00;
+body.alto-contraste .viewer-estado,
+body.alto-contraste .viewer-dica,
+body.alto-contraste .viewer-arquivo span {
+    color: #ffffff;
 }
 
-body.alto-contraste .viewer-eixo {
+body.alto-contraste .btn-viewer {
+    border-color: #ffffff;
+
     background-color: #000000;
     color: #ffff00;
+}
 
-    border:
-        1px solid
-        #ffffff;
+body.alto-contraste .btn-viewer[aria-pressed="true"] {
+    background-color: #ffff00;
+    color: #000000;
 }
 
 

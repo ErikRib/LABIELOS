@@ -1,0 +1,45 @@
+/* =========================
+   IMPRESSORAS (html/fabricator/impressoras.html)
+   Reaproveita resumo, filtros, estado vazio e botões de materiais.css.
+========================= */
+
+/* Badges de status da impressora: em css/components/badges.css. */
+
+.campo-volume {
+    padding: 14px 16px;
+
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+}
+
+.campo-volume legend {
+    padding: 0 6px;
+}
+
+.volume-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 12px;
+
+    margin-bottom: 6px;
+}
+
+.volume-grid label {
+    display: flex;
+    flex-direction: column;
+
+    gap: 4px;
+
+    color: var(--cor-texto-secundario);
+
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+@media (max-width: 480px) {
+
+    .volume-grid {
+        grid-template-columns: 1fr;
+    }
+}

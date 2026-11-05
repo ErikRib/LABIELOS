@@ -88,6 +88,11 @@
     margin-bottom: 16px;
 }
 
+/* Busca + um filtro só (fila): o filtro fica encostado à direita. */
+.materiais-filtros.filtros-busca-e-um {
+    grid-template-columns: minmax(0, 1fr) minmax(200px, 280px);
+}
+
 .texto-apoio {
     color: var(--cor-texto-secundario);
 
@@ -121,20 +126,7 @@
 
 /* BADGES DE SITUAÇÃO */
 
-.material-disponivel {
-    background-color: var(--cor-sucesso-fundo);
-    color: var(--cor-sucesso-texto);
-}
-
-.material-estoque-baixo {
-    background-color: var(--cor-alerta-fundo);
-    color: var(--cor-alerta-texto);
-}
-
-.material-esgotado {
-    background-color: var(--cor-erro-fundo);
-    color: var(--cor-erro-texto);
-}
+/* Badges de situação do material: em css/components/badges.css. */
 
 
 /* FORMULÁRIO */

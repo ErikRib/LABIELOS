@@ -3,16 +3,19 @@
 
      1. Informações da peça      (solicitação, requerente, prioridade,
                                   categoria, prazo, material)
-     2. Arquivo e especificações (descrição, arquivo 3D, parceiros)
+     2. Arquivo e especificações (descrição, arquivo 3D)
      3. Revisão                  (resumo de tudo, com atalho para editar)
      4. Envio                    (POST /api/solicitacoes + resultado)
+
+   A organização solicitante NÃO escolhe parceiros: a solicitação criada
+   entra na fila global (status "Aberta"), visível para todos os
+   fabricantes, e o primeiro que aceitar assume a demanda.
 
    O HTML do modal é gerado aqui (e não copiado em cada página), então
    basta a página ter um botão .btn-nova-solicitacao e carregar, nesta
    ordem: js/api.js, js/prototipo.js e este arquivo.
 
-   Depende de prototipo.js para: usuarioLogado, parceiros,
-   opcoesParceirosHTML(), escaparHTML(), formatarTamanhoArquivo(),
+   Depende de prototipo.js para: usuarioLogado, escaparHTML(), formatarTamanhoArquivo(),
    carregarSolicitacoes() e as funções de re-renderização das tabelas.
 
    Contrato do envio: ver docs/backend.md, "POST /api/solicitacoes".
@@ -20,7 +23,7 @@
 
 const NOVA_ETAPAS = [
   { titulo: 'Informações da peça', rotulo: 'Informações <br>da peça', subtitulo: 'Preencha as informações básicas da solicitação.' },
-  { titulo: 'Arquivo e especificações', rotulo: 'Arquivo e <br>especificações', subtitulo: 'Descreva os requisitos, anexe o arquivo 3D e escolha os parceiros.' },
+  { titulo: 'Arquivo e especificações', rotulo: 'Arquivo e <br>especificações', subtitulo: 'Descreva os requisitos e anexe o arquivo 3D da peça.' },
   { titulo: 'Revisão', rotulo: 'Revisão', subtitulo: 'Confira os dados antes de enviar a solicitação.' },
   { titulo: 'Envio', rotulo: 'Envio', subtitulo: '' }
 ];
@@ -127,13 +130,6 @@ function templateNovaSolicitacao() {
               </div>
               <p class="erro-campo" data-erro="arquivo3d" role="alert"></p>
             </div>
-
-            <fieldset class="campo amplo campo-atribuicoes">
-              <legend>Parceiros atribuídos</legend>
-              <p class="campo-ajuda">Selecione uma ou mais instituições que receberão a solicitação.</p>
-              <div class="opcoes-atribuicao" data-opcoes-parceiros></div>
-              <p class="erro-campo" data-erro="atribuido" role="alert"></p>
-            </fieldset>
           </div>
         </section>
 
@@ -149,12 +145,12 @@ function templateNovaSolicitacao() {
           <div data-envio-estado="enviando">
             <span class="envio-spinner" aria-hidden="true"></span>
             <h3>Enviando solicitação…</h3>
-            <p class="assistente-subtitulo">Aguarde enquanto registramos a solicitação e notificamos os parceiros.</p>
+            <p class="assistente-subtitulo">Aguarde enquanto registramos a solicitação.</p>
           </div>
           <div data-envio-estado="sucesso" hidden>
             <span class="envio-icone envio-icone-sucesso" aria-hidden="true">✓</span>
             <h3>Solicitação <span data-envio-protocolo></span> enviada!</h3>
-            <p class="assistente-subtitulo">Os parceiros selecionados já podem visualizar a demanda. Acompanhe o andamento pela página de detalhes.</p>
+            <p class="assistente-subtitulo">Ela entrou na fila de novas solicitações e já está visível para todos os parceiros de manufatura. Quando um deles aceitar, você verá o parceiro e o andamento na página de detalhes.</p>
           </div>
           <div data-envio-estado="erro" hidden>
             <span class="envio-icone envio-icone-erro" aria-hidden="true">!</span>
@@ -195,7 +191,6 @@ function irParaEtapa(indice) {
     if (i === indice) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
   });
 
-  if (indice === 1) renderParceirosNova();
   if (indice === 2) renderRevisao();
 
   atualizarBotoesNova();
@@ -251,15 +246,6 @@ function validarEtapa(indice) {
     }
   }
 
-  if (indice === 1) {
-    const erro = novaQ('[data-erro="atribuido"]');
-    if (!parceirosMarcados().length) {
-      erro.textContent = 'Selecione pelo menos um parceiro.';
-      novaQ('[data-opcoes-parceiros] input')?.focus();
-      return false;
-    }
-    erro.textContent = '';
-  }
   return true;
 }
 
@@ -268,23 +254,12 @@ function hojeISO() {
   return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 }
 
-function parceirosMarcados() {
-  return [...document.querySelectorAll('#modalNovaSolicitacao input[name="atribuido"]:checked')].map(i => i.value);
-}
 
 
 /* =========================
-   ETAPA 2 — PARCEIROS E ARQUIVO
+   ETAPA 2 — ARQUIVO 3D
 ========================= */
 
-function renderParceirosNova() {
-  const area = novaQ('[data-opcoes-parceiros]');
-  const marcados = parceirosMarcados();
-  area.innerHTML = opcoesParceirosHTML(marcados);
-  area.querySelectorAll('input').forEach(i => i.addEventListener('change', () => {
-    if (parceirosMarcados().length) novaQ('[data-erro="atribuido"]').textContent = '';
-  }));
-}
 
 function definirArquivo(arquivo) {
   const erro = novaQ('[data-erro="arquivo3d"]');
@@ -326,7 +301,6 @@ function camposNovaSolicitacao() {
   const v = nome => form.elements[nome].value.trim();
   return {
     solicitacao: v('solicitacao'),
-    atribuido: parceirosMarcados(),
     prioridade: v('prioridade'),
     categoria: v('categoria'),
     prazo: v('prazo') ? v('prazo').split('-').reverse().join('/') : 'A definir',
@@ -357,7 +331,6 @@ function renderRevisao() {
       <dl class="detalhes-grid">
         ${item('Descrição', `<span class="texto-preformatado">${e(c.descricao)}</span>`, true)}
         ${item('Arquivo 3D', novaArquivo ? `${e(novaArquivo.name)} · ${formatarTamanhoArquivo(novaArquivo.size)}` : 'Nenhum arquivo anexado', true)}
-        ${item('Parceiros atribuídos', c.atribuido.map(e).join(', '), true)}
       </dl>
     </article>`;
 
@@ -426,14 +399,13 @@ async function atualizarListasAposCriacao() {
 function formularioNovaAlterado() {
   const form = document.querySelector('#formNovaSolicitacao');
   return ['solicitacao', 'categoria', 'prazo', 'material', 'descricao'].some(n => form.elements[n].value.trim())
-    || !!novaArquivo || parceirosMarcados().length > 0;
+    || !!novaArquivo;
 }
 
 function resetarNovaSolicitacao() {
   const form = document.querySelector('#formNovaSolicitacao');
   form.reset();
   definirArquivo(null);
-  novaQ('[data-opcoes-parceiros]').innerHTML = '';
   form.querySelectorAll('.erro-campo').forEach(e => { e.textContent = ''; });
 }
 
@@ -470,6 +442,8 @@ async function carregarSugestoesMateriais() {
 function prepararNovaSolicitacao() {
   if (!document.querySelector('.btn-nova-solicitacao') || document.querySelector('#modalNovaSolicitacao')) return;
   document.body.insertAdjacentHTML('beforeend', templateNovaSolicitacao());
+  // Categoria e material: texto livre com sugestões (js/sugestoes.js).
+  window.ativarSugestoes?.(document.querySelector('#modalNovaSolicitacao'));
 
   const dialog = document.querySelector('#modalNovaSolicitacao');
   prepararDropzone();

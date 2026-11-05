@@ -92,6 +92,73 @@
     transform: none;
 }
 
+/* TAMANHO PEQUENO: atalhos dentro de cartões e barras ("Ver todas",
+   "+ Registrar material"...). Mesma família visual, menos peso. */
+
+.btn-sm {
+    padding: 7px 14px;
+
+    border-radius: 6px;
+
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+
+/* BOTÃO DE FERRAMENTA: ação utilitária com ícone ("Colunas",
+   "Atualizar fila"). O ícone é um <svg> inline com currentColor. */
+
+.btn-ferramenta {
+    gap: 8px;
+
+    padding: 7px 14px;
+
+    border: 1px solid var(--cor-borda);
+    border-radius: 6px;
+
+    background-color: var(--cor-fundo);
+    color: var(--cor-primaria);
+
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.btn-ferramenta svg {
+    width: 16px;
+    height: 16px;
+
+    flex-shrink: 0;
+}
+
+.btn-ferramenta:hover,
+.btn-ferramenta[aria-expanded="true"] {
+    border-color: var(--cor-secundaria);
+
+    background-color: var(--cor-fundo-secundario);
+}
+
+.btn-ferramenta:focus-visible {
+    outline: 3px solid var(--cor-acento);
+    outline-offset: 2px;
+}
+
+/* Girando enquanto a fila recarrega. */
+.btn-ferramenta.carregando svg {
+    animation: girar-icone 0.8s linear infinite;
+}
+
+@keyframes girar-icone {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .btn-ferramenta.carregando svg {
+        animation: none;
+    }
+}
+
 /* BOTÃO LIMPAR FILTROS */
 
 .btn-texto {

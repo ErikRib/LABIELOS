@@ -168,3 +168,129 @@
         width: 100%;
     }
 }
+
+
+/* =========================
+   MODAL DE AÇÃO (abrirModalAcao em js/prototipo.js)
+   "Concluir produção", "Aprovar peça", "Devolver para ajuste".
+========================= */
+
+.modal-acao .modal-corpo > p {
+    color: var(--cor-texto-secundario);
+}
+
+.modal-acao .campo {
+    margin-top: 16px;
+}
+
+.grupo-enderecos {
+    display: grid;
+
+    gap: 8px;
+
+    margin: 16px 0;
+    padding: 0;
+
+    border: none;
+}
+
+.grupo-enderecos legend {
+    margin-bottom: 8px;
+
+    font-weight: 600;
+}
+
+.opcao-endereco {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 12px;
+
+    padding: 12px 14px;
+
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    transition: border-color var(--transicao), background-color var(--transicao);
+}
+
+.opcao-endereco:hover {
+    border-color: var(--cor-secundaria);
+}
+
+.opcao-endereco:has(input:checked) {
+    border-color: var(--cor-secundaria);
+
+    background-color: var(--cor-fundo-secundario);
+}
+
+.opcao-endereco input {
+    margin-top: 3px;
+
+    accent-color: var(--cor-primaria);
+}
+
+.opcao-endereco span {
+    display: flex;
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+.opcao-endereco small {
+    color: var(--cor-texto-secundario);
+
+    font-size: 0.85rem;
+}
+
+.aviso-sem-endereco {
+    padding: 12px 14px;
+
+    border-radius: 8px;
+
+    background-color: var(--cor-alerta-fundo);
+    color: var(--cor-alerta-texto);
+}
+
+/* Opção indisponível (ex.: impressora em manutenção) */
+.opcao-endereco.opcao-bloqueada {
+    opacity: 0.6;
+
+    cursor: not-allowed;
+}
+
+.opcao-endereco > .badge {
+    margin-left: auto;
+
+    flex-shrink: 0;
+}
+
+.modal-acao [data-origem] .campo,
+.modal-acao .campo[data-origem] {
+    margin-top: 0;
+    margin-bottom: 12px;
+}
+
+.modal-acao [hidden] {
+    display: none;
+}
+
+/* Quantidade + unidade (baixa de estoque ao concluir a produção) */
+.campo-com-unidade {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+}
+
+.campo-com-unidade input {
+    max-width: 180px;
+}
+
+.campo-com-unidade span {
+    color: var(--cor-texto-secundario);
+
+    font-weight: 600;
+}

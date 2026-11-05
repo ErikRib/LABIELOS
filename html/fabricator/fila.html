@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Novas solicitações - Painel do Fabricante</title>
+  <link rel="stylesheet" href="/css/style.css">
+
+  <link rel="stylesheet" href="/css/components/navbar.css">
+  <link rel="stylesheet" href="/css/components/badges.css">
+  <link rel="stylesheet" href="/css/components/buttons.css">
+  <link rel="stylesheet" href="/css/components/table.css">
+  <link rel="stylesheet" href="/css/components/forms.css">
+  <link rel="stylesheet" href="/css/components/modal.css">
+
+  <link rel="stylesheet" href="/css/pages/fabricator.css">
+  <link rel="stylesheet" href="/css/pages/materiais.css">
+  <link rel="icon" type="image/png" href="/content/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <script src="/js/api.js" defer></script>
+  <script src="/js/prototipo.js" defer></script>
+  <script src="/js/fabricator.js" defer></script>
+</head>
+
+<body data-pagina="fabricator-fila">
+
+  <header class="painel-header">
+
+    <nav class="nav-principal painel-nav" aria-label="Navegação principal">
+      <a href="/html/fabricator/index.html" title="LABIELOS" class="nav-logo"><img
+          src="/content/img/logo-simples.png" alt="Logo do LABIELOS"></a>
+      <ul class="nav-links" id="navLinks">
+        <li><a data-pagina="fabricator-inicio" href="/html/fabricator/index.html">Visão geral</a></li>
+        <li><a data-pagina="fabricator-fila" href="/html/fabricator/fila.html">Novas solicitações</a></li>
+        <li><a data-pagina="fabricator-demandas" href="/html/fabricator/demandas.html">Demandas</a></li>
+        <li><a data-pagina="fabricator-impressoras" href="/html/fabricator/impressoras.html">Impressoras</a></li>
+        <li><a data-pagina="fabricator-materiais" href="/html/fabricator/materiais.html">Materiais</a></li>
+      </ul>
+
+      <div class="nav-acoes">
+        <div class="nav-perfil-wrap">
+          <button class="nav-perfil" type="button" aria-expanded="false" aria-haspopup="true">
+            <img src="/content/img/user.png" alt="Foto de perfil do usuário">
+            <span class="nav-identidade"><strong></strong><small></small></span>
+            <span class="nav-seta" aria-hidden="true">▾</span>
+          </button>
+          <div class="perfil-menu" hidden>
+            <div class="perfil-menu-identidade"><strong></strong><span></span></div>
+            <a href="/html/perfil.html" class="perfil-menu-item">Meu perfil</a>
+            <a href="/index.html" class="perfil-menu-item perfil-sair">Sair</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+  </header>
+
+  <main class="painel-main">
+
+    <section class="pagina-cabecalho">
+      <div>
+        <h1>Novas solicitações</h1>
+        <p>Fila global: toda solicitação aberta aparece aqui para todos os parceiros. Ao aceitar, ela passa a ser
+          sua e vai para Demandas.</p>
+      </div>
+      <div class="pagina-acoes">
+        <button type="button" class="btn btn-ferramenta" id="atualizarFila"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>Atualizar fila</button>
+      </div>
+    </section>
+
+    <section class="area-listagem" aria-labelledby="tituloFila">
+      <h2 id="tituloFila" class="materiais-subtitulo">Aguardando um parceiro</h2>
+      <div class="materiais-filtros filtros-busca-e-um">
+        <div class="campo">
+          <label for="buscaFila">Buscar</label>
+          <input id="buscaFila" type="search" placeholder="Protocolo, peça, requerente, categoria ou material">
+        </div>
+        <div class="campo">
+          <label for="filtroPrioridadeFila">Prioridade</label>
+          <select id="filtroPrioridadeFila">
+            <option value="">Todas</option>
+            <option>Alta</option>
+            <option>Média</option>
+            <option>Baixa</option>
+          </select>
+        </div>
+      </div>
+      <div class="barra-filtros">
+        <p id="contadorFila"></p>
+        <button id="limparFiltrosFila" type="button" class="btn-texto">Limpar filtros</button>
+      </div>
+      <p id="mensagemFabricante" class="mensagem-materiais" role="status"></p>
+      <div class="tabela-wrap">
+        <table id="tabelaFila">
+          <thead>
+            <tr>
+              <th>Protocolo</th>
+              <th>Solicitação</th>
+              <th>Requerente</th>
+              <th>Categoria</th>
+              <th>Material</th>
+              <th>Prioridade</th>
+              <th>Prazo</th>
+              <th>Aberta em</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <button type="button" class="btn-topo" id="btnTopo" aria-label="Voltar ao topo">↑</button>
+
+</body>
+
+</html>

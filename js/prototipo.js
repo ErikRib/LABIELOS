@@ -21,9 +21,12 @@ let usuarioLogado = null;
 let solicitacoes = [];
 let parceiros = [];
 
-// Junta a lista de instituições atribuídas em um texto legível.
+// Parceiro que assumiu a solicitação. Vazio = ainda na fila global,
+// esperando um fabricante aceitar. (Aceita string ou lista por
+// compatibilidade com respostas antigas.)
 function textoAtribuidos(valor) {
-  return Array.isArray(valor) ? valor.join(', ') : (valor || 'Não atribuído');
+  const texto = Array.isArray(valor) ? valor.join(', ') : (valor || '');
+  return texto || 'Aguardando parceiro';
 }
 
 // Converte um valor (ex.: "Em análise") no sufixo de classe CSS do
@@ -137,7 +140,7 @@ const COLUNAS_SOLICITACOES = [
   { chave: 'protocolo', tipo: 'texto', label: 'Protocolo' },
   { chave: 'solicitacao', tipo: 'texto', label: 'Solicitação' },
   { chave: 'requerente', tipo: 'texto', label: 'Requerente' },
-  { chave: 'atribuido', tipo: 'texto', label: 'Atribuído' },
+  { chave: 'atribuido', tipo: 'texto', label: 'Parceiro' },
   { chave: 'prioridade', tipo: 'texto', label: 'Prioridade' },
   { chave: 'status', tipo: 'texto', label: 'Status' }
 ];
@@ -167,7 +170,8 @@ function preencherResumo() {
   const analise = solicitacoes.filter(s => s.status === 'Em análise').length;
   const producao = solicitacoes.filter(s => s.status === 'Em produção').length;
   const concluidas = solicitacoes.filter(s => s.status === 'Concluída').length;
-  const mapa = { abertas, analise, producao, concluidas };
+  const retirada = solicitacoes.filter(s => s.status === 'Pronta para retirada').length;
+  const mapa = { abertas, analise, producao, retirada, concluidas };
   Object.entries(mapa).forEach(([id, valor]) => {
     const el = document.querySelector(`[data-resumo="${id}"]`);
     if (el) el.textContent = valor;
@@ -191,7 +195,10 @@ function linhaSolicitacao(s) {
 function renderTabelaInicio() {
   const tbody = document.querySelector('#tabelaRecentes tbody');
   if (!tbody) return;
-  tbody.innerHTML = solicitacoes.slice(0, 4).map(linhaSolicitacao).join('');
+  const emAndamento = solicitacoes.filter(s => s.status !== 'Concluída');
+  tbody.innerHTML = emAndamento.length
+    ? emAndamento.slice(0, 4).map(linhaSolicitacao).join('')
+    : '<tr><td colspan="6" class="estado-vazio">Nenhuma solicitação em andamento. As concluídas ficam em <a href="/html/client/relatorios.html">Relatórios</a>.</td></tr>';
   ativarLinhasClicaveis(tbody);
 }
 
@@ -201,14 +208,16 @@ function renderTabelaSolicitacoes() {
   if (!tbody) return;
 
   const filtros = lerFiltros(COLUNAS_SOLICITACOES);
-  const filtradas = solicitacoes.filter(s => itemCorrespondeFiltros(s, filtros, extratorSolicitacao));
+  // Concluídas saem desta lista e ficam em Relatórios (html/client/relatorios.html).
+  const emAndamento = solicitacoes.filter(s => s.status !== 'Concluída');
+  const filtradas = emAndamento.filter(s => itemCorrespondeFiltros(s, filtros, extratorSolicitacao));
 
   tbody.innerHTML = filtradas.length
     ? filtradas.map(linhaSolicitacao).join('')
     : '<tr><td colspan="6" class="estado-vazio">Nenhuma solicitação encontrada com os filtros informados.</td></tr>';
 
   const contador = document.querySelector('#contadorSolicitacoes');
-  if (contador) contador.textContent = `${filtradas.length} de ${solicitacoes.length} solicitações`;
+  if (contador) contador.textContent = `${filtradas.length} de ${emAndamento.length} solicitações em andamento`;
   ativarLinhasClicaveis(tbody);
 }
 
@@ -267,14 +276,26 @@ async function renderDetalheSolicitacao() {
     }
   });
 
-  const etapas = ['Aberta', 'Em análise', 'Em produção', 'Concluída'];
+  // Fluxo: a linha é preenchida até a bolinha da etapa atual (--progresso
+  // vai de 0 a 1) e as etapas anteriores ficam com ✓. Em "Concluída" o
+  // fluxo inteiro fica concluído. Status fora da sequência (ex.: legado
+  // "Aguardando aceite") contam como a primeira etapa.
+  const etapas = etapasDe(s);
   const indiceAtual = Math.max(0, etapas.indexOf(s.status));
+  const finalizada = s.status === 'Concluída';
   const fluxo = document.querySelector('#fluxoSolicitacao');
   if (fluxo) {
+    fluxo.style.setProperty('--etapas', String(etapas.length));
+    fluxo.style.setProperty('--progresso', String(indiceAtual / (etapas.length - 1)));
     fluxo.innerHTML = etapas.map((etapa, i) => {
-      const classe = i < indiceAtual ? 'concluida' : i === indiceAtual ? 'atual' : '';
-      return `<li class="fluxo-etapa ${classe}"><span class="fluxo-ponto">${i < indiceAtual ? '✓' : i + 1}</span><span>${etapa}</span></li>`;
+      const feita = i < indiceAtual || finalizada;
+      const classe = feita ? 'concluida' : i === indiceAtual ? 'atual' : '';
+      return `<li class="fluxo-etapa ${classe}"${i === indiceAtual ? ' aria-current="step"' : ''}><span class="fluxo-ponto">${feita ? '✓' : i + 1}</span><span>${etapa}</span></li>`;
     }).join('');
+    // Reinicia a animação quando o status muda sem recarregar a página.
+    fluxo.classList.remove('animar');
+    void fluxo.offsetWidth;
+    fluxo.classList.add('animar');
   }
 
   const lista = document.querySelector('#timelineSolicitacao');
@@ -296,25 +317,303 @@ async function renderDetalheSolicitacao() {
   const anexo = document.querySelector('#anexoSolicitacao');
   if (anexo) {
     if (s.arquivo3d) {
-      anexo.innerHTML = `<div class="anexo-icone">3D</div><div class="anexo-info"><strong>${s.arquivo3d.nome}</strong><span>${s.arquivo3d.formato} · ${s.arquivo3d.tamanho}</span></div><button type="button" class="btn btn-secundario btn-visualizar-arquivo">Visualizar</button>`;
-      anexo.querySelector('.btn-visualizar-arquivo')?.addEventListener('click', () => abrirVisualizadorArquivo(s.arquivo3d));
+      const arquivo = { ...s.arquivo3d, url: urlArquivo3d(s) };
+      anexo.innerHTML = `
+        <div class="anexo-icone" aria-hidden="true">3D</div>
+        <div class="anexo-info"><strong title="${escaparHTML(arquivo.nome)}">${escaparHTML(arquivo.nome)}</strong><span>${escaparHTML(arquivo.formato)} · ${escaparHTML(arquivo.tamanho)}</span></div>
+        <div class="anexo-acoes">
+          <button type="button" class="btn btn-principal btn-anexo btn-visualizar-arquivo">Visualizar 3D</button>
+          <a class="btn btn-secundario btn-anexo" href="${escaparHTML(arquivo.url)}" download="${escaparHTML(arquivo.nome)}">Baixar</a>
+        </div>`;
+      anexo.querySelector('.btn-visualizar-arquivo')?.addEventListener('click', () => abrirVisualizadorArquivo(arquivo));
     } else {
       anexo.innerHTML = '<p class="texto-detalhe">Nenhum arquivo 3D anexado.</p>';
     }
   }
 
+  renderRetiradaEAjuste(s);
+  renderAcoesSolicitante(s);
   prepararEdicaoSolicitacao(s);
   prepararRegistroTimeline();
 }
 
-// Abre o modal de pré-visualização 3D (wireframe ilustrativo) do arquivo anexado.
-function abrirVisualizadorArquivo(arquivo) {
+// Ordem do fluxo de uma solicitação (também usada pelo resumo dos painéis).
+//   Aberta → Em análise → Em produção → Pronta para retirada → Concluída
+// "Pronta para retirada": o parceiro concluiu a produção e informou o local
+// de retirada; a organização solicitante retira, testa e então aprova
+// (Concluída) ou devolve para ajuste (volta para Em produção).
+const ETAPAS_FLUXO = ['Aberta', 'Em análise', 'Em produção', 'Pronta para retirada', 'Concluída'];
+
+// Quando o material é fornecido pelo solicitante, entra a etapa
+// "Aguardando material" entre a análise e a produção.
+function etapasDe(s) {
+  const comEntrega = s.status === 'Aguardando material' || s.producao?.material?.origem === 'solicitante';
+  return comEntrega ? ['Aberta', 'Em análise', 'Aguardando material', 'Em produção', 'Pronta para retirada', 'Concluída'] : ETAPAS_FLUXO;
+}
+
+function textoEtapa(s) {
+  const etapas = etapasDe(s);
+  return `Etapa ${etapas.indexOf(s.status) + 1} de ${etapas.length} · ${s.status}`;
+}
+
+// Cartão "Produção": impressora usada e de onde veio o material.
+function renderProducao(s) {
+  const cartao = document.querySelector('#producaoSolicitacao');
+  if (!cartao) return;
+  const p = s.producao;
+  cartao.hidden = !p;
+  if (!p) return;
+  const m = p.material || {};
+  const origem = m.origem === 'doacao' ? 'Doado pelo parceiro' : 'Fornecido pelo solicitante';
+  const entrega = m.origem === 'solicitante'
+    ? (m.recebido_em ? `Recebido em ${m.recebido_em}` : (m.entrega ? `Entregar em ${m.entrega.local}: ${m.entrega.endereco}` : ''))
+    : '';
+  cartao.querySelector('[data-producao="conteudo"]').innerHTML = `
+    <dl class="retirada-dados">
+      ${p.impressora ? `<div><dt>Impressora</dt><dd>${escaparHTML(p.impressora.nome)} · ${escaparHTML([p.impressora.modelo, p.impressora.tecnologia].filter(Boolean).join(' · '))}</dd></div>` : ''}
+      <div><dt>Material</dt><dd>${escaparHTML(m.nome || m.especificacao || '—')}${m.quantidade_usada ? ` · ${String(m.quantidade_usada).replace('.', ',')} ${escaparHTML(m.unidade || '')} usados` : ''}</dd></div>
+      <div><dt>Origem do material</dt><dd><span class="badge origem-${m.origem === 'doacao' ? 'doacao' : 'solicitante'}">${origem}</span></dd></div>
+      ${entrega ? `<div><dt>Entrega do material</dt><dd>${escaparHTML(entrega)}</dd></div>` : ''}
+    </dl>`;
+}
+
+// Cartão "Retirada" (local e instruções) e aviso de "Devolvida para ajuste".
+function renderRetiradaEAjuste(s) {
+  renderProducao(s);
+  const cartao = document.querySelector('#retiradaSolicitacao');
+  if (cartao) {
+    const r = s.retirada;
+    cartao.hidden = !r;
+    if (r) {
+      cartao.querySelector('[data-retirada="conteudo"]').innerHTML = `
+        <dl class="retirada-dados">
+          <div><dt>Local</dt><dd>${escaparHTML(r.local)} · ${escaparHTML(r.parceiro || '')}</dd></div>
+          <div><dt>Endereço</dt><dd>${escaparHTML(r.endereco)}</dd></div>
+          ${r.instrucoes ? `<div><dt>Instruções</dt><dd>${escaparHTML(r.instrucoes)}</dd></div>` : ''}
+          ${r.telefone ? `<div><dt>Contato</dt><dd>${escaparHTML(r.telefone)}</dd></div>` : ''}
+        </dl>
+        <a class="btn btn-secundario btn-sm" target="_blank" rel="noopener"
+           href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.endereco)}">Abrir no mapa</a>`;
+    }
+  }
+  const aviso = document.querySelector('#ajusteSolicitacao');
+  if (aviso) {
+    const a = s.status === 'Em produção' ? s.ajuste : null;
+    aviso.hidden = !a;
+    if (a) {
+      aviso.innerHTML = `<strong>Devolvida para ajuste em ${escaparHTML(a.data)}</strong>
+        <p>${escaparHTML(a.motivo)}</p><span>Por ${escaparHTML(a.autor)}</span>`;
+    }
+  }
+}
+
+// Faixa "Próxima etapa" (as duas páginas de detalhe): diz em que etapa a
+// solicitação está, o que acontece agora e mostra os botões da etapa.
+// `tom`: "acao" quando é a vez de quem está vendo agir, "info" quando é
+// só para acompanhar, "fim" quando acabou.
+function renderBarraEtapa(container, { etapa, titulo, texto, botoes = '', tom = 'info' }) {
+  container.hidden = false;
+  container.className = `barra-etapa barra-etapa-${tom}`;
+  container.innerHTML = `
+    <div class="barra-etapa-texto">
+      <p class="eyebrow">${escaparHTML(etapa)}</p>
+      <strong>${escaparHTML(titulo)}</strong>
+      <p>${texto}</p>
+    </div>
+    ${botoes ? `<div class="barra-etapa-botoes">${botoes}</div>` : ''}`;
+}
+
+// Mensagem de retorno de uma ação, acima da faixa (some ao trocar de página).
+function avisoDetalhe(seletor, texto, erro = false) {
+  const el = document.querySelector(seletor);
+  if (!el) return;
+  el.textContent = texto;
+  el.classList.toggle('mensagem-erro', erro);
+}
+
+// Solicitante: acompanha as etapas e, com a peça "Pronta para retirada",
+// aprova (conclui) ou devolve para ajuste informando o motivo.
+function renderAcoesSolicitante(s) {
+  const area = document.querySelector('#acoesSolicitante');
+  if (!area) return;
+  const etapa = textoEtapa(s);
+  const parceiro = s.atribuido ? escaparHTML(s.atribuido) : 'o parceiro';
+  const estados = {
+    'Aberta': { titulo: 'Aguardando um parceiro', texto: 'A solicitação está na fila de novas solicitações, visível para todos os parceiros de manufatura. Você será avisado no histórico quando alguém aceitar.' },
+    'Aguardando material': { tom: 'acao', titulo: 'Entregue o material ao parceiro',
+      texto: `${parceiro} vai produzir com material fornecido por vocês. Entregue <strong>${escaparHTML(s.producao?.material?.especificacao || 'o material combinado')}</strong> em <strong>${escaparHTML(s.producao?.material?.entrega?.local || '')}</strong>: ${escaparHTML(s.producao?.material?.entrega?.endereco || '')}. A produção começa quando o parceiro confirmar o recebimento.` },
+    'Em análise': { titulo: `${parceiro} está analisando`, texto: 'O parceiro aceitou e está avaliando a descrição e os arquivos. Use o histórico abaixo para tirar dúvidas ou enviar arquivos.' },
+    'Em produção': { titulo: s.ajuste ? 'Em ajuste pelo parceiro' : 'A peça está sendo produzida', texto: s.ajuste ? 'O parceiro está ajustando a peça conforme o motivo da devolução. Quando terminar, você recebe o novo aviso de retirada.' : `${parceiro} está produzindo a peça. Quando terminar, o local de retirada aparece aqui e no histórico.` },
+    'Pronta para retirada': { tom: 'acao', titulo: 'A peça está pronta para retirada', texto: 'Retire no local indicado ao lado e faça os testes. Depois, aprove para concluir ou devolva para ajuste dizendo o que precisa mudar.',
+      botoes: `<button type="button" class="btn btn-secundario btn-acao" data-avaliar="reprovar">Devolver para ajuste</button>
+               <button type="button" class="btn btn-principal btn-acao" data-avaliar="aprovar">Aprovar peça</button>` },
+    'Concluída': { tom: 'fim', titulo: 'Solicitação concluída', texto: 'A peça foi testada e aprovada. Obrigado por usar a rede LABIELOS!' }
+  };
+  renderBarraEtapa(area, { etapa, ...(estados[s.status] || { titulo: s.status, texto: '' }) });
+  if (s.status !== 'Pronta para retirada') return;
+
+  const url = `/api/solicitacoes/${encodeURIComponent(s.protocolo)}`;
+  area.querySelector('[data-avaliar="aprovar"]').addEventListener('click', () => abrirModalAcao({
+    eyebrow: s.protocolo,
+    titulo: 'Aprovar peça',
+    corpo: '<p>Confirme que a peça foi retirada e testada e atende ao que foi solicitado. A solicitação será <strong>concluída</strong>.</p>',
+    confirmar: 'Aprovar e concluir',
+    aoConfirmar: async () => { await api(`${url}/aprovar`, { method: 'POST' }); }
+  }).then(async ok => {
+    if (!ok) return;
+    avisoDetalhe('#mensagemSolicitante', `Peça aprovada. A solicitação ${s.protocolo} foi concluída.`);
+    await renderDetalheSolicitacao();
+  }));
+  area.querySelector('[data-avaliar="reprovar"]').addEventListener('click', () => abrirModalAcao({
+    eyebrow: s.protocolo,
+    titulo: 'Devolver para ajuste',
+    corpo: `<p>A demanda volta para o parceiro, em produção, com o motivo registrado no histórico.</p>
+      <div class="campo"><label for="motivoDevolucao">Motivo da devolução *</label>
+      <textarea id="motivoDevolucao" name="motivo" required minlength="10" maxlength="1000" rows="4"
+        placeholder="Ex.: o encaixe do punho ficou apertado; aumentar 5 mm na circunferência."></textarea></div>`,
+    confirmar: 'Devolver para ajuste',
+    aoConfirmar: async form => {
+      const motivo = form.elements.motivo.value.trim();
+      if (motivo.length < 10) throw new Error('Descreva o motivo da devolução (pelo menos 10 caracteres).');
+      await api(`${url}/reprovar`, { method: 'POST', body: JSON.stringify({ motivo }) });
+    }
+  }).then(async ok => {
+    if (!ok) return;
+    avisoDetalhe('#mensagemSolicitante', `Solicitação ${s.protocolo} devolvida para ajuste. O parceiro vê o motivo no topo da demanda.`);
+    await renderDetalheSolicitacao();
+  }));
+}
+
+// Modal de confirmação reutilizável (um <dialog> criado sob demanda).
+// `corpo` é HTML com os campos; `aoConfirmar(form)` faz a chamada à API e,
+// se lançar erro, a mensagem aparece no próprio modal. Resolve true quando
+// a ação foi feita e false quando o usuário cancela.
+function abrirModalAcao({ eyebrow = '', titulo, corpo, confirmar = 'Confirmar', aoConfirmar, preparar }) {
+  let dialog = document.querySelector('#modalAcao');
+  if (!dialog) {
+    dialog = document.createElement('dialog');
+    dialog.className = 'modal modal-acao';
+    dialog.id = 'modalAcao';
+    dialog.setAttribute('aria-labelledby', 'tituloModalAcao');
+    document.body.appendChild(dialog);
+  }
+  dialog.innerHTML = `
+    <header class="modal-cabecalho">
+      <div><p>${escaparHTML(eyebrow)}</p><h2 id="tituloModalAcao">${escaparHTML(titulo)}</h2></div>
+      <button class="modal-fechar" type="button" data-cancelar aria-label="Fechar">×</button>
+    </header>
+    <form method="dialog" novalidate>
+      <div class="modal-corpo">${corpo}<p class="erro-campo modal-acao-erro" role="alert"></p></div>
+      <footer class="modal-acoes">
+        <button type="button" class="btn btn-secundario btn-acao" data-cancelar>Cancelar</button>
+        <button type="submit" class="btn btn-principal btn-acao">${escaparHTML(confirmar)}</button>
+      </footer>
+    </form>`;
+  const form = dialog.querySelector('form');
+  const erro = dialog.querySelector('.modal-acao-erro');
+  const enviar = dialog.querySelector('[type="submit"]');
+  preparar?.(form, enviar);
+
+  return new Promise(resolve => {
+    let feito = false;
+    dialog.querySelectorAll('[data-cancelar]').forEach(b => b.addEventListener('click', () => dialog.close()));
+    dialog.addEventListener('close', () => resolve(feito), { once: true });
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      if (!form.reportValidity()) return;
+      enviar.disabled = true;
+      erro.textContent = '';
+      try {
+        await aoConfirmar(form);
+        feito = true;
+        dialog.close();
+      } catch (falha) {
+        erro.textContent = falha.message;
+      } finally {
+        enviar.disabled = false;
+      }
+    });
+    dialog.showModal();
+  });
+}
+
+// Endereço de download do arquivo 3D: a API manda `arquivo3d.url`; se não
+// mandar, usa a rota padrão GET /api/solicitacoes/{protocolo}/arquivo3d.
+function urlArquivo3d(s) {
+  return s.arquivo3d?.url || `/api/solicitacoes/${encodeURIComponent(s.protocolo)}/arquivo3d`;
+}
+
+// Abre o modal do visualizador 3D (three.js, em js/visualizador-3d.js).
+// O módulo e o arquivo só são baixados aqui, ao clicar em "Visualizar".
+let visualizador3d = null;
+async function abrirVisualizadorArquivo(arquivo) {
   const modal = document.querySelector('#modalVisualizarArquivo');
   if (!modal || !arquivo) return;
-  modal.querySelector('[data-viewer="nome"]').textContent = arquivo.nome;
-  modal.querySelector('[data-viewer="nome-info"]').textContent = arquivo.nome;
-  modal.querySelector('[data-viewer="meta"]').textContent = `${arquivo.formato} · ${arquivo.tamanho}`;
+  const $v = nome => modal.querySelector(`[data-viewer="${nome}"]`);
+  const formato = String(arquivo.formato || arquivo.nome.split('.').pop()).toUpperCase();
+
+  $v('nome').textContent = arquivo.nome;
+  $v('nome-info').textContent = arquivo.nome;
+  $v('meta').textContent = `${formato} · ${arquivo.tamanho}`;
+  $v('baixar').href = arquivo.url;
+  $v('baixar').setAttribute('download', arquivo.nome);
+  $v('dados').hidden = true;
+  $v('ferramentas').hidden = true;
+  $v('dica').hidden = true;
+  $v('malha').setAttribute('aria-pressed', 'false');
+  const estado = $v('estado');
+  const mostrarEstado = (texto, erro = false) => {
+    estado.hidden = !texto;
+    estado.textContent = texto;
+    estado.classList.toggle('viewer-erro', erro);
+  };
+
+  if (!modal.dataset.viewerPreparado) {
+    modal.dataset.viewerPreparado = 'true';
+    modal.addEventListener('close', () => { visualizador3d?.destruir(); visualizador3d = null; });
+    $v('reenquadrar').addEventListener('click', () => visualizador3d?.reenquadrar());
+    $v('malha').addEventListener('click', e => {
+      if (visualizador3d) e.currentTarget.setAttribute('aria-pressed', String(visualizador3d.alternarMalha()));
+    });
+  }
+
+  visualizador3d?.destruir();
+  visualizador3d = null;
   modal.showModal();
+
+  if (!['STL', 'OBJ', '3MF'].includes(formato)) {
+    mostrarEstado(`A pré-visualização não abre arquivos ${formato} (formato CAD). Baixe o arquivo para abrir no seu software de modelagem.`);
+    return;
+  }
+
+  mostrarEstado('Carregando modelo…');
+  try {
+    const [modulo, buffer] = await Promise.all([
+      import('/js/visualizador-3d.js').catch(() => {
+        throw new Error('Não foi possível carregar o visualizador 3D. Verifique sua conexão com a internet e tente de novo.');
+      }),
+      fetch(arquivo.url, { credentials: 'same-origin' }).then(r => {
+        if (!r.ok) throw new Error(r.status === 404 ? 'O arquivo não está disponível no servidor.' : `Não foi possível baixar o arquivo (erro ${r.status}).`);
+        return r.arrayBuffer();
+      })
+    ]);
+    if (!modal.open) return; // fechou enquanto carregava
+    visualizador3d = modulo.criarVisualizador($v('area'));
+    const info = visualizador3d.carregar(buffer, formato);
+    const mm = n => n.toLocaleString('pt-BR', { maximumFractionDigits: 1 });
+    $v('dimensoes').textContent = `${mm(info.dimensoes.x)} × ${mm(info.dimensoes.y)} × ${mm(info.dimensoes.z)} mm`;
+    $v('triangulos').textContent = info.triangulos.toLocaleString('pt-BR');
+    $v('dados').hidden = false;
+    $v('ferramentas').hidden = false;
+    $v('dica').hidden = false;
+    mostrarEstado('');
+  } catch (erro) {
+    visualizador3d?.destruir();
+    visualizador3d = null;
+    mostrarEstado(erro.message.startsWith('Não') || erro.message.startsWith('O arquivo')
+      ? erro.message
+      : 'Não foi possível abrir este arquivo. Ele pode estar corrompido ou em um formato inesperado; tente baixá-lo.', true);
+  }
 }
 
 // Liga o formulário "Adicionar registro" da página de detalhes: ao
@@ -330,7 +629,8 @@ function prepararRegistroTimeline() {
     const params = new URLSearchParams(window.location.search);
     const protocolo = params.get('protocolo');
     const dados = new FormData(form);
-    const tipo = dados.get('tipo');
+    // Sem seletor de tipo: com arquivo é "Anexo", sem arquivo é "Comentário".
+    const tipo = form.elements.arquivo?.files[0] ? 'Anexo' : 'Comentário';
     const mensagem = dados.get('mensagem')?.trim();
     const arquivo = form.elements.arquivo?.files[0];
     if (!mensagem && !arquivo) return;
@@ -348,44 +648,16 @@ function prepararRegistroTimeline() {
   });
 }
 
-// Gera os checkboxes de "Atribuídos" a partir dos parceiros vindos da
-// API (GET /api/parceiros), em vez de uma lista fixa no HTML.
-// "selecionados" marca os que já estão atribuídos (edição).
-function opcoesParceirosHTML(selecionados = []) {
-  if (!parceiros.length) {
-    return '<p class="campo-ajuda">Nenhum parceiro credenciado disponível no momento.</p>';
-  }
-  return parceiros.map(p => `
-    <label class="opcao-parceiro">
-      <input type="checkbox" name="atribuido" value="${escaparHTML(p.nome)}" ${selecionados.includes(p.nome) ? 'checked' : ''}>
-      <span class="opcao-parceiro-texto">
-        <strong>${escaparHTML(p.nome)}</strong>
-        <small>${escaparHTML(p.cidade || '')}${p.materiais ? ` · ${escaparHTML(p.materiais)}` : ''}</small>
-      </span>
-      ${p.status ? `<span class="badge parceiro-${badgeClass(p.status)}">${escaparHTML(p.status)}</span>` : ''}
-    </label>`).join('');
-}
-
 // Escapa texto vindo da API antes de interpolar em innerHTML.
 function escaparHTML(valor) {
   return String(valor ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
-// Garante que pelo menos um parceiro foi marcado em "Atribuídos".
-function validarAtribuidos(form, erroId) {
-  const selecionados = [...form.querySelectorAll('input[name="atribuido"]:checked')].map(i => i.value);
-  const erro = document.querySelector(`#${erroId}`);
-  if (!selecionados.length) {
-    if (erro) erro.textContent = 'Selecione pelo menos um atribuído.';
-    return null;
-  }
-  if (erro) erro.textContent = '';
-  return selecionados;
-}
-
 // Liga o modal "Editar solicitação" (só existe na área da organização solicitante): abre
 // preenchido com os dados atuais e, ao salvar, envia as mudanças para a
-// API (PATCH) e recarrega a página de detalhes.
+// API (PATCH) e recarrega a página de detalhes. Parceiro e status não
+// são editáveis aqui: o parceiro vem do aceite na fila global e o status
+// é conduzido por ele.
 function prepararEdicaoSolicitacao(s) {
   const modal = document.querySelector('#modalEditarSolicitacao');
   const form = document.querySelector('#formEditarSolicitacao');
@@ -396,13 +668,10 @@ function prepararEdicaoSolicitacao(s) {
     form.elements.solicitacao.value = s.solicitacao;
     form.elements.requerente.value = s.requerente;
     form.elements.prioridade.value = s.prioridade;
-    form.elements.status.value = s.status;
     form.elements.categoria.value = s.categoria;
     form.elements.prazo.value = /^\d{2}\/\d{2}\/\d{4}$/.test(s.prazo || '') ? s.prazo.split('/').reverse().join('-') : '';
     form.elements.material.value = s.material === 'A definir' ? '' : s.material;
     form.elements.descricao.value = s.descricao;
-    const opcoes = form.querySelector('.opcoes-atribuicao');
-    if (opcoes) opcoes.innerHTML = opcoesParceirosHTML(s.atribuido || []);
   };
 
   if (!btn.dataset.configurado) {
@@ -414,17 +683,12 @@ function prepararEdicaoSolicitacao(s) {
     form.dataset.configurado = 'true';
     form.addEventListener('submit', async e => {
       e.preventDefault();
-      const atribuidos = validarAtribuidos(form, 'erroAtribuidosEdicao');
-      if (!atribuidos) return;
       const dados = new FormData(form);
       const arquivo = form.elements.arquivo3d.files[0];
 
       const campos = {
         solicitacao: dados.get('solicitacao'),
-        requerente: dados.get('requerente'),
-        atribuido: atribuidos,
         prioridade: dados.get('prioridade'),
-        status: dados.get('status'),
         categoria: dados.get('categoria'),
         prazo: dados.get('prazo') ? dados.get('prazo').split('-').reverse().join('/') : 'A definir',
         material: dados.get('material') || 'A definir',
@@ -482,63 +746,94 @@ function prepararModais() {
    PARCEIROS
 ========================= */
 
-// Grade de cards da página "Parceiros", com modal de capacidade por parceiro.
+// Página "Parceiros de manufatura" (organização solicitante). Tudo vem de
+// GET /api/parceiros: disponibilidade calculada pelas impressoras, a lista
+// de impressoras, os materiais para doação, os locais de retirada, o
+// contato e quantas solicitações de vocês o parceiro já concluiu.
 function renderParceiros() {
   const grid = document.querySelector('#gridParceiros');
   if (!grid) return;
-  grid.innerHTML = parceiros.map(p => `
+
+  const selTec = document.querySelector('#filtroTecnologiaParceiro');
+  if (selTec && selTec.options.length === 1) {
+    const tecs = [...new Set(parceiros.flatMap(p => String(p.tecnologias || '').split(',').map(t => t.trim())).filter(t => t && t !== '—'))].sort();
+    tecs.forEach(t => selTec.insertAdjacentHTML('beforeend', `<option>${escaparHTML(t)}</option>`));
+    ['#buscaParceiro', '#filtroTecnologiaParceiro', '#soLivres', '#soDoacao'].forEach(sel =>
+      document.querySelector(sel).addEventListener(sel === '#buscaParceiro' ? 'input' : 'change', renderParceiros));
+  }
+
+  const busca = (document.querySelector('#buscaParceiro')?.value || '').trim().toLowerCase();
+  const tec = selTec?.value || '';
+  const soLivres = document.querySelector('#soLivres')?.checked;
+  const soDoacao = document.querySelector('#soDoacao')?.checked;
+  const doacaoDisponivel = p => (p.materiais_doacao || []).filter(m => m.situacao !== 'Esgotado');
+
+  const lista = parceiros.filter(p => {
+    const texto = [p.nome, p.cidade, p.tecnologias, p.materiais].join(' ').toLowerCase();
+    if (busca && !texto.includes(busca)) return false;
+    if (tec && !String(p.tecnologias).split(',').map(t => t.trim()).includes(tec)) return false;
+    if (soLivres && !p.impressoras_livres) return false;
+    if (soDoacao && !doacaoDisponivel(p).length) return false;
+    return true;
+  });
+
+  const contador = document.querySelector('#contadorParceiros');
+  if (contador) contador.textContent = `${lista.length} de ${parceiros.length} parceiros`;
+
+  grid.innerHTML = lista.length ? lista.map(p => {
+    const doacao = doacaoDisponivel(p);
+    return `
     <article class="parceiro-card">
       <div class="parceiro-card-topo">
         <div>
-          <p class="eyebrow">Parceiro credenciado</p>
-          <h2>${p.nome}</h2>
+          <p class="eyebrow">${escaparHTML(p.cidade || 'Parceiro de manufatura')}</p>
+          <h2>${escaparHTML(p.nome)}</h2>
         </div>
-        <span class="badge parceiro-${badgeClass(p.status)}">${p.status}</span>
+        <span class="badge parceiro-${badgeClass(p.status)}">${escaparHTML(p.status)}</span>
       </div>
-      <p class="parceiro-local">${p.cidade}</p>
       <dl class="parceiro-dados">
-        <div><dt>Impressoras</dt><dd>${p.impressoras}</dd></div>
-        <div><dt>Em produção</dt><dd>${p.emProducao}</dd></div>
-        <div><dt>Tecnologias</dt><dd>${p.tecnologias}</dd></div>
-        <div><dt>Materiais</dt><dd>${p.materiais}</dd></div>
+        <div><dt>Impressoras livres</dt><dd>${p.impressoras_livres ?? '—'} de ${p.impressoras}</dd></div>
+        <div><dt>Tecnologias</dt><dd>${escaparHTML(p.tecnologias)}</dd></div>
+        <div><dt>Material para doação</dt><dd>${doacao.length ? escaparHTML([...new Set(doacao.map(m => m.material))].join(', ')) : 'Nenhum no momento'}</dd></div>
+        <div><dt>Concluídas para vocês</dt><dd>${p.concluidas_com_voce ?? 0}</dd></div>
       </dl>
-      <button class="btn btn-secundario btn-ver-parceiro" type="button" data-parceiro="${p.nome}">Ver capacidade</button>
-    </article>`).join('');
+      <button class="btn btn-secundario btn-sm btn-ver-parceiro" type="button" data-parceiro="${escaparHTML(p.nome)}">Ver impressoras, materiais e retirada</button>
+    </article>`;
+  }).join('') : '<p class="estado-vazio">Nenhum parceiro com esses filtros.</p>';
 
-  grid.querySelectorAll('.btn-ver-parceiro').forEach(btn => btn.addEventListener('click', () => {
-    const p = parceiros.find(x => x.nome === btn.dataset.parceiro);
-    const modal = document.querySelector('#modalParceiro');
-    if (!p || !modal) return;
-    modal.querySelector('[data-parceiro-detalhe="nome"]').textContent = p.nome;
-    modal.querySelector('[data-parceiro-detalhe="cidade"]').textContent = p.cidade;
-    modal.querySelector('[data-parceiro-detalhe="status"]').textContent = p.status;
-    modal.querySelector('[data-parceiro-detalhe="impressoras"]').textContent = p.impressoras;
-    modal.querySelector('[data-parceiro-detalhe="tecnologias"]').textContent = p.tecnologias;
-    modal.querySelector('[data-parceiro-detalhe="materiais"]').textContent = p.materiais;
-    modal.showModal();
-  }));
+  grid.querySelectorAll('.btn-ver-parceiro').forEach(btn => btn.addEventListener('click', () => abrirParceiro(btn.dataset.parceiro)));
 }
 
-
-/* =========================
-   HISTÓRICO (AMOSTRA)
-========================= */
-
-// Tabela da página "Histórico". Ainda é uma amostra estática — o
-// contrato da API (docs/backend.md) por enquanto só cobre a linha do
-// tempo de uma solicitação específica, não um feed agregado de toda a
-// organização. Ver "O que fica para depois" em docs/design-system.md.
-function renderHistorico() {
-  const tbody = document.querySelector('#tabelaHistorico tbody');
-  if (!tbody) return;
-  const eventos = [
-    ['10/09/2026 08:10', '#0002', 'Status alterado', 'Órtese craniana', 'Em análise', 'FabLab Exemplo'],
-    ['09/09/2026 16:40', '#0001', 'Status alterado', 'Colete ortopédico', 'Em produção', 'FabLab Exemplo'],
-    ['09/09/2026 10:00', '#0002', 'Parceiro atribuído', 'Órtese craniana', 'Em análise', 'FabLab Exemplo'],
-    ['08/09/2026 11:05', '#0001', 'Parceiro atribuído', 'Colete ortopédico', 'Em análise', 'FabLab Exemplo'],
-    ['08/09/2026 10:32', '#0001', 'Solicitação criada', 'Colete ortopédico', 'Aberta', 'Não atribuído']
-  ];
-  tbody.innerHTML = eventos.map(e => `<tr><td>${e[0]}</td><td>${e[1]}</td><td>${e[2]}</td><td>${e[3]}</td><td><span class="badge status-${badgeClass(e[4])}">${e[4]}</span></td><td>${e[5]}</td></tr>`).join('');
+function abrirParceiro(nome) {
+  const p = parceiros.find(x => x.nome === nome);
+  const modal = document.querySelector('#modalParceiro');
+  if (!p || !modal) return;
+  const e = escaparHTML;
+  modal.querySelector('[data-parceiro-detalhe="nome"]').textContent = p.nome;
+  modal.querySelector('[data-parceiro-detalhe="cidade"]').textContent = `${p.cidade || ''} · ${p.status}`;
+  const impressoras = (p.lista_impressoras || []).map(i => `
+    <tr><td><strong>${e(i.nome)}</strong><br><small class="texto-apoio">${e(i.modelo)}</small></td><td>${e(i.tecnologia)}</td>
+      <td>${e(i.volume)}</td><td>${e(i.materiais || '—')}</td><td><span class="badge impressora-${badgeClass(i.status)}">${e(i.status)}</span></td></tr>`).join('');
+  const materiais = (p.materiais_doacao || []).map(m => `
+    <tr><td><strong>${e(m.material)}</strong></td><td>${e(m.tipo)}</td><td>${e(m.cor || '—')}</td>
+      <td>${e(String(m.quantidade).replace('.', ','))} ${e(m.unidade)}</td><td><span class="badge material-${badgeClass(m.situacao)}">${e(m.situacao)}</span></td></tr>`).join('');
+  const locais = (p.enderecos || []).map(l => `<li><strong>${e(l.nome)}</strong><span>${e(l.endereco)}</span></li>`).join('');
+  modal.querySelector('[data-parceiro-detalhe="corpo"]').innerHTML = `
+    <dl class="parceiro-resumo-modal">
+      <div><dt>Impressoras ativas</dt><dd>${p.impressoras} (${p.impressoras_livres ?? 0} livre${p.impressoras_livres === 1 ? '' : 's'})</dd></div>
+      <div><dt>Em produção agora</dt><dd>${p.emProducao}</dd></div>
+      <div><dt>Concluídas (total)</dt><dd>${p.concluidas ?? '—'}</dd></div>
+      <div><dt>Concluídas para vocês</dt><dd>${p.concluidas_com_voce ?? 0}</dd></div>
+    </dl>
+    <h3 class="modal-secao">Impressoras</h3>
+    ${impressoras ? `<div class="tabela-wrap"><table><thead><tr><th>Impressora</th><th>Tecnologia</th><th>Volume</th><th>Materiais</th><th>Status</th></tr></thead><tbody>${impressoras}</tbody></table></div>` : '<p class="texto-apoio">Nenhuma impressora ativa registrada.</p>'}
+    <h3 class="modal-secao">Materiais para doação</h3>
+    ${materiais ? `<div class="tabela-wrap"><table><thead><tr><th>Material</th><th>Tipo</th><th>Cor</th><th>Quantidade</th><th>Situação</th></tr></thead><tbody>${materiais}</tbody></table></div>` : '<p class="texto-apoio">Este parceiro não registrou materiais para doação. As peças podem ser feitas com material fornecido por vocês.</p>'}
+    <h3 class="modal-secao">Locais de retirada</h3>
+    ${locais ? `<ul class="lista-locais">${locais}</ul>` : '<p class="texto-apoio">Nenhum endereço cadastrado.</p>'}
+    <h3 class="modal-secao">Contato</h3>
+    <p>${e(p.contato?.email || '—')} · ${e(p.contato?.telefone || '—')}</p>`;
+  modal.showModal();
 }
 
 
@@ -638,7 +933,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderFiltrosSolicitacoes();
   renderTabelaSolicitacoes();
   renderParceiros();
-  renderHistorico();
   await renderDetalheSolicitacao();
 
   document.querySelector('#limparFiltros')?.addEventListener('click', () => {

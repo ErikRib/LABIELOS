@@ -40,7 +40,10 @@ document.querySelector('#formCadastro3').addEventListener('submit', event => {
     event.preventDefault();
     const vinculo = document.querySelector('#formCadastro3 input[name="vinculo"]:checked')?.value;
     if (vinculo === 'existente') mostrarEtapa(4);
-    if (vinculo === 'nova') mostrarEtapa(5);
+    if (vinculo === 'nova') {
+        ajustarObrigatoriedadeEndereco();
+        mostrarEtapa(5);
+    }
 });
 
 // =========================
@@ -81,9 +84,12 @@ busca.addEventListener('input', async () => {
     } catch (erro) { if (numeroBusca === buscaAtual) mensagemBusca(erro.message); }
 });
 
-// Envia os dados de todas as etapas para criar conta e solicitação institucional.
-let etapaOrigem = 4;
-async function cadastrar(vinculo) {
+// =========================
+// REVISÃO E ENVIO
+// =========================
+
+// Monta o corpo de POST /api/auth/register a partir de todas as etapas.
+function montarPayload(vinculo) {
     const tipo = document.querySelector('#cadastroPage2 input[name="identificacao"]:checked').value;
     const payload = {
         nome: document.querySelector('#nome').value.trim(),
@@ -93,7 +99,6 @@ async function cadastrar(vinculo) {
         termos: document.querySelector('#cadastroPage1 input[name="termos"]').checked
     };
     if (vinculo === 'existente') {
-        if (!organizacaoSelecionada) throw new Error('Selecione uma organização nos resultados.');
         payload.organizacao_id = organizacaoSelecionada.id;
         payload.justificativa = document.querySelector('#justificativaIngresso').value.trim();
     } else {
@@ -102,18 +107,93 @@ async function cadastrar(vinculo) {
         payload.email_institucional = document.querySelector('#emailInstitucional').value.trim();
         payload.telefone_institucional = document.querySelector('#telefoneInstitucional').value.trim();
         payload.cargo = document.querySelector('#cargoResponsavel').value.trim();
+        payload.endereco = lerEndereco();
     }
-    const resultado = await api('/api/auth/register', { method: 'POST', body: JSON.stringify(payload) });
-    etapaOrigem = vinculo === 'existente' ? 4 : 5;
+    return payload;
+}
+
+// Etapa 7: mostra o resumo antes de enviar. "Revisar dados" volta para a
+// etapa de origem (4 = organização existente, 5 = organização nova).
+let vinculoEmRevisao = null;
+function mostrarRevisao(vinculo) {
+    vinculoEmRevisao = vinculo;
+    const p = montarPayload(vinculo);
+    const linhas = [
+        ['Nome', `${p.nome} ${p.sobrenome}`.trim()],
+        ['E-mail', p.email],
+        ['Perfil', p.tipo === 'fabricante' ? 'Parceiro de manufatura (fabricante)' : 'Organização solicitante']
+    ];
+    if (vinculo === 'existente') {
+        linhas.push(['Organização', organizacaoSelecionada.nome]);
+        if (p.justificativa) linhas.push(['Justificativa', p.justificativa]);
+    } else {
+        linhas.push(['Nova organização', p.nome_organizacao], ['CNPJ', p.cnpj],
+            ['E-mail institucional', p.email_institucional], ['Telefone institucional', p.telefone_institucional],
+            ['Seu cargo', p.cargo]);
+        if (p.tipo === 'fabricante') linhas.push(['Endereço de retirada', textoEndereco(p.endereco)]);
+    }
+    const resumo = document.querySelector('#resumoCadastro');
+    resumo.replaceChildren(...linhas.flatMap(([rotulo, valor]) => {
+        const div = document.createElement('div');
+        const dt = document.createElement('dt'); dt.textContent = rotulo;
+        const dd = document.createElement('dd'); dd.textContent = valor;
+        div.append(dt, dd);
+        return div;
+    }));
+
+    const nova = vinculo === 'nova';
+    document.querySelector('#textoRevisao').textContent = nova
+        ? 'Confira os dados antes de criar a organização.'
+        : 'Confira os dados antes de enviar o pedido de ingresso.';
+    document.querySelector('#avisoRevisao').textContent = nova
+        ? 'Ao confirmar, a organização é criada e você entra na plataforma como administrador dela.'
+        : `Ao confirmar, seu pedido vai para os administradores de ${organizacaoSelecionada.nome}. O acesso é liberado quando um deles aprovar.`;
+    document.querySelector('#btnConfirmarCadastro').textContent = nova ? 'Criar organização' : 'Enviar solicitação';
+    document.querySelector('#mensagemCadastro7').textContent = '';
+    mostrarEtapa(7);
+}
+
+document.querySelector('#btnRevisarCadastro').addEventListener('click', () => mostrarEtapa(vinculoEmRevisao === 'nova' ? 5 : 4));
+
+document.querySelector('#btnConfirmarCadastro').addEventListener('click', async event => {
+    const botao = event.currentTarget;
+    botao.disabled = true;
+    try {
+        const resultado = await api('/api/auth/register', { method: 'POST', body: JSON.stringify(montarPayload(vinculoEmRevisao)) });
+        mostrarConfirmacao(resultado);
+    } catch (erro) {
+        document.querySelector('#mensagemCadastro7').textContent = erro.message;
+    } finally {
+        botao.disabled = false;
+    }
+});
+
+// Etapa 6: resultado do envio.
+//  - organização nova: a API já abriu a sessão (acesso_liberado), então
+//    oferece "Acessar plataforma";
+//  - organização existente: o acesso depende do admin, então oferece o login.
+function mostrarConfirmacao(resultado) {
+    const liberado = !!resultado.acesso_liberado;
+    document.querySelector('#titulo-cadastro-6').textContent = liberado ? 'Organização criada' : 'Solicitação enviada';
     document.querySelector('#mensagemConfirmacao').textContent = resultado.message;
-    document.querySelector('#titulo-cadastro-6').textContent = 'Solicitação recebida';
-    document.querySelector('#btnRevisarCadastro').hidden = true;
+    document.querySelector('#avisoConfirmacao').textContent = liberado
+        ? 'Você já está conectado como administrador. Pelo menu de perfil, em "Administração", você aprova quem pedir para entrar na sua organização.'
+        : 'Você receberá acesso assim que um administrador da organização aprovar seu pedido. Depois disso, é só entrar com seu e-mail e senha.';
+    document.querySelector('#btnAcessarPlataforma').hidden = !liberado;
+    document.querySelector('#linkIrLogin').hidden = liberado;
     mostrarEtapa(6);
 }
 
-document.querySelector('#formCadastro4').addEventListener('submit', async event => {
+document.querySelector('#btnAcessarPlataforma').addEventListener('click', async () => {
+    location.href = await destinoAposEntrar();
+});
+
+document.querySelector('#formCadastro4').addEventListener('submit', event => {
     event.preventDefault();
-    try { await cadastrar('existente'); } catch (erro) { document.querySelector('#mensagemCadastro4').textContent = erro.message; }
+    const aviso = document.querySelector('#mensagemCadastro4');
+    if (!organizacaoSelecionada) { aviso.textContent = 'Selecione uma organização nos resultados.'; return; }
+    aviso.textContent = '';
+    mostrarRevisao('existente');
 });
 
 // Valida o formato e os dígitos verificadores do CNPJ.
@@ -133,12 +213,66 @@ function cnpjValido(valor) {
 const cnpj = document.querySelector('#cnpjOrganizacao');
 cnpj.addEventListener('input', () => cnpj.setCustomValidity(''));
 
-// Etapa 5: valida CNPJ e registra a solicitação.
-document.querySelector('#formCadastro5').addEventListener('submit', async event => {
+// =========================
+// ENDEREÇO DA ORGANIZAÇÃO NOVA
+// =========================
+
+const UFS = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
+const CAMPOS_ENDERECO = ['cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'uf'];
+const campoEndereco = nome => document.querySelector(`#formCadastro5 [name="${nome}"]`);
+document.querySelector('#ufOrganizacao').innerHTML = '<option value="">—</option>' + UFS.map(uf => `<option>${uf}</option>`).join('');
+
+// Fabricante: endereço obrigatório (é onde as peças são produzidas e
+// retiradas). Organização solicitante: opcional.
+function ajustarObrigatoriedadeEndereco() {
+    const fabricante = document.querySelector('#cadastroPage2 input[name="identificacao"]:checked')?.value === 'fabricante';
+    // Organização solicitante não tem local de retirada: o bloco nem aparece.
+    ['cep', 'logradouro', 'numero', 'bairro', 'cidade', 'uf'].forEach(n => { campoEndereco(n).required = fabricante; });
+    document.querySelector('#grupoEndereco').hidden = !fabricante;
+}
+document.querySelectorAll('#cadastroPage2 input[name="identificacao"]').forEach(r => r.addEventListener('change', ajustarObrigatoriedadeEndereco));
+ajustarObrigatoriedadeEndereco();
+
+function lerEndereco() {
+    if (document.querySelector('#grupoEndereco').hidden) return null;
+    const e = Object.fromEntries(CAMPOS_ENDERECO.map(n => [n, campoEndereco(n).value.trim()]));
+    return Object.values(e).some(Boolean) ? e : null;
+}
+
+// Preenche rua, bairro, cidade e UF pelo CEP (ViaCEP). Se a consulta
+// falhar, o usuário continua preenchendo à mão.
+const cep = campoEndereco('cep');
+cep.addEventListener('input', async () => {
+    let v = cep.value.replace(/\D/g, '').slice(0, 8);
+    cep.value = v.length > 5 ? `${v.slice(0, 5)}-${v.slice(5)}` : v;
+    const status = document.querySelector('#statusCep');
+    status.textContent = '';
+    if (v.length !== 8) return;
+    status.textContent = 'Buscando endereço…';
+    try {
+        const r = await fetch(`https://viacep.com.br/ws/${v}/json/`);
+        const d = await r.json();
+        if (d.erro) { status.textContent = 'CEP não encontrado. Preencha manualmente.'; return; }
+        [['logradouro', d.logradouro], ['bairro', d.bairro], ['cidade', d.localidade], ['uf', d.uf]]
+            .forEach(([n, valor]) => { if (valor && !campoEndereco(n).value) campoEndereco(n).value = valor; });
+        status.textContent = '';
+        campoEndereco('numero').focus();
+    } catch {
+        status.textContent = 'Não foi possível consultar o CEP. Preencha manualmente.';
+    }
+});
+
+function textoEndereco(e) {
+    if (!e) return '';
+    const linha1 = [e.logradouro, e.numero].filter(Boolean).join(', ') + (e.complemento ? ` — ${e.complemento}` : '');
+    const linha2 = [e.bairro, [e.cidade, e.uf].filter(Boolean).join('/')].filter(Boolean).join(', ');
+    return [linha1, linha2, e.cep && `CEP ${e.cep}`].filter(Boolean).join(' · ');
+}
+
+// Etapa 5: valida o CNPJ e vai para a revisão.
+document.querySelector('#formCadastro5').addEventListener('submit', event => {
     event.preventDefault();
     cnpj.setCustomValidity(cnpjValido(cnpj.value) ? '' : 'Informe um CNPJ válido.');
     if (!cnpj.reportValidity()) return;
-    try { await cadastrar('nova'); } catch (erro) { document.querySelector('#mensagemCadastro5').textContent = erro.message; }
+    mostrarRevisao('nova');
 });
-
-document.querySelector('#btnRevisarCadastro').addEventListener('click', () => mostrarEtapa(etapaOrigem));

@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="/css/components/table.css">
   <link rel="stylesheet" href="/css/components/modal.css">
 
+  <link rel="stylesheet" href="/css/components/forms.css">
   <link rel="stylesheet" href="/css/pages/parceiros.css">
 
   <link rel="icon" type="image/png" href="/content/img/favicon.png">
@@ -37,7 +38,7 @@
         <li><a data-pagina="solicitacoes" href="/html/client/solicitacoes.html">Solicitações</a></li>
         <li><a data-pagina="parceiros" href="/html/client/parceiros.html">Parceiros</a></li>
         <li><a data-pagina="materiais" href="/html/client/materiais.html">Materiais</a></li>
-        <li><a data-pagina="historico" href="/html/client/historico.html">Histórico</a></li>
+        <li><a data-pagina="relatorios" href="/html/client/relatorios.html">Relatórios</a></li>
       </ul>
 
       <div class="nav-acoes">
@@ -61,46 +62,42 @@
   <main class="painel-main">
     <section class="pagina-cabecalho">
       <div>
-        <h1>Parceiros</h1>
-        <p>Consulte disponibilidade, capacidade produtiva, tecnologias e materiais das instituições credenciadas.</p>
+        <h1>Parceiros de manufatura</h1>
+        <p>Os parceiros que podem aceitar suas solicitações na fila global. Veja as impressoras, os materiais que
+          eles têm para doação e onde as peças são retiradas.</p>
       </div>
     </section>
-    <section class="parceiros-grid" id="gridParceiros"></section>
+
+    <section class="parceiros-filtros" aria-label="Filtrar parceiros">
+      <div class="campo">
+        <label for="buscaParceiro">Buscar</label>
+        <input id="buscaParceiro" type="search" placeholder="Nome, cidade, material ou tecnologia">
+      </div>
+      <div class="campo">
+        <label for="filtroTecnologiaParceiro">Tecnologia</label>
+        <select id="filtroTecnologiaParceiro"><option value="">Todas</option></select>
+      </div>
+      <div class="parceiros-filtros-opcoes" role="group" aria-label="Mostrar só">
+        <label class="opcao-filtro"><input type="checkbox" id="soLivres"> Com impressora livre agora</label>
+        <label class="opcao-filtro"><input type="checkbox" id="soDoacao"> Com material para doação</label>
+      </div>
+    </section>
+    <div class="barra-filtros">
+      <p id="contadorParceiros" role="status"></p>
+    </div>
+
+    <section class="parceiros-grid" id="gridParceiros" aria-label="Parceiros"></section>
   </main><button class="btn-topo" id="btnTopo">↑</button>
-  <dialog class="modal" id="modalParceiro">
+
+  <dialog class="modal modal-parceiro" id="modalParceiro" aria-labelledby="tituloModalParceiro">
     <header class="modal-cabecalho">
       <div>
-        <p>Capacidade do parceiro</p>
-        <h2 data-parceiro-detalhe="nome"></h2>
-      </div><button class="modal-fechar" data-fechar-modal>×</button>
+        <p data-parceiro-detalhe="cidade">Parceiro de manufatura</p>
+        <h2 id="tituloModalParceiro" data-parceiro-detalhe="nome"></h2>
+      </div><button class="modal-fechar" type="button" data-fechar-modal aria-label="Fechar">×</button>
     </header>
-    <div class="modal-corpo">
-      <dl class="detalhes-grid">
-        <div class="detalhe">
-          <dt>Localização</dt>
-          <dd data-parceiro-detalhe="cidade"></dd>
-        </div>
-        <div class="detalhe">
-          <dt>Disponibilidade</dt>
-          <dd data-parceiro-detalhe="status"></dd>
-        </div>
-        <div class="detalhe">
-          <dt>Impressoras cadastradas</dt>
-          <dd data-parceiro-detalhe="impressoras"></dd>
-        </div>
-        <div class="detalhe">
-          <dt>Tecnologias</dt>
-          <dd data-parceiro-detalhe="tecnologias"></dd>
-        </div>
-        <div class="detalhe amplo">
-          <dt>Materiais disponíveis</dt>
-          <dd data-parceiro-detalhe="materiais"></dd>
-        </div>
-      </dl>
-    </div>
-    <footer class="modal-acoes"><button class="btn btn-principal btn-acao" data-fechar-modal>
-  Fechar
-</button></footer>
+    <div class="modal-corpo" data-parceiro-detalhe="corpo"></div>
+    <footer class="modal-acoes"><button type="button" class="btn btn-principal btn-acao" data-fechar-modal>Fechar</button></footer>
   </dialog>
 </body>
 

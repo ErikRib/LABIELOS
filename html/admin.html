@@ -31,19 +31,18 @@
          perfil.html. Só administradores ativos de uma organização veem
          conteúdo; o back-end valida isso em cada rota. -->
     <script src="/js/api.js" defer></script>
+    <script src="/js/navbar-painel.js" defer></script>
     <script src="/js/admin.js" defer></script>
 </head>
 
 <body>
 
+    <!-- A navbar (links do painel + menu de perfil) é desenhada por
+         js/navbar-painel.js, porque esta página serve aos dois painéis. -->
     <header class="painel-header">
         <nav class="nav-principal painel-nav" aria-label="Navegação principal">
             <a href="/index.html" title="LABIELOS" class="nav-logo"><img
                     src="/content/img/logo-simples.png" alt="Logo do LABIELOS"></a>
-            <ul class="nav-links"></ul>
-            <div class="nav-acoes">
-                <button class="btn btn-secundario btn-acao" type="button" id="btnSair">Sair</button>
-            </div>
         </nav>
     </header>
 
@@ -57,7 +56,7 @@
             <div>
                 <p class="eyebrow">Administração</p>
                 <h1>Gerenciar organização</h1>
-                <p>Aprove pedidos de ingresso e gerencie os membros e administradores da sua organização.</p>
+                <p>Aprove pedidos de ingresso, gerencie membros e administradores e mantenha os dados da sua organização.</p>
             </div>
             <div class="campo admin-seletor" id="seletorOrganizacaoWrap" hidden>
                 <label for="seletorOrganizacao">Organização</label>
@@ -99,6 +98,10 @@
                 <button type="button" role="tab" id="abaMembros" aria-controls="painelMembros" aria-selected="false"
                     tabindex="-1">
                     Membros <span class="admin-aba-contador" data-contador="membros">0</span>
+                </button>
+                <button type="button" role="tab" id="abaDados" aria-controls="painelDados" aria-selected="false"
+                    tabindex="-1">
+                    Dados da organização
                 </button>
             </div>
 
@@ -142,6 +145,73 @@
                         <tbody></tbody>
                     </table>
                 </div>
+            </section>
+
+            <section class="admin-painel" role="tabpanel" id="painelDados" aria-labelledby="abaDados" hidden>
+
+                <form class="painel-bloco admin-form" id="formDadosOrganizacao" novalidate>
+                    <header class="bloco-cabecalho">
+                        <div>
+                            <h2>Dados de cadastro</h2>
+                            <p class="texto-apoio">Visíveis para as outras organizações da plataforma (nome, cidade e contato).</p>
+                        </div>
+                    </header>
+                    <div class="form-grid">
+                        <div class="campo amplo">
+                            <label for="orgNome">Nome da organização *</label>
+                            <input id="orgNome" name="nome" required maxlength="150">
+                        </div>
+                        <div class="campo">
+                            <label for="orgCnpj">CNPJ *</label>
+                            <input id="orgCnpj" name="cnpj" required inputmode="numeric" placeholder="00.000.000/0000-00">
+                        </div>
+                        <div class="campo">
+                            <label for="orgTipo">Tipo</label>
+                            <input id="orgTipo" readonly aria-readonly="true">
+                            <small class="campo-ajuda">O tipo não pode ser alterado.</small>
+                        </div>
+                        <div class="campo">
+                            <label for="orgEmail">E-mail institucional *</label>
+                            <input id="orgEmail" name="email_institucional" type="email" required>
+                        </div>
+                        <div class="campo">
+                            <label for="orgTelefone">Telefone institucional *</label>
+                            <input id="orgTelefone" name="telefone_institucional" type="tel" required>
+                        </div>
+                    </div>
+
+                    <!-- Endereços (locais de retirada). Fabricante: pelo menos um. Ao
+                         concluir uma produção, o fabricante escolhe um deles. -->
+                    <section class="admin-enderecos" aria-labelledby="tituloEnderecos">
+                        <div class="admin-enderecos-topo">
+                            <div>
+                                <h3 id="tituloEnderecos">Endereços de retirada <span id="orgEnderecoObrigatorio">*</span></h3>
+                                <p class="texto-apoio" id="ajudaEnderecos">Locais onde as peças podem ser retiradas.</p>
+                            </div>
+                            <button type="button" class="btn btn-secundario btn-sm" id="btnAdicionarEndereco">+ Adicionar endereço</button>
+                        </div>
+                        <div id="listaEnderecos"></div>
+                    </section>
+
+                    <p class="admin-mensagem" id="mensagemDados" role="status"></p>
+                    <div class="admin-form-acoes">
+                        <button type="button" class="btn btn-secundario btn-acao" id="btnDescartarDados">Descartar alterações</button>
+                        <button type="submit" class="btn btn-principal btn-acao">Salvar alterações</button>
+                    </div>
+                </form>
+
+                <section class="painel-bloco zona-perigo" aria-labelledby="tituloRemoverOrg">
+                    <h2 id="tituloRemoverOrg">Remover organização</h2>
+                    <p>Remove a organização da plataforma: todos os vínculos são encerrados, os membros perdem o
+                        acesso e ela deixa de aparecer nas buscas. <strong>Não é possível desfazer.</strong></p>
+                    <p class="texto-apoio">Só é permitido quando não há solicitações ou demandas em andamento.</p>
+                    <div class="campo">
+                        <label for="confirmarRemocao">Para confirmar, digite o nome da organização: <strong data-org="nome-confirmacao"></strong></label>
+                        <input id="confirmarRemocao" autocomplete="off">
+                    </div>
+                    <p class="admin-mensagem" id="mensagemRemocao" role="alert"></p>
+                    <button type="button" class="btn btn-acao btn-perigo-cheio" id="btnRemoverOrganizacao" disabled>Remover organização</button>
+                </section>
             </section>
 
         </div>

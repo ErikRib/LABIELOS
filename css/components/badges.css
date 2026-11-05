@@ -53,6 +53,14 @@
     color: var(--cor-secundaria);
 }
 
+/* Quase concluída: verde em contorno (a "Concluída" é verde cheio). */
+.status-pronta-para-retirada {
+    background-color: var(--cor-fundo);
+    color: var(--cor-sucesso-texto);
+
+    box-shadow: inset 0 0 0 1px var(--cor-sucesso);
+}
+
 .status-concluida {
     background-color: var(--cor-sucesso-fundo);
     color: var(--cor-sucesso-texto);
@@ -79,6 +87,66 @@
 }
 
 .parceiro-indisponivel {
+    background-color: var(--cor-erro-fundo);
+    color: var(--cor-erro-texto);
+}
+
+
+/* STATUS DA IMPRESSORA (Impressoras e modal "Iniciar produção") */
+
+.impressora-disponivel {
+    background-color: var(--cor-sucesso-fundo);
+    color: var(--cor-sucesso-texto);
+}
+
+.impressora-em-uso {
+    background-color: var(--cor-info-fundo);
+    color: var(--cor-info-texto);
+}
+
+.impressora-em-manutencao {
+    background-color: var(--cor-alerta-fundo);
+    color: var(--cor-alerta-texto);
+}
+
+.impressora-inativa {
+    background-color: var(--cor-erro-fundo);
+    color: var(--cor-erro-texto);
+}
+
+
+/* ORIGEM DO MATERIAL DE UMA PRODUÇÃO */
+
+.origem-doacao {
+    background-color: var(--cor-sucesso-fundo);
+    color: var(--cor-sucesso-texto);
+}
+
+.origem-solicitante {
+    background-color: var(--cor-info-fundo);
+    color: var(--cor-info-texto);
+}
+
+/* Etapa em que o parceiro espera o material do solicitante. */
+.status-aguardando-material {
+    background-color: var(--cor-alerta-fundo);
+    color: var(--cor-alerta-texto);
+}
+
+
+/* SITUAÇÃO DO MATERIAL (Materiais e Parceiros) */
+
+.material-disponivel {
+    background-color: var(--cor-sucesso-fundo);
+    color: var(--cor-sucesso-texto);
+}
+
+.material-estoque-baixo {
+    background-color: var(--cor-alerta-fundo);
+    color: var(--cor-alerta-texto);
+}
+
+.material-esgotado {
     background-color: var(--cor-erro-fundo);
     color: var(--cor-erro-texto);
 }

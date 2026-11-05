@@ -27,19 +27,18 @@
     <!-- Conectado à API real (ver js/api.js); diferente do restante do
          protótipo, esta página não funciona sem o back-end no ar. -->
     <script src="/js/api.js" defer></script>
+    <script src="/js/navbar-painel.js" defer></script>
     <script src="/js/perfil.js" defer></script>
 </head>
 
 <body>
 
+    <!-- A navbar (links do painel + menu de perfil) é desenhada por
+         js/navbar-painel.js, porque esta página serve aos dois painéis. -->
     <header class="painel-header">
         <nav class="nav-principal painel-nav" aria-label="Navegação principal">
             <a href="/index.html" title="LABIELOS" class="nav-logo"><img
                     src="/content/img/logo-simples.png" alt="Logo do LABIELOS"></a>
-            <ul class="nav-links"></ul>
-            <div class="nav-acoes">
-                <button class="btn btn-secundario btn-acao" type="button" id="btnSair">Sair</button>
-            </div>
         </nav>
     </header>
 

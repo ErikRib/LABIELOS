@@ -139,6 +139,19 @@ h4 {
     color: var(--cor-texto-secundario);
 }
 
+/* Botões do cabeçalho da página: nunca quebram o texto em duas linhas. */
+.pagina-acoes {
+    display: flex;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+
+    gap: 10px;
+}
+
+.pagina-acoes .btn {
+    white-space: nowrap;
+}
+
 
 /* =========================
    BARRA DE ROLAGEM
@@ -246,4 +259,40 @@ h4 {
     .pagina-cabecalho p {
         font-size: 0.95rem;
     }
+}
+
+
+/* =========================
+   AVISO DE RETORNO DE AÇÃO
+   (#mensagemFabricante / #mensagemSolicitante: "Solicitação aceita",
+   "Produção iniciada"...). Verde = sucesso; .mensagem-erro = falha.
+========================= */
+
+.mensagem-fabricante {
+    margin-bottom: 16px;
+    padding: 10px 14px;
+
+    border-radius: 8px;
+
+    background-color: var(--cor-sucesso-fundo);
+    color: var(--cor-sucesso-texto);
+
+    font-weight: 600;
+}
+
+.mensagem-fabricante::before {
+    content: "✓ ";
+}
+
+.mensagem-fabricante.mensagem-erro::before {
+    content: "! ";
+}
+
+.mensagem-fabricante:empty {
+    display: none;
+}
+
+.mensagem-fabricante.mensagem-erro {
+    background-color: var(--cor-erro-fundo);
+    color: var(--cor-erro-texto);
 }

@@ -16,14 +16,18 @@ Já foram desenvolvidas interfaces iniciais para:
 - autenticação;
 - dashboard da organização solicitante;
 - gerenciamento e acompanhamento de solicitações;
-- visualização de parceiros;
-- histórico de solicitações;
-- nova solicitação em assistente de 4 etapas (informações, arquivo e especificações, revisão, envio);
+- parceiros de manufatura (impressoras livres, materiais para doação, locais de retirada e contato);
+- relatórios da organização solicitante (todas as solicitações, indicadores, gráficos e exportação CSV);
+- nova solicitação em assistente de 4 etapas (informações, arquivo e especificações, revisão, envio), que entra numa fila global vista por todos os fabricantes;
+- fila global de novas solicitações para os fabricantes (o primeiro que aceitar assume a demanda);
+- registro de impressoras do fabricante (base da capacidade produtiva);
+- fluxo completo de produção: impressora e origem do material (doado pelo parceiro, com baixa no estoque, ou fornecido pelo solicitante, com a etapa "Aguardando material"), conclusão com local de retirada, aprovação da peça ou devolução para ajuste;
+- visualizador 3D dos arquivos anexados (STL, OBJ e 3MF, com three.js);
 - materiais de impressão disponíveis para doação (consulta pela organização solicitante e gestão pelo fabricante);
-- administração da organização (aprovação de pedidos de ingresso e gestão de membros);
+- administração da organização (pedidos de ingresso, membros, dados de cadastro, endereços de retirada e remoção da organização); quem cria uma organização nova entra direto como administrador;
 - recursos iniciais de acessibilidade.
 
-Login, cadastro, perfil, administração, materiais e os painéis da organização solicitante/fabricante já chamam uma API real (contrato documentado em `docs/backend.md`/`docs/database.md`), mas o back-end em si ainda não foi implementado — por isso essas telas dependem de um servidor rodando para funcionar.
+Login, cadastro, perfil, administração, materiais e os painéis da organização solicitante/fabricante já chamam uma API real. O contrato está em `docs/integracao-backend.md`, `docs/backend.md` e `docs/database.md`. O back-end (FastAPI) está com a equipe de back, e o banco já existe no MongoDB Atlas; essas telas dependem do servidor rodando para funcionar.
 
 ## Tecnologias
 
@@ -45,7 +49,7 @@ A documentação técnica do projeto está disponível no diretório [`docs/`](.
 - [`design-system.md`](./docs/design-system.md) — Design System (Figma) aplicado ao projeto, painel do fabricante, filtros avançados e demais mudanças.
 - [`integracao-backend.md`](./docs/integracao-backend.md) — **guia para a equipe do back-end**: JSON de entrada/saída de cada rota usada pelo front, mapa tela → rota e checklist.
 - [`backend.md`](./docs/backend.md) — contrato de referência da API (FastAPI + MongoDB Atlas): endpoints, instalação e limitações.
-- [`database.md`](./docs/database.md) — modelo de dados (coleções do MongoDB).
+- [`database.md`](./docs/database.md) — modelo de dados (coleções, campos e índices do MongoDB), para conferir contra o banco no Atlas.
 
 Novos documentos serão adicionados conforme outras partes da aplicação forem desenvolvidas.
 

@@ -495,3 +495,104 @@ registra o evento correspondente na linha do tempo.
 
 Contrato de todas essas telas para o back-end:
 [`integracao-backend.md`](./integracao-backend.md).
+
+---
+
+## 13. Rodada de novembro/2026 (2) — fila global, impressoras e cadastro direto
+
+> Substitui o fluxo da seção 4.1: os status `Aguardando aceite` e
+> `Recusada` deixaram de existir.
+
+```
+criar ──▶ Aberta (fila global) ──Aceitar (1º parceiro)──▶ Em análise ──Iniciar produção──▶ Em produção ──Concluir──▶ Concluída
+                 ▲                                              │
+                 └────────────── Devolver à fila ───────────────┘
+```
+
+- **Fila global** (`html/fabricator/fila.html`): a organização solicitante
+  não escolhe mais parceiros. Toda solicitação nova fica visível para todos
+  os fabricantes, e quem aceitar primeiro a leva para as próprias Demandas.
+- **Impressoras** (`html/fabricator/impressoras.html`): mesmo padrão visual
+  de Materiais, com badges `impressora-disponivel`, `-em-uso`,
+  `-em-manutencao` e `-inativa`.
+- **Cadastro de organização nova** entra direto na plataforma, com o
+  usuário como administrador. Só o ingresso em organização existente
+  passa por aprovação.
+- **Fluxo da solicitação** (detalhes): a linha agora vai exatamente até a
+  etapa atual (`--progresso`), em vez de 2/3 fixo.
+- Navegação do fabricante: Visão geral · Novas solicitações · Demandas ·
+  Impressoras · Materiais.
+
+## 14. Rodada de novembro/2026 (3) — botões, visualizador 3D e navbar compartilhada
+
+- **Ações em tabelas:** os botões ficam num wrapper `div.acoes-tabela`
+  dentro do `td.celula-acoes`. O wrapper é flex, sem quebra de linha e com
+  `gap: 6px`. A célula continua `table-cell` para não perder o alinhamento
+  da linha. Os botões `.btn-acao-tabela` têm a mesma altura (32px) e não
+  quebram o texto; numa tabela estreita, ela rola na horizontal
+  (`.tabela-wrap`) em vez de empilhar botões.
+- **Ações do topo do detalhe:** `.detalhe-acoes` é flex com `gap: 10px`.
+  A ação principal usa `.btn-principal` e a secundária, como "Devolver à
+  fila", usa `.btn-secundario`.
+- **Botões de cabeçalho:** `.pagina-acoes .btn` usa `white-space: nowrap`,
+  para que "+ Registrar impressora" e similares nunca quebrem em duas linhas.
+- **Cartão de anexo:** o nome e o formato ficam em cima. Embaixo, dois botões do mesmo
+  tamanho: "Visualizar 3D" (principal) e "Baixar" (secundário com fundo
+  branco, porque o cartão tem fundo azulado).
+- **Visualizador 3D:** o canvas fica sobre um degradê
+  `--cor-fundo` → `--cor-fundo-secundario`. O modelo usa a cor
+  `--cor-acento` e há uma grade de apoio. Os controles "Centralizar" e
+  "Ver malha" são pílulas (`.btn-viewer`, com `aria-pressed`) no canto do
+  canvas. As dimensões em mm e os triângulos aparecem abaixo. Há estilos de
+  alto contraste.
+- **Navbar de perfil/admin:** é a mesma navbar dos painéis
+  (`js/navbar-painel.js`), no lugar do cabeçalho mínimo que só tinha
+  "Sair".
+- **Admin no celular:** as abas rolam na horizontal sem quebrar o texto, e
+  os três contadores ficam lado a lado, em tamanho compacto.
+
+## 15. Rodada de novembro/2026 (4) — visão geral do fabricante, botões e retirada
+
+- **Visão geral do fabricante:** cinco cartões de resumo
+  (`grid auto-fit, minmax(170px, 1fr)`). Abaixo, "Demandas recentes" ocupa
+  a **largura total**, porque a tabela ficava espremida. Depois vêm
+  "Capacidade produtiva" e "Seu estoque" lado a lado, com a mesma altura
+  (`.painel-fabricante-cartoes`).
+- **`.btn-sm`** (novo): para atalhos dentro de cartões e barras ("Ver
+  todas", "+ Registrar impressora", "Ver estoque"...). Tem 7×14 px de
+  padding, 0,85rem de fonte e não quebra o texto.
+- **`.btn-ferramenta`** (novo): para ações utilitárias com ícone SVG
+  inline ("Colunas", "Atualizar fila"). Tem borda neutra e, no hover ou
+  aberto (`aria-expanded`), fundo `--cor-fundo-secundario`. Em
+  `.carregando`, o ícone gira; com `prefers-reduced-motion`, não.
+- **Campo com sugestões:** a seta indica a lista, que é um listbox
+  branco com sombra e opção ativa em `--cor-fundo-secundario`, como os
+  outros menus. A ajuda abaixo do campo deixa claro que o texto é livre.
+- **Status "Pronta para retirada":** badge verde em contorno
+  (`.status-pronta-para-retirada`); a "Concluída" é verde cheio.
+- **Retirada:** o cartão "Retirada da peça" e a faixa de avaliação do
+  solicitante usam `--cor-sucesso-fundo`, com borda `--cor-sucesso`. O
+  aviso "Devolvida para ajuste" usa as cores de alerta, com borda à
+  esquerda.
+- **Modal de ação** (`abrirModalAcao`): o mesmo layout dos modais
+  existentes, com o erro da API exibido dentro do próprio modal. As opções
+  de endereço são cartões clicáveis com rádio, destacados quando
+  selecionados (`:has(input:checked)`).
+
+## 16. Rodada de novembro/2026 (5) — produção, relatórios e parceiros
+
+- **Um botão de registro por página:** em Materiais e Impressoras, o estado
+  vazio só aponta para o botão do topo ("+ Registrar …"), sem um segundo
+  botão.
+- **Listas (`select`):** seta própria (chevron SVG em
+  `--cor-texto-secundario`) a 14 px da borda, com `padding-right: 42px`.
+  Vale para todos os `.campo select`, inclusive no cadastro.
+- **Filtros com busca e um filtro só** (`.filtros-busca-e-um`): o filtro
+  fica encostado à direita (ex.: Prioridade na fila).
+- **Badges novos:** `status-aguardando-material` (alerta), `origem-doacao`
+  (sucesso) e `origem-solicitante` (info). Os badges de impressora e de
+  material foram para `css/components/badges.css`.
+- **Relatórios:** barras horizontais de uma série só, num único tom
+  (`--cor-secundaria`), com trilho `--cor-borda`, ponta arredondada de 4 px
+  e o valor escrito ao lado em cor de texto. Clicar filtra a tabela, e a
+  tabela completa fica logo abaixo. Têm estilo de alto contraste.

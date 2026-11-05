@@ -45,7 +45,7 @@
 
 .fluxo-solicitacao {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(var(--etapas, 5), 1fr);
     gap: 12px;
 
     list-style: none;
@@ -62,8 +62,9 @@
     position: absolute;
 
     top: 18px;
-    left: 12.5%;
-    right: 12.5%;
+    /* A linha vai do centro da primeira bolinha ao centro da última. */
+    left: calc(50% / var(--etapas, 5));
+    right: calc(50% / var(--etapas, 5));
 
     height: 2px;
 }
@@ -73,15 +74,19 @@
     z-index: 1;
 }
 
+/* Parte preenchida da linha: vai até a etapa atual. O JS define
+   --progresso (0 = só a primeira etapa, 1 = concluída). */
 .fluxo-solicitacao::after {
     background-color: var(--cor-primaria);
 
     transform-origin: left;
-    transform: scaleX(0);
+    transform: scaleX(var(--progresso, 0));
 
     z-index: 1;
+}
 
-    animation: preencher-fluxo 0.8s ease forwards;
+.fluxo-solicitacao.animar::after {
+    animation: preencher-fluxo 0.8s ease;
 }
 
 .fluxo-solicitacao li {
@@ -136,7 +141,13 @@
     }
 
     to {
-        transform: scaleX(0.6667);
+        transform: scaleX(var(--progresso, 0));
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fluxo-solicitacao.animar::after {
+        animation: none;
     }
 }
 
@@ -274,12 +285,12 @@
     grid-template-columns: auto minmax(0, 1fr);
     align-items: center;
 
-    gap: 12px;
+    gap: 12px 14px;
 
-    padding: 14px;
+    padding: 16px;
 
     border: 1px solid var(--cor-borda);
-    border-radius: 8px;
+    border-radius: 10px;
 
     background-color: var(--cor-fundo-secundario);
 }
@@ -323,91 +334,382 @@
     font-size: 0.8rem;
 }
 
-.btn-visualizar-arquivo {
-    grid-column: 2;
+/* Ações ocupam a linha inteira, abaixo do nome do arquivo. */
+.anexo-acoes {
+    grid-column: 1 / -1;
 
-    justify-self: start;
+    display: flex;
+    flex-wrap: wrap;
 
-    margin-top: 4px;
+    gap: 8px;
+}
+
+.btn-anexo {
+    flex: 1 1 120px;
+
+    padding: 9px 16px;
+
+    white-space: nowrap;
+}
+
+/* O secundário sobre o fundo azulado do card precisa de fundo próprio. */
+.anexo-acoes .btn-secundario {
+    background-color: var(--cor-fundo);
+}
+
+.anexo-acoes .btn-secundario:hover {
+    background-color: var(--cor-secundaria);
 }
 
 /* =========================
-   VISUALIZADOR 3D
+   VISUALIZADOR 3D (three.js)
 ========================= */
 
 .modal-visualizador {
-    width: min(760px, 92vw);
+    width: min(880px, 94vw);
 }
 
 .viewer-3d {
     position: relative;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    min-height: 360px;
-
-    padding: 24px;
+    height: min(460px, 58vh);
+    min-height: 280px;
 
     border: 1px solid var(--cor-borda);
     border-radius: var(--borda-radius);
 
-    background-color: var(--cor-fundo-secundario);
+    background:
+        radial-gradient(circle at 50% 35%, var(--cor-fundo) 0%, var(--cor-fundo-secundario) 75%);
 
     overflow: hidden;
 }
 
-.viewer-3d svg {
-    width: 100%;
-    max-width: 520px;
-    height: auto;
+.viewer-3d canvas {
+    display: block;
+
+    width: 100% !important;
+    height: 100% !important;
+
+    cursor: grab;
+    touch-action: none;
 }
 
-.wireframe {
-    fill: none;
-
-    stroke: var(--cor-primaria);
-    stroke-width: 3;
-
-    stroke-linecap: round;
-    stroke-linejoin: round;
+.viewer-3d canvas:active {
+    cursor: grabbing;
 }
 
-.viewer-eixo {
+.viewer-3d canvas:focus-visible {
+    outline: 3px solid var(--cor-acento);
+    outline-offset: -3px;
+}
+
+.viewer-estado {
     position: absolute;
+    inset: 0;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    width: 28px;
-    height: 28px;
+    padding: 24px;
 
-    border-radius: 50%;
+    color: var(--cor-texto-secundario);
 
-    background-color: var(--cor-fundo);
+    font-weight: 600;
+    text-align: center;
+}
+
+.viewer-estado.viewer-erro {
+    color: var(--cor-erro-texto);
+}
+
+.viewer-ferramentas {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+
+    display: flex;
+
+    gap: 6px;
+}
+
+.btn-viewer {
+    padding: 6px 12px;
+
+    border: 1px solid var(--cor-borda);
+    border-radius: 999px;
+
+    background-color: color-mix(in srgb, var(--cor-fundo) 92%, transparent);
+    color: var(--cor-primaria);
+
+    font-family: var(--fonte-texto);
+    font-size: 0.8rem;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+
+    transition: background-color var(--transicao), color var(--transicao), border-color var(--transicao);
+}
+
+.btn-viewer:hover {
+    border-color: var(--cor-secundaria);
+}
+
+.btn-viewer[aria-pressed="true"] {
+    border-color: var(--cor-primaria);
+
+    background-color: var(--cor-primaria);
+    color: var(--cor-texto-claro);
+}
+
+.btn-viewer:focus-visible {
+    outline: 3px solid var(--cor-acento);
+    outline-offset: 2px;
+}
+
+.viewer-info {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+
+    gap: 10px 20px;
+
+    margin-top: 16px;
+}
+
+.viewer-arquivo {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+.viewer-arquivo strong {
+    overflow-wrap: anywhere;
+}
+
+.viewer-arquivo span,
+.viewer-dica {
+    color: var(--cor-texto-secundario);
+
+    font-size: 0.85rem;
+}
+
+.viewer-baixar {
+    grid-column: 2;
+    grid-row: 1;
+
+    white-space: nowrap;
+}
+
+.viewer-dados {
+    grid-column: 1 / -1;
+
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 8px 28px;
+}
+
+.viewer-dados dt {
     color: var(--cor-texto-secundario);
 
     font-size: 0.75rem;
-    font-weight: 700;
-
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+    font-weight: 600;
 }
 
-.eixo-x {
-    right: 20px;
-    bottom: 20px;
+.viewer-dados dd {
+    font-weight: 600;
 }
 
-.eixo-y {
-    right: 52px;
-    bottom: 20px;
+.viewer-dica {
+    grid-column: 1 / -1;
 }
 
-.eixo-z {
-    right: 20px;
-    bottom: 52px;
+.viewer-info [hidden],
+.viewer-3d [hidden] {
+    display: none;
+}
+
+/* =========================
+   RETIRADA, AJUSTE E AVALIAÇÃO DA PEÇA
+========================= */
+
+.retirada-card {
+    border-color: var(--cor-sucesso);
+
+    background-color: var(--cor-sucesso-fundo);
+}
+
+.retirada-card .eyebrow {
+    color: var(--cor-sucesso-texto);
+}
+
+.retirada-dados {
+    display: grid;
+
+    gap: 10px;
+
+    margin-bottom: 14px;
+}
+
+.retirada-dados dt {
+    color: var(--cor-texto-secundario);
+
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.retirada-dados dd {
+    font-weight: 600;
+
+    overflow-wrap: anywhere;
+}
+
+.retirada-card .btn-secundario {
+    background-color: var(--cor-fundo);
+}
+
+.retirada-card .btn-secundario:hover {
+    background-color: var(--cor-secundaria);
+}
+
+.aviso-ajuste {
+    margin-bottom: 20px;
+    padding: 14px 16px;
+
+    border-left: 4px solid var(--cor-alerta);
+    border-radius: 8px;
+
+    background-color: var(--cor-alerta-fundo);
+    color: var(--cor-alerta-texto);
+}
+
+.aviso-ajuste p {
+    margin: 4px 0;
+
+    color: var(--cor-texto);
+
+    white-space: pre-line;
+}
+
+.aviso-ajuste span {
+    font-size: 0.8rem;
+}
+
+/* Faixa "Próxima etapa" (logo abaixo do cabeçalho do detalhe) */
+.barra-etapa {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 16px 24px;
+
+    margin-bottom: 24px;
+    padding: 16px 20px;
+
+    border: 1px solid var(--cor-borda);
+    border-left: 4px solid var(--cor-secundaria);
+    border-radius: var(--borda-radius);
+
+    background-color: var(--cor-fundo-secundario);
+}
+
+.barra-etapa:empty,
+.barra-etapa[hidden] {
+    display: none;
+}
+
+/* É a vez de quem está vendo agir. */
+.barra-etapa-acao {
+    border-left-color: var(--cor-primaria);
+
+    background-color: var(--cor-info-fundo);
+}
+
+/* Fim do fluxo. */
+.barra-etapa-fim {
+    border-color: var(--cor-sucesso);
+    border-left-color: var(--cor-sucesso);
+
+    background-color: var(--cor-sucesso-fundo);
+}
+
+.barra-etapa-texto {
+    flex: 1 1 360px;
+    min-width: 0;
+}
+
+.barra-etapa-texto .eyebrow {
+    margin-bottom: 2px;
+}
+
+.barra-etapa-texto strong {
+    font-size: 1.05rem;
+}
+
+.barra-etapa-texto p:last-child {
+    margin-top: 4px;
+
+    color: var(--cor-texto-secundario);
+}
+
+.barra-etapa-botoes {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+
+    gap: 10px;
+}
+
+.barra-etapa-botoes .btn {
+    white-space: nowrap;
+}
+
+/* Secundário sobre o fundo colorido da faixa: fundo branco. */
+.barra-etapa .btn-secundario {
+    background-color: var(--cor-fundo);
+}
+
+.barra-etapa .btn-secundario:hover {
+    background-color: var(--cor-secundaria);
+}
+
+@media (max-width: 600px) {
+
+    .barra-etapa-botoes {
+        width: 100%;
+    }
+
+    .barra-etapa-botoes .btn {
+        flex: 1 1 140px;
+    }
+}
+
+/* =========================
+   AÇÕES DO TOPO DA PÁGINA
+========================= */
+
+.detalhe-acoes {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 10px;
+}
+
+.detalhe-acoes .btn {
+    white-space: nowrap;
+}
+
+.detalhe-acoes:empty {
+    display: none;
 }
 
 @media (max-width: 900px) {
@@ -436,7 +738,37 @@
     }
 }
 
+@media (max-width: 600px) {
+
+    .fluxo-solicitacao {
+        gap: 4px;
+    }
+
+    .fluxo-solicitacao li {
+        font-size: 0.75rem;
+    }
+
+    .fluxo-ponto {
+        width: 30px;
+        height: 30px;
+    }
+
+    .fluxo-solicitacao::before,
+    .fluxo-solicitacao::after {
+        top: 15px;
+    }
+}
+
 @media (max-width: 480px) {
+
+    .viewer-info {
+        grid-template-columns: 1fr;
+    }
+
+    .viewer-baixar {
+        grid-column: 1;
+        grid-row: auto;
+    }
 
     .timeline-topo {
         flex-direction: column;

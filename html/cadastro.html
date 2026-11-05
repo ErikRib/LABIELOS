@@ -211,14 +211,13 @@
                         placeholder="Explique brevemente seu vínculo com a organização." rows="3"></textarea></div>
                 <p id="mensagemCadastro4" class="cadastro-aviso" role="status"></p>
                 <div class="cadastro-botoes"><button class="btn btn-secundario" id="btnBackCadastro4"
-                        type="button">Voltar</button><button class="btn btn-principal" type="submit">Solicitar
-                        ingresso</button></div>
+                        type="button">Voltar</button><button class="btn btn-principal" type="submit">Continuar</button></div>
             </form>
         </section>
         <section aria-labelledby="titulo-cadastro-5" class="cadastro-container" hidden="" id="cadastroPage5">
             <header class="cadastro-texto"><span class="cadastro-tag">NOVA ORGANIZAÇÃO</span>
                 <h1 id="titulo-cadastro-5">Cadastre sua organização</h1>
-                <p>Informe os dados institucionais para solicitar a criação da organização.</p>
+                <p>Informe os dados institucionais da organização que você vai criar.</p>
             </header>
             <form class="cadastro-form" id="formCadastro5">
                 <div class="campo"><label for="nomeOrganizacaoNova">Nome da organização *</label><input
@@ -233,22 +232,60 @@
                         type="tel" /></div>
                 <div class="campo"><label for="cargoResponsavel">Seu cargo na organização *</label><input
                         id="cargoResponsavel" maxlength="100" name="cargoResponsavel" required="" /></div>
-                <p class="cadastro-aviso">Os endereços e locais de retirada poderão ser cadastrados posteriormente no
-                    perfil institucional. A criação e as permissões dependem de aprovação.</p>
+                <fieldset class="campo cadastro-endereco" id="grupoEndereco">
+                    <legend>Endereço de retirada *</legend>
+                    <p class="cadastro-aviso" id="ajudaEndereco">Endereço onde as peças são produzidas e podem ser retiradas.</p>
+                    <div class="endereco-grid">
+                        <div class="campo campo-cep"><label for="cepOrganizacao">CEP</label><input id="cepOrganizacao"
+                                name="cep" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000"
+                                maxlength="9" pattern="\d{5}-?\d{3}" /><small class="cadastro-aviso" id="statusCep" role="status"></small></div>
+                        <div class="campo campo-logradouro"><label for="logradouroOrganizacao">Rua / avenida</label><input
+                                id="logradouroOrganizacao" name="logradouro" autocomplete="address-line1" maxlength="150" /></div>
+                        <div class="campo campo-numero"><label for="numeroOrganizacao">Número</label><input
+                                id="numeroOrganizacao" name="numero" maxlength="10" /></div>
+                        <div class="campo campo-complemento"><label for="complementoOrganizacao">Complemento</label><input
+                                id="complementoOrganizacao" name="complemento" autocomplete="address-line2" maxlength="80"
+                                placeholder="Opcional" /></div>
+                        <div class="campo campo-bairro"><label for="bairroOrganizacao">Bairro</label><input
+                                id="bairroOrganizacao" name="bairro" maxlength="80" /></div>
+                        <div class="campo campo-cidade"><label for="cidadeOrganizacao">Cidade</label><input
+                                id="cidadeOrganizacao" name="cidade" autocomplete="address-level2" maxlength="80" /></div>
+                        <div class="campo campo-uf"><label for="ufOrganizacao">UF</label><select id="ufOrganizacao"
+                                name="uf" autocomplete="address-level1"></select></div>
+                    </div>
+                </fieldset>
+                <p class="cadastro-aviso">Ao concluir, você entra na plataforma como administrador da nova organização
+                    e passa a aprovar quem pedir para fazer parte dela. Os dados podem ser alterados depois em
+                    Administração.</p>
                 <p id="mensagemCadastro5" class="cadastro-aviso" role="status"></p>
                 <div class="cadastro-botoes"><button class="btn btn-secundario" id="btnBackCadastro5"
-                        type="button">Voltar</button><button class="btn btn-principal" type="submit">Solicitar
-                        cadastro</button></div>
+                        type="button">Voltar</button><button class="btn btn-principal" type="submit">Continuar</button></div>
             </form>
         </section>
+        <!-- ETAPA 7: REVISÃO (antes de enviar) -->
+        <section aria-labelledby="titulo-cadastro-7" class="cadastro-container" hidden="" id="cadastroPage7">
+            <header class="cadastro-texto"><span class="cadastro-tag">REVISÃO</span>
+                <h1 id="titulo-cadastro-7">Confira seus dados</h1>
+                <p id="textoRevisao">Verifique as informações antes de confirmar.</p>
+            </header>
+            <dl class="cadastro-revisao" id="resumoCadastro"></dl>
+            <p class="cadastro-aviso" id="avisoRevisao"></p>
+            <p id="mensagemCadastro7" class="cadastro-aviso cadastro-erro" role="alert"></p>
+            <div class="cadastro-botoes">
+                <button class="btn btn-secundario" id="btnRevisarCadastro" type="button">Revisar dados</button>
+                <button class="btn btn-principal" id="btnConfirmarCadastro" type="button">Confirmar</button>
+            </div>
+        </section>
+
+        <!-- ETAPA 6: CONFIRMAÇÃO (depois de enviar) -->
         <section aria-labelledby="titulo-cadastro-6" class="cadastro-container" hidden="" id="cadastroPage6">
             <header class="cadastro-texto"><span class="cadastro-tag">CONFIRMAÇÃO</span>
-                <h1 id="titulo-cadastro-6">Solicitação preparada</h1>
-                <p id="mensagemConfirmacao" role="status">Esta é uma demonstração. Nenhum cadastro foi enviado.</p>
+                <h1 id="titulo-cadastro-6">Cadastro concluído</h1>
+                <p id="mensagemConfirmacao" role="status"></p>
             </header>
-            <p class="cadastro-aviso">Na versão integrada, sua solicitação será analisada antes da liberação do acesso.
-            </p>
-            <button class="btn btn-secundario btn-cadastro" id="btnRevisarCadastro" type="button">Revisar dados</button>
+            <p class="cadastro-aviso" id="avisoConfirmacao"></p>
+            <button class="btn btn-principal btn-cadastro" id="btnAcessarPlataforma" type="button" hidden>Acessar plataforma</button>
+            <a class="btn btn-secundario btn-cadastro" id="linkIrLogin" href="/html/login.html" hidden>Ir para o login</a>
         </section>
     </main>
     <!-- =========================

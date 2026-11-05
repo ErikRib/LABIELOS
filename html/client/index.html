@@ -23,6 +23,7 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
   <script src="/js/api.js" defer></script>
+  <script src="/js/sugestoes.js" defer></script>
   <script src="/js/prototipo.js" defer></script>
   <script src="/js/nova-solicitacao.js" defer></script>
 </head>
@@ -39,7 +40,7 @@
         <li><a data-pagina="solicitacoes" href="/html/client/solicitacoes.html">Solicitações</a></li>
         <li><a data-pagina="parceiros" href="/html/client/parceiros.html">Parceiros</a></li>
         <li><a data-pagina="materiais" href="/html/client/materiais.html">Materiais</a></li>
-        <li><a data-pagina="historico" href="/html/client/historico.html">Histórico</a></li>
+        <li><a data-pagina="relatorios" href="/html/client/relatorios.html">Relatórios</a></li>
       </ul>
 
       <div class="nav-acoes">
@@ -86,6 +87,11 @@
       </article>
 
       <article class="resumo-card">
+        <h2>Prontas para retirada</h2>
+        <p data-resumo="retirada">0</p>
+      </article>
+
+      <article class="resumo-card">
         <h2>Concluídas</h2>
         <p data-resumo="concluidas">0</p>
       </article>
@@ -106,7 +112,7 @@
               <th>Protocolo</th>
               <th>Solicitação</th>
               <th>Requerente</th>
-              <th>Atribuído</th>
+              <th>Parceiro</th>
               <th>Prioridade</th>
               <th>Status</th>
             </tr>

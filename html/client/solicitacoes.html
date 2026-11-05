@@ -26,6 +26,7 @@
     rel="stylesheet">
   <script src="/js/filtros.js" defer></script>
   <script src="/js/api.js" defer></script>
+  <script src="/js/sugestoes.js" defer></script>
   <script src="/js/prototipo.js" defer></script>
   <script src="/js/nova-solicitacao.js" defer></script>
 </head>
@@ -42,7 +43,7 @@
         <li><a data-pagina="solicitacoes" href="/html/client/solicitacoes.html">Solicitações</a></li>
         <li><a data-pagina="parceiros" href="/html/client/parceiros.html">Parceiros</a></li>
         <li><a data-pagina="materiais" href="/html/client/materiais.html">Materiais</a></li>
-        <li><a data-pagina="historico" href="/html/client/historico.html">Histórico</a></li>
+        <li><a data-pagina="relatorios" href="/html/client/relatorios.html">Relatórios</a></li>
       </ul>
 
       <div class="nav-acoes">
@@ -68,7 +69,7 @@
     <section class="pagina-cabecalho">
       <div>
         <h1>Solicitações</h1>
-        <p>Consulte, filtre e acompanhe todas as solicitações cadastradas.</p>
+        <p>Consulte, filtre e acompanhe as solicitações em andamento. As concluídas ficam em <a href="/html/client/relatorios.html">Relatórios</a>.</p>
       </div>
       <div class="pagina-acoes"><button
           class="btn btn-principal btn-acao btn-nova-solicitacao">+ Nova solicitação</button>
@@ -85,7 +86,7 @@
               <th>Protocolo</th>
               <th>Solicitação</th>
               <th>Requerente</th>
-              <th>Atribuído</th>
+              <th>Parceiro</th>
               <th>Prioridade</th>
               <th>Status</th>
             </tr>

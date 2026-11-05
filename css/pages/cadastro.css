@@ -87,6 +87,7 @@
 }
 
 .campo input:not([type="radio"]):not([type="checkbox"]),
+.campo select,
 .campo textarea {
     width: 100%;
 
@@ -111,6 +112,7 @@
 }
 
 .campo input:focus,
+.campo select:focus,
 .campo textarea:focus {
     outline: none;
 
@@ -277,6 +279,112 @@
     gap: 12px;
 }
 
+/* Endereço da organização nova */
+.cadastro-endereco {
+    padding: 14px 16px;
+
+    border: 1px solid var(--cor-borda);
+    border-radius: 10px;
+}
+
+.cadastro-endereco legend {
+    padding: 0 6px;
+
+    font-weight: 600;
+}
+
+.endereco-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+
+    gap: 12px;
+
+    margin-top: 8px;
+}
+
+.campo-cep { grid-column: span 2; }
+.campo-logradouro { grid-column: span 4; }
+.campo-numero { grid-column: span 2; }
+.campo-complemento { grid-column: span 4; }
+.campo-bairro { grid-column: span 2; }
+.campo-cidade { grid-column: span 2; }
+.campo-uf { grid-column: span 2; }
+
+@media (max-width: 600px) {
+    .endereco-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .endereco-grid > .campo {
+        grid-column: span 2;
+    }
+
+    .endereco-grid > .campo-numero,
+    .endereco-grid > .campo-uf {
+        grid-column: span 1;
+    }
+}
+
+/* Resumo da etapa de revisão */
+.cadastro-revisao {
+    display: grid;
+
+    gap: 2px;
+
+    margin-bottom: 16px;
+
+    border: 1px solid var(--cor-borda);
+    border-radius: 10px;
+
+    overflow: hidden;
+}
+
+.cadastro-revisao div {
+    display: grid;
+    grid-template-columns: minmax(140px, 40%) 1fr;
+
+    gap: 12px;
+
+    padding: 10px 14px;
+
+    background-color: var(--cor-fundo);
+}
+
+.cadastro-revisao div:nth-child(odd) {
+    background-color: var(--cor-fundo-secundario);
+}
+
+.cadastro-revisao dt {
+    color: var(--cor-texto-secundario);
+
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.cadastro-revisao dd {
+    font-weight: 600;
+
+    overflow-wrap: anywhere;
+}
+
+.cadastro-erro {
+    color: var(--cor-erro-texto);
+
+    font-weight: 600;
+}
+
+#cadastroPage6 .btn-cadastro[hidden] {
+    display: none;
+}
+
+@media (max-width: 480px) {
+    .cadastro-revisao div {
+        grid-template-columns: 1fr;
+
+        gap: 2px;
+    }
+}
+
 .cadastro-aviso {
     color: var(--cor-texto-secundario);
 
@@ -335,4 +443,21 @@
 
         gap: 10px;
     }
+}
+/* Só parceiros de manufatura informam endereço de retirada. */
+.cadastro-endereco[hidden] {
+    display: none;
+}
+
+/* Mesma seta das listas do restante da plataforma (css/components/forms.css). */
+.campo select {
+    appearance: none;
+    -webkit-appearance: none;
+
+    padding-right: 42px;
+
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23555555' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 16px;
 }

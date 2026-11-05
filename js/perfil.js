@@ -2,20 +2,10 @@
 const $ = seletor => document.querySelector(seletor);
 const aviso = (seletor, texto) => { $(seletor).textContent = texto; };
 
-// Esta página é compartilhada pelos dois painéis (solicitante e fabricante), então
-// o link de "voltar" é ajustado conforme de onde o usuário veio.
-const linkVoltar = $('#linkVoltar');
-if (linkVoltar && document.referrer.includes('/html/fabricator/')) {
-  linkVoltar.href = '/html/fabricator/index.html';
-}
+// O link "voltar" e a navbar do painel certo vêm de js/navbar-painel.js.
 async function carregarPerfil() {
   try {
     const { user, memberships } = await api('/api/me');
-    // Sem referenciador útil (ex.: veio do login), usa o tipo da organização.
-    if (linkVoltar && !document.referrer.includes('/html/client/')
-      && memberships.some(m => m.membership_status === 'active' && m.organization_type === 'fabricante')) {
-      linkVoltar.href = '/html/fabricator/index.html';
-    }
     $('#nomePerfil').value = user.nome;
     $('#sobrenomePerfil').value = user.sobrenome;
     $('#telefonePerfil').value = user.telefone || '';
@@ -67,7 +57,4 @@ $('#formSenha').addEventListener('submit', async event => {
     alert(result.message); location.href = '/html/login.html';
   } catch (erro) { aviso('#mensagemSeguranca', erro.message); }
 });
-$('#btnSair').addEventListener('click', async () => {
-  try { await api('/api/auth/logout', { method: 'POST' }); location.href = '/html/login.html'; }
-  catch (erro) { aviso('#mensagemSeguranca', erro.message); }
-});
+

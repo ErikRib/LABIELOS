@@ -115,12 +115,20 @@
 
     gap: 4px;
 
+    /* No celular as abas rolam na horizontal em vez de quebrar o texto. */
+    overflow-x: auto;
+    scrollbar-width: none;
+
     margin-bottom: 16px;
 
     border-bottom: 1px solid var(--cor-borda);
 }
 
 .admin-abas [role="tab"] {
+    flex-shrink: 0;
+
+    white-space: nowrap;
+
     display: inline-flex;
     align-items: center;
 
@@ -190,6 +198,145 @@
 }
 
 
+/* DADOS DA ORGANIZAÇÃO */
+
+.admin-form .bloco-cabecalho p {
+    margin-top: 4px;
+}
+
+.admin-enderecos {
+    margin-top: 24px;
+}
+
+.admin-enderecos-topo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-bottom: 12px;
+}
+
+.admin-enderecos-topo h3 {
+    font-size: 1rem;
+}
+
+#listaEnderecos {
+    display: grid;
+
+    gap: 14px;
+}
+
+.admin-endereco-topo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-bottom: 12px;
+}
+
+.campo-nome-local {
+    flex: 1 1 260px;
+    max-width: 360px;
+}
+
+.btn-remover-endereco {
+    padding: 8px 0;
+
+    color: var(--cor-erro-texto);
+}
+
+.btn-remover-endereco[hidden] {
+    display: none;
+}
+
+.admin-endereco {
+    padding: 14px 16px;
+
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+}
+
+.admin-endereco legend {
+    padding: 0 6px;
+
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.endereco-grid-admin {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.admin-form-acoes {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+
+    gap: 12px;
+
+    margin-top: 20px;
+}
+
+.admin-form .admin-mensagem {
+    margin: 16px 0 0;
+}
+
+.zona-perigo {
+    margin-top: 24px;
+
+    border-color: var(--cor-erro);
+
+    background-color: #fffafa;
+}
+
+.zona-perigo h2 {
+    margin-bottom: 8px;
+
+    color: var(--cor-erro-texto);
+
+    font-size: 1.15rem;
+}
+
+.zona-perigo > p {
+    margin-bottom: 8px;
+}
+
+.zona-perigo .campo {
+    max-width: 480px;
+
+    margin: 16px 0 12px;
+}
+
+.btn-perigo-cheio {
+    border: none;
+
+    background-color: var(--cor-erro);
+    color: var(--cor-texto-claro);
+}
+
+.btn-perigo-cheio:hover:not(:disabled) {
+    background-color: var(--cor-erro-texto);
+}
+
+.btn-perigo-cheio:disabled {
+    background-color: var(--cor-fundo-secundario);
+    color: var(--cor-texto-secundario);
+
+    cursor: not-allowed;
+}
+
+@media (max-width: 700px) {
+    .endereco-grid-admin {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* BADGES */
 
 .org-active,
@@ -225,12 +372,34 @@
 
 @media (max-width: 700px) {
 
+    /* Três números curtos cabem lado a lado mesmo no celular. */
     .admin-resumo {
-        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .admin-resumo div {
+        padding: 10px 12px;
+    }
+
+    .admin-resumo dt {
+        font-size: 0.75rem;
+    }
+
+    .admin-resumo dd {
+        font-size: 1.4rem;
+    }
+
+    .admin-abas [role="tab"] {
+        padding: 10px 12px;
     }
 
     .admin-seletor {
         min-width: 0;
         width: 100%;
     }
+}
+
+/* Só parceiros de manufatura têm endereços de retirada. */
+.admin-enderecos[hidden] {
+    display: none;
 }

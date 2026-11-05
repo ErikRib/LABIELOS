@@ -52,8 +52,9 @@ LABIELOS/
 │   └── style.css
 ├── docs/
 ├── html/
-│   ├── client/          (inclui materiais.html)
-│   ├── fabricator/      (inclui materiais.html)
+│   ├── client/          (index, solicitacoes, detalhes-solicitacao, parceiros,
+│   │                     materiais, relatorios; historico.html só redireciona)
+│   ├── fabricator/      (index, fila, demandas, detalhe-demanda, impressoras, materiais)
 │   ├── admin.html       (administração da organização)
 │   ├── cadastro.html
 │   ├── contato.html
@@ -64,6 +65,7 @@ LABIELOS/
 ├── js/
 │   ├── acessibilidade.js
 │   ├── interface.js
+│   ├── legal.js
 │   ├── api.js
 │   ├── login.js
 │   ├── cadastro.js
@@ -71,8 +73,13 @@ LABIELOS/
 │   ├── prototipo.js
 │   ├── nova-solicitacao.js
 │   ├── materiais.js
+│   ├── impressoras.js
+│   ├── relatorios.js
 │   ├── admin.js
 │   ├── fabricator.js
+│   ├── navbar-painel.js
+│   ├── sugestoes.js
+│   ├── visualizador-3d.js
 │   └── filtros.js
 ├── index.html
 └── README.md
@@ -175,8 +182,8 @@ do arquivo `js/prototipo.js` (ver seção 7 e
 [`design-system.md`](./design-system.md), seção 10). O back-end que
 atende a essa API ainda não foi implementado, então essas páginas só
 funcionam com um servidor respondendo ao contrato documentado em
-[`backend.md`](./backend.md) — a exceção é a página "Histórico", que
-ainda mostra uma amostra estática (ver seção 10 deste documento).
+[`backend.md`](./backend.md) e [`integracao-backend.md`](./integracao-backend.md).
+Não há mais nenhuma tela com dados fixos no código.
 
 ### 5.1 Dashboard
 
@@ -189,8 +196,9 @@ Atualmente são representados:
 -   quantidade de solicitações abertas;
 -   solicitações em análise;
 -   solicitações em produção;
+-   solicitações prontas para retirada;
 -   solicitações concluídas;
--   tabela de solicitações recentes;
+-   tabela de solicitações recentes **em andamento**;
 -   acesso à criação de uma nova solicitação.
 
 ### 5.2 Solicitações
@@ -198,8 +206,8 @@ Atualmente são representados:
 A página `html/client/solicitacoes.html` apresenta a listagem das
 solicitações.
 
-O protótipo possui recursos de filtragem e acesso aos detalhes das
-solicitações existentes.
+Mostra só as solicitações **em andamento**, com filtros por coluna e
+acesso aos detalhes. As concluídas ficam em Relatórios (seção 5.5).
 
 ### 5.2.1 Nova solicitação (assistente em 4 etapas)
 
@@ -213,7 +221,7 @@ modal em etapas, implementado em `js/nova-solicitacao.js` +
 | Etapa | Conteúdo |
 |---|---|
 | 1. Informações da peça | Solicitação, requerente (automático, só leitura), prioridade, categoria (com sugestões), prazo desejado (opcional, não aceita data passada) e material (sugere os materiais com estoque em `GET /api/materiais`). |
-| 2. Arquivo e especificações | Descrição/especificações, arquivo 3D (clique ou arraste; STL, OBJ, 3MF, STEP/STP, IGES/IGS até 50 MB) e parceiros atribuídos — lista vinda de `GET /api/parceiros`, com cidade, materiais e disponibilidade. |
+| 2. Arquivo e especificações | Descrição/especificações e arquivo 3D (clique ou arraste; STL, OBJ, 3MF, STEP/STP, IGES/IGS até 50 MB). **Não há escolha de parceiro**: a solicitação vai para a fila global (ver 5A). |
 | 3. Revisão | Resumo de tudo, com "Editar" para voltar a uma etapa sem perder o preenchimento. |
 | 4. Envio | `POST /api/solicitacoes`; mostra o protocolo criado com "Ver solicitação"/"Concluir", ou o erro da API com "Tentar novamente". |
 
@@ -243,27 +251,60 @@ A interface contempla:
 -   descrição;
 -   dados do arquivo 3D anexado;
 -   opções de edição representadas no protótipo;
--   visualização das informações relacionadas ao anexo.
+-   **visualizador 3D real** do anexo (botão "Visualizar 3D") e botão "Baixar".
 
-### 5.4 Parceiros
+#### Visualizador 3D
 
-A página `html/client/parceiros.html` representa a consulta aos
-parceiros de manufatura cadastrados na plataforma.
+-   Biblioteca: **three.js 0.169.0** (licença MIT, gratuita), carregada do
+    CDN jsDelivr pelo `<script type="importmap">` no `<head>` de
+    `html/client/detalhes-solicitacao.html` e
+    `html/fabricator/detalhe-demanda.html`.
+-   Código em `js/visualizador-3d.js` (módulo ES). O módulo e o arquivo
+    só são baixados quando o usuário clica em "Visualizar 3D", por meio de
+    `import()` em `abrirVisualizadorArquivo()` de `js/prototipo.js`.
+-   Formatos: **STL, OBJ e 3MF**. STEP e IGES são formatos CAD que o
+    navegador não abre: o modal avisa e oferece o download.
+-   Recursos: girar, aproximar e mover (OrbitControls); os botões
+    "Centralizar" e "Ver malha" (wireframe); dimensões em mm (X × Y × Z) e
+    número de triângulos. O modelo fica apoiado numa grade, e STL/3MF usam
+    Z para cima, como os fatiadores.
+-   O arquivo vem de `arquivo3d.url` ou, sem ela, de
+    `GET /api/solicitacoes/{protocolo}/arquivo3d`
+    (ver `docs/integracao-backend.md`). Ao fechar o modal, o WebGL é
+    descartado.
+-   Sem internet ou com o CDN bloqueado, o modal mostra o erro e o botão
+    "Baixar" continua funcionando. Para rodar sem CDN, copie os mesmos
+    arquivos para `js/vendor/three/` e troque os endereços do importmap.
 
-São exibidos dados vindos da API (`GET /api/parceiros`), como:
+### 5.4 Parceiros de manufatura
 
--   nome da instituição;
--   localização;
--   disponibilidade;
--   quantidade de impressoras;
--   tecnologias disponíveis;
--   materiais suportados;
--   quantidade de itens em produção.
+A página `html/client/parceiros.html` lista os fabricantes ativos com
+dados calculados pela API (`GET /api/parceiros`):
 
-### 5.5 Histórico
+-   disponibilidade, calculada pelas impressoras (Disponível, Capacidade
+    limitada ou Indisponível);
+-   impressoras livres/total e tecnologias;
+-   materiais para doação em estoque;
+-   quantas solicitações o parceiro já concluiu para a organização;
+-   filtros: busca, tecnologia, "com impressora livre agora" e "com material
+    para doação";
+-   modal de detalhes com as impressoras (volume e status), os materiais
+    para doação, os locais de retirada e o contato.
 
-A página `html/client/historico.html` representa o histórico das
-solicitações e suas alterações ao longo do processo.
+### 5.5 Relatórios
+
+`html/client/relatorios.html` (`js/relatorios.js`, `css/pages/relatorios.css`)
+substitui o antigo "Histórico"; `historico.html` só redireciona. A página
+traz:
+
+-   todas as solicitações da organização, em qualquer etapa;
+-   filtros de busca, status, categoria, parceiro e período de abertura;
+-   indicadores: total, em andamento, concluídas e tempo médio até
+    concluir (a partir de `concluida_em`);
+-   gráficos de barras por etapa e por parceiro; clicar numa barra filtra a
+    tabela;
+-   tabela com data de conclusão e dias;
+-   o botão **Exportar CSV**.
 
 ### 5.6 Materiais para doação
 
@@ -279,7 +320,143 @@ produções doadas (`GET /api/materiais`):
 
 ------------------------------------------------------------------------
 
-## 5A. Área do fabricante --- materiais
+## 5A. Área do fabricante --- fila global, impressoras e materiais
+
+### Fila global de novas solicitações
+
+Toda solicitação criada entra em `status="Aberta"`, sem parceiro, na
+**fila global** (`html/fabricator/fila.html`, menu "Novas solicitações").
+Todos os fabricantes veem a mesma fila, ordenada por prioridade e depois
+pela abertura mais antiga, com busca e filtro de prioridade. Ali dá para
+ver os detalhes (inclusive o arquivo 3D) e **aceitar**.
+
+- Quem aceita primeiro assume a solicitação, que sai da fila e vai para
+  "Demandas" desse fabricante (`Em análise`). Se outro parceiro aceitou
+  antes, aparece o aviso e a fila se atualiza.
+- Em "Em análise", o fabricante pode **devolver à fila** ou **iniciar
+  produção**. Depois disso, ele **marca como concluída**.
+- Na área da organização solicitante, a coluna "Parceiro" mostra
+  "Aguardando parceiro" até alguém aceitar. O modal "Editar solicitação"
+  não altera mais parceiro nem status.
+- A Visão geral do fabricante mostra o contador "Novas na fila", com link
+  para a fila.
+
+### Impressoras
+
+`html/fabricator/impressoras.html` (`js/impressoras.js`,
+`css/pages/impressoras.css`) segue o mesmo padrão de Materiais:
+
+- resumo (total, disponíveis, em uso, em manutenção);
+- busca e filtros por tecnologia e status;
+- tabela com identificação, modelo, tecnologia, volume de impressão
+  (X × Y × Z mm), materiais compatíveis e status;
+- registrar, editar e remover pelo formulário.
+
+O cartão "Capacidade produtiva" da Visão geral tem os atalhos
+"+ Registrar impressora" (abre `impressoras.html?nova=1` com o formulário
+aberto) e "Ver impressoras". A contagem de impressoras e as tecnologias
+mostradas às organizações solicitantes vêm desse cadastro.
+
+### Fluxo da solicitação (página de detalhes)
+
+O fluxo tem **5 etapas** (`ETAPAS_FLUXO` em `js/prototipo.js`): Aberta,
+Em análise, Em produção, Pronta para retirada e Concluída. A linha é
+preenchida **até a bolinha da etapa atual**: o JS define `--etapas` e
+`--progresso` (de 0 a 1), e o CSS anima até esse ponto. As etapas
+anteriores ficam com ✓, e em "Concluída" o fluxo inteiro fica concluído.
+
+### Faixa "Próxima etapa" (página de detalhes)
+
+Logo abaixo do cabeçalho, nas duas telas, a faixa `.barra-etapa`
+(`renderBarraEtapa` em `js/prototipo.js`) mostra:
+-   a etapa ("Etapa 3 de 5 · Em produção");
+-   o que acontece agora, em uma frase;
+-   **os botões daquela etapa**, à direita, com a ação principal por último:
+    no fabricante, Aceitar / Devolver à fila + Iniciar produção / Concluir
+    produção; no solicitante, Devolver para ajuste + Aprovar peça.
+
+O tom da faixa indica de quem é a vez: `-acao` (azul) quando quem está
+vendo precisa agir, `-info` (neutro) quando é só acompanhar e `-fim`
+(verde) quando a solicitação foi concluída. O retorno de cada ação
+("Solicitação aceita…") aparece num aviso logo acima da faixa
+(`.mensagem-fabricante`, em `css/style.css`), e não mais ao lado dos
+botões. O formulário do histórico não tem mais "Tipo de registro": com
+arquivo, o registro é "Anexo"; sem arquivo, "Comentário".
+
+### Início da produção (impressora e material)
+
+-   **"Iniciar produção"** (`iniciarProducao` em `js/fabricator.js`) abre um
+    modal com:
+    -   as impressoras da organização (as em manutenção aparecem bloqueadas;
+        as inativas não aparecem);
+    -   a origem do material: **doado pelo parceiro**, com a escolha do item
+        do estoque (os esgotados ficam bloqueados), ou **fornecido pelo
+        solicitante**, com o que entregar e o endereço de entrega.
+-   **Material do solicitante:** a demanda fica em **"Aguardando
+    material"**. O fluxo ganha essa etapa (`etapasDe(s)` em
+    `js/prototipo.js`), e a faixa do solicitante mostra o que entregar e
+    onde. O parceiro clica em "Confirmar recebimento do material" para
+    começar a produzir.
+-   **Cartão "Impressora e material"** (`#producaoSolicitacao`), nas duas
+    telas de detalhe: mostra a impressora, o material, a origem e a
+    entrega ou o recebimento.
+
+### Retirada, aprovação e devolução para ajuste
+
+-   **Fabricante:** em "Em produção", o botão **"Concluir produção"** abre
+    um modal (`abrirModalAcao` em `js/prototipo.js`, chamado por
+    `concluirProducao` em `js/fabricator.js`). O modal lista os endereços da
+    organização (`GET /api/organizacao/enderecos`). Com mais de um
+    endereço, nenhum vem marcado e é preciso escolher; com um só, ele já
+    vem marcado. Há também um campo opcional de instruções. Sem endereço, o
+    modal pede para cadastrar um em Administração. A API gera o registro
+    "Disponível para retirada" no histórico.
+-   **Solicitante:** em "Pronta para retirada", aparece a faixa
+    `#acoesSolicitante` com **"Aprovar peça"** (confirmação) e **"Devolver
+    para ajuste"** (motivo obrigatório, com pelo menos 10 caracteres).
+-   **As duas telas:** o cartão **"Retirada da peça"**
+    (`#retiradaSolicitacao`) mostra o local, o endereço, as instruções, o
+    contato e um link "Abrir no mapa". Já o aviso **"Devolvida para
+    ajuste"** (`#ajusteSolicitacao`) mostra o motivo enquanto a peça está
+    em ajuste.
+-   **Resumo dos painéis:** ganhou o cartão "Prontas para retirada" (no
+    solicitante) e "Aguardando retirada" (no fabricante).
+
+### Solicitações, Relatórios e Parceiros (solicitante)
+
+-   **Solicitações** e "Solicitações recentes" do início mostram só as
+    **em andamento**. As concluídas ficam em Relatórios.
+-   **Relatórios** (`html/client/relatorios.html` + `js/relatorios.js` +
+    `css/pages/relatorios.css`) substitui o antigo "Histórico";
+    `historico.html` só redireciona. A página traz:
+    -   todas as solicitações, com filtros de busca, status, categoria,
+        parceiro e período de abertura;
+    -   indicadores: total, em andamento, concluídas e tempo médio até
+        concluir;
+    -   dois gráficos de barras (por etapa e por parceiro; clicar numa
+        barra filtra a tabela);
+    -   a tabela com conclusão e dias;
+    -   o botão **Exportar CSV** (`;` e BOM, abre direto no Excel).
+-   **Parceiros de manufatura** (`html/client/parceiros.html`, refeita):
+    -   filtros de busca e tecnologia e as opções "com impressora livre
+        agora" e "com material para doação";
+    -   cartões com impressoras livres/total, tecnologias, material para
+        doação e quantas solicitações o parceiro concluiu para vocês;
+    -   um modal com as tabelas de impressoras e de materiais, os locais
+        de retirada e o contato.
+
+### Campos com sugestões (`js/sugestoes.js`)
+
+Todo `<input list="...">` vira um campo de texto com uma lista de
+sugestões no estilo da plataforma, no lugar do `<datalist>` nativo, que no
+Edge aparece como uma caixa preta e parece uma lista fechada. A ajuda
+"Escolha uma sugestão ou digite outro valor." aparece abaixo do campo.
+As opções continuam no `<datalist>`. O componente segue o padrão ARIA
+combobox (setas, Enter, Esc). Para HTML criado depois do carregamento,
+chame `window.ativarSugestoes(raiz)`, como faz o assistente de nova
+solicitação.
+
+### Materiais
 
 `html/fabricator/materiais.html` usa o mesmo script (`js/materiais.js`,
 modo `data-materiais-modo="gestao"`) para o parceiro **manter o próprio
@@ -304,6 +481,13 @@ de **administrador ativo** — o item "Administração" é inserido no menu de
 perfil por `prototipo.js`, e `perfil.html` mostra o botão "Administrar
 organização".
 
+**Navbar das páginas compartilhadas** (`perfil.html` e `admin.html`):
+`js/navbar-painel.js` desenha a mesma navbar dos painéis (links + menu de
+perfil com "Meu perfil", "Administração" e "Sair"). Escolhe o painel pela
+página de origem (`/html/client/` ou `/html/fabricator/`) ou, sem
+origem, pelo tipo da primeira organização ativa. O link "← Voltar ao
+painel" segue a mesma escolha. Depende só de `js/api.js`.
+
 -   cartão da organização (tipo, status, contadores de pedidos
     pendentes, membros e administradores) e seletor quando o usuário
     administra mais de uma;
@@ -311,7 +495,28 @@ organização".
     data, com Aprovar / Recusar;
 -   aba **Membros**: busca, papel (Administrador/Membro), "Tornar admin" /
     "Remover admin" e "Remover" — sem ações sobre o próprio usuário;
+-   aba **Dados da organização** (link direto `admin.html#dados`): edita
+    nome, CNPJ (com validação dos dígitos), e-mail e telefone
+    institucionais e endereço (obrigatório para fabricante). O tipo não
+    pode ser alterado;
+-   **Remover organização** (zona de perigo): o botão só é habilitado
+    depois de digitar o nome exato da organização. Se a API recusar por
+    haver solicitações em andamento, a mensagem aparece na própria área.
+    Se remover, o usuário sai da conta e vai para a página inicial;
 -   sem permissão, mostra um aviso em vez do conteúdo.
+
+### Cadastro (`html/cadastro.html`)
+
+-   Organização nova de **fabricante**: além dos dados institucionais, tem o
+    **endereço de retirada** (CEP, rua, número, complemento, bairro, cidade
+    e UF), que é obrigatório. Para organização solicitante o bloco não
+    aparece, porque ela não tem local de retirada. O CEP preenche o resto
+    automaticamente (ViaCEP). Se a consulta falhar, o preenchimento é manual.
+-   Antes de enviar, há a etapa **Revisão** com o resumo de tudo e os
+    botões "Revisar dados" e "Criar organização" ou "Enviar solicitação".
+-   Confirmação: com organização nova, o botão **"Acessar plataforma"**.
+    Com ingresso em organização existente, aparece o aviso de que o acesso
+    depende do admin e o link para o login.
 
 ------------------------------------------------------------------------
 
@@ -382,9 +587,31 @@ de volta via `POST`/`PATCH`, usando `js/api.js`. Também implementa a
 renderização das tabelas, filtros, modais, detalhes das solicitações e o
 menu de perfil da área da organização solicitante.
 
-A única exceção é a página "Histórico": ela ainda mostra uma amostra
-estática, porque o contrato da API não tem (ainda) um endpoint agregado
-por organização — ver [`design-system.md`](./design-system.md), seção 10.
+Também concentra o que as duas páginas de detalhe compartilham:
+- o fluxo de etapas (`etapasDe`) e a faixa "Próxima etapa"
+  (`renderBarraEtapa`);
+- os cartões de produção e de retirada;
+- as ações do solicitante (aprovar e devolver para ajuste);
+- o modal de ação reutilizável (`abrirModalAcao`);
+- o visualizador 3D;
+- a página Parceiros.
+
+### `relatorios.js`
+
+Página Relatórios do solicitante (seção 5.5).
+
+### `sugestoes.js`
+
+Campo de texto com sugestões no lugar do `<datalist>` nativo (seção 5A).
+
+### `navbar-painel.js`
+
+Navbar das páginas compartilhadas pelos dois painéis (`perfil.html` e
+`admin.html`).
+
+### `visualizador-3d.js`
+
+Visualizador 3D (three.js, módulo ES carregado sob demanda).
 
 ### `nova-solicitacao.js`
 
@@ -398,17 +625,27 @@ arquivo 3D).
 Materiais para doação: consulta (solicitante) e gestão do estoque (fabricante),
 conforme `data-materiais-modo` no `<body>`. Ver seções 5.6 e 5A.
 
+### `impressoras.js`
+
+Registro das impressoras do fabricante (ver seção 5A).
+
 ### `admin.js`
 
-Administração da organização: pedidos de ingresso e membros. Ver seção 5B.
+Administração da organização: pedidos de ingresso, membros e dados da
+organização (com a lista de endereços de retirada, só para fabricante).
+Ver seção 5B.
 
 ### `fabricator.js`
 
-Equivalente a `prototipo.js` para a área autenticada do fabricante
-(`html/fabricator/`): lista as demandas atribuídas ao parceiro logado
-(a filtragem é feita pelo back-end, não no cliente), e as ações
-Aceitar/Recusar/Iniciar produção/Concluir fazem um `PATCH
-/api/solicitacoes/{protocolo}` real.
+Equivalente a `prototipo.js` para a área do fabricante (`html/fabricator/`):
+- a fila global e as demandas;
+- os modais de ação: Aceitar, Devolver à fila, **Iniciar produção**
+  (impressora e origem do material), **Confirmar recebimento do
+  material** e **Concluir produção** (local de retirada e quantidade de
+  material doado usada, com baixa no estoque).
+
+Cada ação chama a sua rota `POST /api/solicitacoes/{protocolo}/...`; o
+status nunca muda pelo `PATCH`.
 
 ### `filtros.js`
 
@@ -438,64 +675,27 @@ desenvolvimento e os testes da aplicação.
 
 ## 9. Estado atual
 
-O front-end encontra-se **em desenvolvimento**.
+O front-end está **completo para a integração**. Todas as telas da área
+pública, do solicitante, do fabricante e da administração chamam o
+contrato de API descrito em [`integracao-backend.md`](./integracao-backend.md),
+e não há dados fixos no código.
 
-Já existe uma base visual significativa para a área pública e para as
-experiências da organização solicitante e do fabricante, permitindo demonstrar o
-funcionamento esperado da plataforma e validar os principais fluxos de
-interface.
+Ele foi validado contra uma API simulada local, com testes automáticos de
+todas as telas. O próximo passo é validar contra o back-end real
+(FastAPI + MongoDB Atlas), conferindo o
+[checklist de entrega](./integracao-backend.md). As telas só funcionam com
+um servidor respondendo a esse contrato na **mesma origem** (seção 7 de
+`integracao-backend.md`).
 
-A interface já está conectada a um contrato de API real (login, cadastro,
-perfil e os dois painéis autenticados — ver
-[`design-system.md`](./design-system.md), seções 8 e 10), mas o back-end
-e o banco de dados em si ainda não foram implementados. Enquanto isso não
-acontece, essas telas só funcionam com um servidor respondendo a esse
-contrato — não dá mais para abri-las "soltas" sem back-end, como era
-possível na etapa anterior do projeto.
+## 10. Próximos passos sugeridos
 
-------------------------------------------------------------------------
-
-## 10. Desenvolvimentos planejados
-
-Entre os próximos desenvolvimentos previstos para o front-end estão:
-
-### Área dos parceiros / FabLabs
-
-Uma primeira versão desta área já foi desenvolvida em `html/fabricator/`
-(Visão geral, Demandas e Detalhes da demanda) — ver
-[`design-system.md`](./design-system.md) para os detalhes. Essa versão é
-uma base demonstrável, não o fluxo definitivo: o comportamento completo do
-painel do fabricante ainda está sendo definido.
-
-Essa área deverá continuar evoluindo para permitir que os produtores
-interajam com as solicitações encaminhadas pela organização solicitante e acompanhem as
-etapas relacionadas à produção.
-
-Também está prevista a utilização do endereço cadastrado pelo parceiro
-para apresentar à organização solicitante o **ponto de retirada da prótese em um mapa**. A
-implementação técnica desse recurso ainda será definida durante o
-desenvolvimento.
-
-### Endpoint agregado de histórico
-
-A página "Histórico" da organização solicitante (`html/client/historico.html`) ainda mostra
-uma amostra estática porque falta definir, no contrato da API, um
-endpoint que agregue os eventos de todas as solicitações de uma
-organização (hoje só existe o histórico de uma solicitação específica —
-ver [`backend.md`](./backend.md)).
-
-### Integração com o back-end real
-
-O contrato completo que o front-end espera (inclusive das telas novas) e
-um checklist para a equipe do back-end estão em
-[`integracao-backend.md`](./integracao-backend.md).
-
-
-`js/prototipo.js` e `js/fabricator.js` já chamam a API descrita em
-[`backend.md`](./backend.md)/[`database.md`](./database.md), mas só
-foram testados contra um mock local — a próxima etapa é validá-los contra
-a implementação real do back-end (FastAPI + MongoDB Atlas) assim que ela
-existir.
+-   **Mapa do local de retirada:** hoje o cartão de retirada tem o link
+    "Abrir no mapa" (Google Maps). Um mapa embutido pode vir depois.
+-   **Notificações:** os avisos de cada etapa (aceite, material a
+    entregar, peça pronta) aparecem no histórico e na faixa "Próxima
+    etapa". Enviá-los por e-mail é uma evolução natural no back-end.
+-   **Relatórios do fabricante:** a versão atual de Relatórios é do
+    solicitante.
 
 ------------------------------------------------------------------------
 

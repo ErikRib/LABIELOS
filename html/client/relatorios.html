@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Relatórios - Painel da Organização</title>
+  
+  <link rel="stylesheet" href="/css/style.css">
+
+  <link rel="stylesheet" href="/css/components/navbar.css">
+  <link rel="stylesheet" href="/css/components/badges.css">
+  <link rel="stylesheet" href="/css/components/buttons.css">
+  <link rel="stylesheet" href="/css/components/table.css">
+  <link rel="stylesheet" href="/css/components/modal.css">
+
+  <link rel="stylesheet" href="/css/components/forms.css">
+  <link rel="stylesheet" href="/css/pages/dashboard.css">
+  <link rel="stylesheet" href="/css/pages/materiais.css">
+  <link rel="stylesheet" href="/css/pages/relatorios.css">
+
+  <link rel="icon" type="image/png" href="/content/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <script src="/js/api.js" defer></script>
+  <script src="/js/prototipo.js" defer></script>
+  <script src="/js/relatorios.js" defer></script>
+</head>
+
+<body data-pagina="relatorios">
+   <header class="painel-header">
+    
+    <nav class="nav-principal painel-nav" aria-label="Navegação principal">
+      <a href="/html/client/index.html" title="LABIELOS" class="nav-logo"><img
+          src="/content/img/logo-simples.png" alt="Logo do LABIELOS"></a>
+      <ul class="nav-links" id="navLinks">
+        <li><a data-pagina="inicio" href="/html/client/index.html">Início</a></li>
+        <li><a data-pagina="solicitacoes" href="/html/client/solicitacoes.html">Solicitações</a></li>
+        <li><a data-pagina="parceiros" href="/html/client/parceiros.html">Parceiros</a></li>
+        <li><a data-pagina="materiais" href="/html/client/materiais.html">Materiais</a></li>
+        <li><a data-pagina="relatorios" href="/html/client/relatorios.html">Relatórios</a></li>
+      </ul>
+
+      <div class="nav-acoes">
+        <div class="nav-perfil-wrap">
+          <button class="nav-perfil" type="button" aria-expanded="false" aria-haspopup="true">
+            <img src="/content/img/user.png" alt="Foto de perfil do usuário">
+            <span class="nav-identidade"><strong></strong><small></small></span>
+            <span class="nav-seta" aria-hidden="true">▾</span>
+
+          </button>
+          <div class="perfil-menu" hidden>
+            <div class="perfil-menu-identidade"><strong></strong><span></span></div>
+            <a href="/html/perfil.html" class="perfil-menu-item">Meu perfil</a>
+            <a href="/index.html" class="perfil-menu-item perfil-sair">Sair</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+    
+  </header>
+  
+  <main class="painel-main">
+    <section class="pagina-cabecalho">
+      <div>
+        <h1>Relatórios</h1>
+        <p>Todas as solicitações da sua organização, em qualquer etapa, inclusive as concluídas. Filtre por
+          período, status, categoria ou parceiro e exporte para planilha.</p>
+      </div>
+      <div class="pagina-acoes">
+        <button type="button" class="btn btn-ferramenta" id="exportarRelatorio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>Exportar CSV</button>
+      </div>
+    </section>
+
+    <section class="relatorios-filtros" aria-label="Filtros do relatório">
+      <div class="campo campo-busca">
+        <label for="relBusca">Buscar</label>
+        <input id="relBusca" type="search" placeholder="Protocolo, solicitação ou descrição">
+      </div>
+      <div class="campo">
+        <label for="relStatus">Status</label>
+        <select id="relStatus"><option value="">Todos</option></select>
+      </div>
+      <div class="campo">
+        <label for="relCategoria">Categoria</label>
+        <select id="relCategoria"><option value="">Todas</option></select>
+      </div>
+      <div class="campo">
+        <label for="relParceiro">Parceiro</label>
+        <select id="relParceiro"><option value="">Todos</option></select>
+      </div>
+      <div class="campo">
+        <label for="relDe">Aberta de</label>
+        <input id="relDe" type="date">
+      </div>
+      <div class="campo">
+        <label for="relAte">até</label>
+        <input id="relAte" type="date">
+      </div>
+    </section>
+    <div class="barra-filtros">
+      <p id="relContador" role="status"></p>
+      <button id="relLimpar" type="button" class="btn-texto">Limpar filtros</button>
+    </div>
+
+    <section class="painel-resumo" aria-label="Indicadores do período">
+      <article class="resumo-card"><h2>Solicitações</h2><p data-rel="total">0</p></article>
+      <article class="resumo-card"><h2>Em andamento</h2><p data-rel="andamento">0</p></article>
+      <article class="resumo-card"><h2>Concluídas</h2><p data-rel="concluidas">0</p></article>
+      <article class="resumo-card"><h2>Tempo médio até concluir</h2><p data-rel="tempo">—</p></article>
+    </section>
+
+    <div class="relatorios-graficos">
+      <section class="painel-bloco" aria-labelledby="tituloPorStatus">
+        <h2 id="tituloPorStatus">Solicitações por etapa</h2>
+        <p class="texto-apoio">Clique numa barra para filtrar.</p>
+        <ul class="grafico-barras" id="graficoStatus"></ul>
+      </section>
+      <section class="painel-bloco" aria-labelledby="tituloPorParceiro">
+        <h2 id="tituloPorParceiro">Solicitações por parceiro</h2>
+        <p class="texto-apoio">Inclui só as que já foram aceitas por um parceiro.</p>
+        <ul class="grafico-barras" id="graficoParceiro"></ul>
+      </section>
+    </div>
+
+    <section class="area-listagem" aria-labelledby="tituloTabelaRel">
+      <h2 id="tituloTabelaRel" class="materiais-subtitulo">Solicitações</h2>
+      <div class="tabela-wrap">
+        <table id="tabelaRelatorio">
+          <thead>
+            <tr>
+              <th>Protocolo</th>
+              <th>Solicitação</th>
+              <th>Categoria</th>
+              <th>Parceiro</th>
+              <th>Status</th>
+              <th>Abertura</th>
+              <th>Conclusão</th>
+              <th>Dias</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main><button class="btn-topo" id="btnTopo">↑</button>
+</body>
+
+</html>

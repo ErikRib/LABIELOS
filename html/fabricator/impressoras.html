@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Impressoras - Painel do Fabricante</title>
+  <link rel="stylesheet" href="/css/style.css">
+
+  <link rel="stylesheet" href="/css/components/navbar.css">
+  <link rel="stylesheet" href="/css/components/badges.css">
+  <link rel="stylesheet" href="/css/components/buttons.css">
+  <link rel="stylesheet" href="/css/components/table.css">
+  <link rel="stylesheet" href="/css/components/forms.css">
+  <link rel="stylesheet" href="/css/components/modal.css">
+
+  <link rel="stylesheet" href="/css/pages/fabricator.css">
+  <link rel="stylesheet" href="/css/pages/materiais.css">
+  <link rel="stylesheet" href="/css/pages/impressoras.css">
+  <link rel="icon" type="image/png" href="/content/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <script src="/js/api.js" defer></script>
+  <script src="/js/prototipo.js" defer></script>
+  <script src="/js/impressoras.js" defer></script>
+</head>
+
+<body data-pagina="fabricator-impressoras">
+
+  <header class="painel-header">
+
+    <nav class="nav-principal painel-nav" aria-label="Navegação principal">
+      <a href="/html/fabricator/index.html" title="LABIELOS" class="nav-logo"><img
+          src="/content/img/logo-simples.png" alt="Logo do LABIELOS"></a>
+      <ul class="nav-links" id="navLinks">
+        <li><a data-pagina="fabricator-inicio" href="/html/fabricator/index.html">Visão geral</a></li>
+        <li><a data-pagina="fabricator-fila" href="/html/fabricator/fila.html">Novas solicitações</a></li>
+        <li><a data-pagina="fabricator-demandas" href="/html/fabricator/demandas.html">Demandas</a></li>
+        <li><a data-pagina="fabricator-impressoras" href="/html/fabricator/impressoras.html">Impressoras</a></li>
+        <li><a data-pagina="fabricator-materiais" href="/html/fabricator/materiais.html">Materiais</a></li>
+      </ul>
+
+      <div class="nav-acoes">
+        <div class="nav-perfil-wrap">
+          <button class="nav-perfil" type="button" aria-expanded="false" aria-haspopup="true">
+            <img src="/content/img/user.png" alt="Foto de perfil do usuário">
+            <span class="nav-identidade"><strong></strong><small></small></span>
+            <span class="nav-seta" aria-hidden="true">▾</span>
+          </button>
+          <div class="perfil-menu" hidden>
+            <div class="perfil-menu-identidade"><strong></strong><span></span></div>
+            <a href="/html/perfil.html" class="perfil-menu-item">Meu perfil</a>
+            <a href="/index.html" class="perfil-menu-item perfil-sair">Sair</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+  </header>
+
+  <main class="painel-main">
+
+    <section class="pagina-cabecalho">
+      <div>
+        <h1>Impressoras</h1>
+        <p>Registre o parque de impressoras da sua organização. É a partir dele que as organizações solicitantes
+          enxergam sua capacidade produtiva.</p>
+      </div>
+      <div class="pagina-acoes">
+        <button type="button" class="btn btn-principal btn-acao" id="btnNovaImpressora">+ Registrar impressora</button>
+      </div>
+    </section>
+
+    <section aria-labelledby="tituloResumoImpressoras">
+      <h2 id="tituloResumoImpressoras" class="materiais-subtitulo">Resumo</h2>
+      <div class="materiais-resumo" id="resumoImpressoras"></div>
+    </section>
+
+    <section class="area-listagem" aria-labelledby="tituloListaImpressoras">
+      <h2 id="tituloListaImpressoras" class="materiais-subtitulo">Impressoras registradas</h2>
+      <div class="materiais-filtros">
+        <div class="campo">
+          <label for="buscaImpressora">Buscar</label>
+          <input id="buscaImpressora" type="search" placeholder="Nome, modelo ou material">
+        </div>
+        <div class="campo">
+          <label for="filtroTecnologia">Tecnologia</label>
+          <select id="filtroTecnologia"></select>
+        </div>
+        <div class="campo">
+          <label for="filtroStatusImpressora">Status</label>
+          <select id="filtroStatusImpressora"></select>
+        </div>
+      </div>
+      <div class="barra-filtros">
+        <p id="contadorImpressoras"></p>
+        <button id="limparFiltrosImpressoras" type="button" class="btn-texto">Limpar filtros</button>
+      </div>
+      <p id="mensagemImpressoras" class="mensagem-materiais" role="status"></p>
+      <div class="tabela-wrap">
+        <table id="tabelaImpressoras">
+          <thead>
+            <tr>
+              <th>Impressora</th>
+              <th>Tecnologia</th>
+              <th>Volume de impressão</th>
+              <th>Materiais compatíveis</th>
+              <th>Status</th>
+              <th>Atualizado em</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <button type="button" class="btn-topo" id="btnTopo" aria-label="Voltar ao topo">↑</button>
+
+  <dialog class="modal" id="modalImpressora" aria-labelledby="tituloModalImpressora">
+    <header class="modal-cabecalho">
+      <div>
+        <p>Impressoras</p>
+        <h2 id="tituloModalImpressora" data-modal-impressora-titulo>Registrar impressora</h2>
+      </div>
+      <button class="modal-fechar" type="button" data-fechar-modal aria-label="Fechar">×</button>
+    </header>
+    <form id="formImpressora">
+      <div class="modal-corpo">
+        <div class="form-grid">
+          <div class="campo">
+            <label for="campoNomeImpressora">Identificação</label>
+            <input id="campoNomeImpressora" name="nome" required maxlength="80" placeholder="Ex.: Bancada 1 — Prusa">
+          </div>
+          <div class="campo">
+            <label for="campoModeloImpressora">Marca e modelo</label>
+            <input id="campoModeloImpressora" name="modelo" maxlength="80" placeholder="Ex.: Prusa MK4">
+          </div>
+          <div class="campo">
+            <label for="campoTecnologia">Tecnologia</label>
+            <select id="campoTecnologia" name="tecnologia" required></select>
+          </div>
+          <div class="campo">
+            <label for="campoStatusImpressora">Status</label>
+            <select id="campoStatusImpressora" name="status" required></select>
+          </div>
+          <fieldset class="campo amplo campo-volume">
+            <legend>Volume de impressão (mm)</legend>
+            <div class="volume-grid">
+              <label>Largura (X)<input name="largura_mm" type="number" min="1" max="5000" step="1"></label>
+              <label>Profundidade (Y)<input name="profundidade_mm" type="number" min="1" max="5000" step="1"></label>
+              <label>Altura (Z)<input name="altura_mm" type="number" min="1" max="5000" step="1"></label>
+            </div>
+            <small class="campo-ajuda">Opcional. Ajuda a saber se a peça cabe na impressora.</small>
+          </fieldset>
+          <div class="campo amplo">
+            <label for="campoMateriaisImpressora">Materiais compatíveis</label>
+            <input id="campoMateriaisImpressora" name="materiais" maxlength="200" placeholder="Ex.: PLA, PETG, TPU">
+          </div>
+          <div class="campo amplo">
+            <label for="campoObsImpressora">Observações</label>
+            <textarea id="campoObsImpressora" name="observacoes" maxlength="500" placeholder="Ex.: bico 0,4 mm, mesa aquecida, em manutenção até sexta."></textarea>
+          </div>
+        </div>
+        <p class="erro-campo" id="erroImpressora" role="alert"></p>
+      </div>
+      <footer class="modal-acoes">
+        <button type="button" class="btn btn-secundario btn-acao" data-fechar-modal>Cancelar</button>
+        <button type="submit" class="btn btn-principal btn-acao">Salvar</button>
+      </footer>
+    </form>
+  </dialog>
+
+</body>
+
+</html>

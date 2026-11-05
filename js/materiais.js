@@ -89,9 +89,8 @@ function renderResumoMateriais() {
   if (!grupos.length) {
     area.innerHTML = modoGestaoMateriais()
       ? `<div class="estado-vazio-acao"><p>Sua organização ainda não registrou materiais para doação.</p>
-           <button type="button" class="btn btn-principal btn-acao" data-registrar-material>+ Registrar primeiro material</button></div>`
+           <p class="texto-apoio">Use o botão <strong>+ Registrar material</strong>, no topo da página, para começar.</p></div>`
       : '<p class="estado-vazio">Nenhum material cadastrado até o momento.</p>';
-    area.querySelector('[data-registrar-material]')?.addEventListener('click', () => abrirModalMaterial(null));
     return;
   }
 
@@ -145,8 +144,10 @@ function linhaMaterial(m) {
       <td>${e(formatarDataHora(m.atualizado_em))}</td>
       ${gestao ? `
       <td class="celula-acoes">
-        <button type="button" class="btn btn-acao-tabela btn-secundario" data-editar-material="${e(m.id)}">Editar</button>
-        <button type="button" class="btn btn-acao-tabela btn-perigo" data-remover-material="${e(m.id)}">Remover</button>
+        <div class="acoes-tabela">
+          <button type="button" class="btn btn-acao-tabela btn-secundario" data-editar-material="${e(m.id)}">Editar</button>
+          <button type="button" class="btn btn-acao-tabela btn-perigo" data-remover-material="${e(m.id)}">Remover</button>
+        </div>
       </td>` : ''}
     </tr>`;
 }

@@ -9,13 +9,61 @@
    VISÃO GERAL - FABRICANTE
 ========================= */
 
-.painel-fabricante-grid {
+/* Abaixo da tabela de demandas (que ocupa a largura toda): capacidade
+   produtiva e estoque lado a lado, com a mesma altura. */
+.painel-fabricante-cartoes {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
 
     gap: 20px;
 
-    margin-bottom: 32px;
+    margin: 32px 0;
+}
+
+.painel-fabricante-cartoes > section {
+    display: flex;
+    flex-direction: column;
+}
+
+.painel-fabricante-cartoes #capacidadeParceiro,
+.painel-fabricante-cartoes .cartao-materiais {
+    flex: 1;
+}
+
+/* Na largura cheia, os quatro números da capacidade cabem numa linha. */
+.painel-fabricante-cartoes .parceiro-dados {
+    grid-template-columns: repeat(4, auto);
+    justify-content: start;
+
+    column-gap: 32px;
+}
+
+.painel-fabricante-cartoes .parceiro-card-topo h2,
+.cartao-materiais h2 {
+    font-size: 1.25rem;
+}
+
+.cartao-materiais {
+    justify-content: space-between;
+
+    gap: 16px;
+}
+
+.resumo-link {
+    color: inherit;
+
+    text-decoration: underline;
+    text-decoration-color: var(--cor-borda);
+    text-underline-offset: 4px;
+}
+
+.resumo-link:hover {
+    color: var(--cor-secundaria);
+}
+
+.capacidade-acoes {
+    margin-top: 20px;
 }
 
 .coluna-lateral {
@@ -28,12 +76,9 @@
 /* Cartão "Materiais para doação" da visão geral */
 .cartao-materiais h2 {
     margin-bottom: 8px;
-
-    font-size: 1.3rem;
 }
 
 .cartao-materiais-texto {
-    margin-bottom: 16px;
 
     color: var(--cor-texto-secundario);
 }
@@ -67,15 +112,34 @@
 ========================= */
 
 /* A célula continua sendo table-cell (com display:flex no <td> a linha
-   perde o alinhamento com as demais colunas); o espaçamento fica nos botões. */
-.celula-acoes .btn-acao-tabela {
-    margin: 2px 6px 2px 0;
+   perde o alinhamento com as demais colunas); o flex fica no wrapper.
+   Os botões ficam lado a lado, com a mesma altura; se a tabela ficar
+   estreita, ela rola na horizontal (.tabela-wrap) em vez de empilhar. */
+.celula-acoes {
+    width: 1%;
+
+    white-space: nowrap;
+}
+
+.acoes-tabela {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+
+    gap: 6px;
 }
 
 .btn-acao-tabela {
+    min-height: 32px;
+
     padding: 6px 12px;
 
     font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+.btn-acao-tabela:hover {
+    transform: none;
 }
 
 
@@ -118,19 +182,32 @@
 
 @media (max-width: 1000px) {
 
-    .painel-fabricante-grid {
+    .painel-fabricante-cartoes {
         grid-template-columns: 1fr;
     }
 }
 
 @media (max-width: 700px) {
 
-    .celula-acoes .btn-acao-tabela {
-        display: flex;
-        width: fit-content;
+    .painel-fabricante-cartoes .parceiro-dados {
+        grid-template-columns: repeat(2, 1fr);
     }
+}
 
-    .btn-acao-tabela {
-        width: 100%;
-    }
+/* Fila: o título da solicitação abre o detalhe (a coluna de ações fica
+   só com "Aceitar", para a tabela caber sem rolar). */
+.link-detalhe {
+    color: var(--cor-primaria);
+
+    font-weight: 700;
+
+    text-decoration: underline;
+    text-decoration-color: var(--cor-borda);
+    text-underline-offset: 3px;
+}
+
+.link-detalhe:hover {
+    color: var(--cor-secundaria);
+
+    text-decoration-color: currentColor;
 }
