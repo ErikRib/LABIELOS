@@ -23,9 +23,20 @@
         grid-template-areas:
             "dados      seguranca"
             "organizacao seguranca";
-        align-items: start;
 
         max-width: 980px;
+    }
+
+    /* Sem "align-items: start", as duas colunas esticam pra mesma altura.
+       "Dados pessoais" e "Organização" (mais curtas) ficam então com uma
+       sobra de altura em relação a "Segurança da conta" (mais longa, com
+       3 formulários) — em vez de deixar essa sobra em branco embaixo,
+       os cards viram flex column e o rodapé de cada formulário (aviso +
+       botão) é empurrado pro final com "margin-top: auto". */
+    .perfil-card-dados,
+    .perfil-card-organizacao {
+        display: flex;
+        flex-direction: column;
     }
 
     .perfil-card-dados {
@@ -38,6 +49,37 @@
 
     .perfil-card-organizacao {
         grid-area: organizacao;
+    }
+
+    #formPerfil {
+        flex: 1;
+    }
+}
+
+/* Em telas bem largas, uma terceira coluna aproveita o espaço que, com
+   só duas colunas, sobrava em branco à direita. "Organização" e "Excluir
+   conta" — que até aqui ficavam empilhados embaixo de "Dados pessoais" —
+   passam para uma coluna própria no meio, ao lado de "Segurança da
+   conta". "Dados pessoais" ocupa as duas linhas à esquerda, então sobra
+   mais altura ali, e o botão "Salvar alterações" (empurrado para o fim
+   do card) acaba bem no canto inferior, abaixo de todos os campos. */
+@media (min-width: 1240px) {
+
+    .perfil-layout {
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-areas:
+            "dados organizacao  seguranca"
+            "dados zona-perigo  seguranca";
+
+        max-width: 1240px;
+    }
+
+    .perfil-card-dados {
+        grid-row: 1 / 3;
+    }
+
+    .zona-perigo {
+        grid-area: zona-perigo;
     }
 }
 
@@ -183,4 +225,82 @@
     color: var(--cor-texto-secundario);
 
     cursor: not-allowed;
+}
+
+
+/* =========================
+   ORGANIZAÇÃO: LISTA DE VÍNCULOS + CARGO EDITÁVEL
+========================= */
+
+.lista-organizacoes {
+    display: flex;
+    flex-direction: column;
+
+    gap: 16px;
+
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+}
+
+.organizacao-item + .organizacao-item {
+    padding-top: 16px;
+
+    border-top: 1px solid var(--cor-borda);
+}
+
+.organizacao-cargo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+
+    gap: 10px;
+
+    margin-top: 6px;
+
+    color: var(--cor-texto-secundario);
+    font-size: 0.9rem;
+}
+
+.organizacao-cargo input {
+    flex: 1;
+    min-width: 160px;
+}
+
+.organizacao-cargo-erro {
+    flex-basis: 100%;
+    margin: 0;
+
+    color: var(--cor-erro-texto);
+    font-size: 0.85rem;
+}
+
+.organizacao-cargo-erro:empty {
+    display: none;
+}
+
+
+/* =========================
+   RODAPÉ DO FORMULÁRIO "DADOS PESSOAIS"
+   (aviso + botão, empurrados para o fim do card — ver a regra de
+   "margin-top: auto" com o card em flex column, acima.)
+========================= */
+
+.perfil-form-rodape {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 12px;
+
+    width: 100%;
+    margin-top: auto;
+    padding-top: 20px;
+}
+
+.perfil-form-rodape .perfil-aviso {
+    flex: 1;
+    margin-top: 0;
 }

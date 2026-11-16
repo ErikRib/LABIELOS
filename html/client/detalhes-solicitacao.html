@@ -35,6 +35,7 @@
   </script>
   <script src="/js/api.js" defer></script>
   <script src="/js/sugestoes.js" defer></script>
+  <script src="/js/select-estilizado.js" defer></script>
   <script src="/js/prototipo.js" defer></script>
   <script src="/js/nova-solicitacao.js" defer></script>
 </head>
@@ -242,7 +243,7 @@
         <div class="form-grid">
           <div class="campo"><label>Solicitação</label><input name="solicitacao" required></div>
           <div class="campo"><label>Requerente</label><input name="requerente" readonly aria-readonly="true"></div>
-          <div class="campo"><label>Prioridade</label><select name="prioridade">
+          <div class="campo"><label>Prioridade</label><select name="prioridade" data-select-estilizado>
               <option>Baixa</option>
               <option>Média</option>
               <option>Alta</option>

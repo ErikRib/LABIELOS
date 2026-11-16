@@ -11,7 +11,10 @@ from fastapi.responses import FileResponse
 from pymongo import ReturnDocument
 
 from contexto import organizacao_ativa
-from database import contadores_collection, impressoras_collection, materiais_collection, solicitacoes_collection
+from database import (
+    contadores_collection, impressoras_collection, materiais_collection, organizacoes_collection,
+    solicitacoes_collection, usuarios_collection,
+)
 from deps import exigir_fabricante, exigir_organizacao_solicitante
 from models.schemas import (
     ConcluirProducaoEntrada, HistoricoEntrada, IniciarProducaoEntrada, ReprovarEntrada,
@@ -39,6 +42,50 @@ def hoje_texto() -> str:
 def autor_texto(usuario: dict, org_nome: str) -> str:
     nome = f"{usuario.get('nome', '')} {usuario.get('sobrenome', '')}".strip()
     return f"{nome} ({org_nome})" if org_nome else nome
+
+
+def autor_campos(usuario: dict, org: Optional[dict]) -> dict:
+    # Grava o texto pronto (fallback, usado se o usuário/organização forem
+    # apagados depois) E os ids (para resolver o nome ATUAL na leitura —
+    # ver autor_atual()). Sem isso, trocar o nome do usuário/organização
+    # nunca apareceria em eventos já registrados.
+    return {
+        "autor": autor_texto(usuario, org["nome"] if org else ""),
+        "autor_user_id": usuario["_id"],
+        "autor_org_id": org["_id"] if org else None,
+    }
+
+
+async def autor_atual(user_id, org_id, fallback: str) -> str:
+    """Resolve 'Nome (Organização)' com os dados de AGORA; cai para o texto
+    congelado (fallback) só quando o usuário e a organização não existem
+    mais — ou, parcialmente, usa o que ainda existir dos dois."""
+    usuario_doc = await usuarios_collection.find_one({"_id": user_id}) if user_id else None
+    nome_usuario = f"{usuario_doc.get('nome', '')} {usuario_doc.get('sobrenome', '')}".strip() if usuario_doc else None
+    org_doc = await organizacoes_collection.find_one({"_id": org_id}) if org_id else None
+    nome_org = org_doc.get("nome") if org_doc else None
+
+    if nome_usuario is None and nome_org is None:
+        return fallback
+    if nome_usuario and nome_org:
+        return f"{nome_usuario} ({nome_org})"
+    return nome_usuario or nome_org or fallback
+
+
+async def nome_organizacao_atual(org_id, fallback: Optional[str]) -> Optional[str]:
+    if org_id is not None:
+        org_doc = await organizacoes_collection.find_one({"_id": org_id})
+        if org_doc:
+            return org_doc.get("nome", fallback)
+    return fallback
+
+
+async def evento_publico(evento: dict) -> dict:
+    autor = await autor_atual(evento.get("autor_user_id"), evento.get("autor_org_id"), evento.get("autor", ""))
+    return {
+        "data": evento["data"], "tipo": evento["tipo"], "titulo": evento["titulo"],
+        "descricao": evento["descricao"], "autor": autor,
+    }
 
 
 def validar_prazo(prazo: Optional[str]) -> None:
@@ -88,15 +135,29 @@ async def salvar_arquivo3d(arquivo) -> dict:
     }
 
 
-def solicitacao_publica(doc: dict) -> dict:
+async def solicitacao_publica(doc: dict) -> dict:
+    # "requerente"/"atribuido": resolvidos ao vivo pelo id da organização
+    # (requerente_org_id/atribuido_org_id); o nome gravado na criação só
+    # serve de fallback se a organização tiver sido apagada (hard delete —
+    # ver backend/README.md §11).
+    requerente = await nome_organizacao_atual(doc.get("requerente_org_id"), doc["requerente_nome"])
+    atribuido = await nome_organizacao_atual(doc.get("atribuido_org_id"), doc.get("atribuido_nome"))
+
+    ajuste = doc.get("ajuste")
+    if ajuste:
+        ajuste = {
+            **ajuste,
+            "autor": await autor_atual(ajuste.get("autor_user_id"), ajuste.get("autor_org_id"), ajuste.get("autor", "")),
+        }
+
     saida = {
         "protocolo": doc["protocolo"], "solicitacao": doc["solicitacao"],
-        "requerente": doc["requerente_nome"], "atribuido": doc.get("atribuido_nome"),
+        "requerente": requerente, "atribuido": atribuido,
         "prioridade": doc["prioridade"], "status": doc["status"], "categoria": doc["categoria"],
         "abertura": doc["abertura"], "prazo": doc["prazo"], "material": doc["material"],
         "descricao": doc["descricao"], "arquivo3d": None, "ultima_atualizacao": doc["ultima_atualizacao"],
         "producao": doc.get("producao"), "concluida_em": doc.get("concluida_em"),
-        "retirada": doc.get("retirada"), "ajuste": doc.get("ajuste"),
+        "retirada": doc.get("retirada"), "ajuste": ajuste,
     }
     arquivo = doc.get("arquivo3d")
     if arquivo:
@@ -148,12 +209,12 @@ async def criar_solicitacao(request: Request, contexto=Depends(exigir_organizaca
         "historico": [{
             "data": agora, "tipo": "Criação", "titulo": "Solicitação criada",
             "descricao": f"Solicitação registrada por {org['nome']} e enviada para a fila de novas solicitações.",
-            "autor": autor_texto(usuario, org["nome"]),
+            **autor_campos(usuario, org),
         }],
     }
     novo = await solicitacoes_collection.insert_one(doc)
     criado = await solicitacoes_collection.find_one({"_id": novo.inserted_id})
-    return solicitacao_publica(criado)
+    return await solicitacao_publica(criado)
 
 
 @router.get("/solicitacoes")
@@ -167,19 +228,19 @@ async def listar_solicitacoes(usuario: dict = Depends(usuario_atual)):
             raise HTTPException(status_code=403, detail="Nenhuma organização ativa associada à sua conta.")
         filtro = {"atribuido_org_id": ctx_fab["org"]["_id"]}
     cursor = solicitacoes_collection.find(filtro).sort("_id", -1)
-    return [solicitacao_publica(d) async for d in cursor]
+    return [await solicitacao_publica(d) async for d in cursor]
 
 
 @router.get("/fila")
 async def fila(contexto=Depends(exigir_fabricante)):
     cursor = solicitacoes_collection.find({"status": "Aberta", "atribuido_org_id": None}).sort("_id", -1)
-    return [solicitacao_publica(d) async for d in cursor]
+    return [await solicitacao_publica(d) async for d in cursor]
 
 
 @router.get("/solicitacoes/{protocolo}")
 async def obter_solicitacao(protocolo: str, usuario: dict = Depends(usuario_atual)):
     doc = await buscar_visivel(protocolo, usuario)
-    return solicitacao_publica(doc)
+    return await solicitacao_publica(doc)
 
 
 @router.patch("/solicitacoes/{protocolo}")
@@ -206,11 +267,11 @@ async def editar_solicitacao(protocolo: str, request: Request, contexto=Depends(
     campos["ultima_atualizacao"] = agora
     evento = {
         "data": agora, "tipo": "Edição", "titulo": "Solicitação editada",
-        "descricao": "Os dados da solicitação foram atualizados.", "autor": autor_texto(usuario, org["nome"]),
+        "descricao": "Os dados da solicitação foram atualizados.", **autor_campos(usuario, org),
     }
     await solicitacoes_collection.update_one({"_id": doc["_id"]}, {"$set": campos, "$push": {"historico": evento}})
     atualizado = await solicitacoes_collection.find_one({"_id": doc["_id"]})
-    return solicitacao_publica(atualizado)
+    return await solicitacao_publica(atualizado)
 
 
 @router.post("/solicitacoes/{protocolo}/aceitar")
@@ -219,7 +280,7 @@ async def aceitar_solicitacao(protocolo: str, contexto=Depends(exigir_fabricante
     agora = agora_texto()
     evento = {
         "data": agora, "tipo": "Atribuição", "titulo": f"Aceita por {org['nome']}",
-        "descricao": "A solicitação saiu da fila e virou demanda do parceiro.", "autor": autor_texto(usuario, org["nome"]),
+        "descricao": "A solicitação saiu da fila e virou demanda do parceiro.", **autor_campos(usuario, org),
     }
     resultado = await solicitacoes_collection.find_one_and_update(
         {"protocolo": protocolo, "status": "Aberta", "atribuido_org_id": None},
@@ -231,7 +292,7 @@ async def aceitar_solicitacao(protocolo: str, contexto=Depends(exigir_fabricante
         if not await solicitacoes_collection.find_one({"protocolo": protocolo}):
             raise HTTPException(status_code=404, detail="Solicitação não encontrada.")
         raise HTTPException(status_code=409, detail="Esta solicitação já foi aceita por outro parceiro.")
-    return solicitacao_publica(resultado)
+    return await solicitacao_publica(resultado)
 
 
 @router.post("/solicitacoes/{protocolo}/devolver")
@@ -240,7 +301,7 @@ async def devolver_solicitacao(protocolo: str, contexto=Depends(exigir_fabricant
     agora = agora_texto()
     evento = {
         "data": agora, "tipo": "Atribuição", "titulo": "Devolvida à fila",
-        "descricao": f"{org['nome']} devolveu a solicitação para a fila global.", "autor": autor_texto(usuario, org["nome"]),
+        "descricao": f"{org['nome']} devolveu a solicitação para a fila global.", **autor_campos(usuario, org),
     }
     resultado = await solicitacoes_collection.find_one_and_update(
         {"protocolo": protocolo, "status": "Em análise", "atribuido_org_id": org["_id"]},
@@ -250,7 +311,7 @@ async def devolver_solicitacao(protocolo: str, contexto=Depends(exigir_fabricant
     )
     if resultado is None:
         raise HTTPException(status_code=409, detail="Só é possível devolver uma solicitação que você aceitou e que ainda está em análise.")
-    return solicitacao_publica(resultado)
+    return await solicitacao_publica(resultado)
 
 
 @router.post("/solicitacoes/{protocolo}/iniciar-producao")
@@ -290,7 +351,7 @@ async def iniciar_producao(protocolo: str, dados: IniciarProducaoEntrada, contex
         evento = {
             "data": agora, "tipo": "Status", "titulo": "Produção iniciada",
             "descricao": f"Produção iniciada na impressora {impressora['nome']} com material doado ({material['material']}).",
-            "autor": autor_texto(usuario, org["nome"]),
+            **autor_campos(usuario, org),
         }
         await impressoras_collection.update_one({"_id": impressora["_id"]}, {"$set": {"status": "Em uso"}})
         novo_status = "Em produção"
@@ -313,7 +374,7 @@ async def iniciar_producao(protocolo: str, dados: IniciarProducaoEntrada, contex
         evento = {
             "data": agora, "tipo": "Status", "titulo": "Aguardando material do solicitante",
             "descricao": f"É necessário entregar: {especificacao}. Local de entrega: {endereco['nome']} — {endereco_texto(endereco)}.",
-            "autor": autor_texto(usuario, org["nome"]),
+            **autor_campos(usuario, org),
         }
         novo_status = "Aguardando material"
 
@@ -322,7 +383,7 @@ async def iniciar_producao(protocolo: str, dados: IniciarProducaoEntrada, contex
         {"$set": {"status": novo_status, "producao": producao, "ultima_atualizacao": agora}, "$push": {"historico": evento}},
     )
     atualizado = await solicitacoes_collection.find_one({"_id": doc["_id"]})
-    return solicitacao_publica(atualizado)
+    return await solicitacao_publica(atualizado)
 
 
 @router.post("/solicitacoes/{protocolo}/material-recebido")
@@ -344,14 +405,14 @@ async def material_recebido(protocolo: str, contexto=Depends(exigir_fabricante))
     evento = {
         "data": agora, "tipo": "Status", "titulo": "Material recebido — produção iniciada",
         "descricao": "O material entregue pelo solicitante foi recebido e a produção foi iniciada.",
-        "autor": autor_texto(usuario, org["nome"]),
+        **autor_campos(usuario, org),
     }
     await solicitacoes_collection.update_one(
         {"_id": doc["_id"]},
         {"$set": {"status": "Em produção", "producao": producao, "ultima_atualizacao": agora}, "$push": {"historico": evento}},
     )
     atualizado = await solicitacoes_collection.find_one({"_id": doc["_id"]})
-    return solicitacao_publica(atualizado)
+    return await solicitacao_publica(atualizado)
 
 
 @router.post("/solicitacoes/{protocolo}/concluir-producao")
@@ -414,7 +475,10 @@ async def concluir_producao(protocolo: str, dados: ConcluirProducaoEntrada, cont
     if dados.instrucoes:
         descricao += f" Instruções: {dados.instrucoes}."
     descricao += descricao_material
-    evento = {"data": agora, "tipo": "Retirada", "titulo": "Disponível para retirada", "descricao": descricao, "autor": autor_texto(usuario, org["nome"])}
+    evento = {
+        "data": agora, "tipo": "Retirada", "titulo": "Disponível para retirada", "descricao": descricao,
+        **autor_campos(usuario, org),
+    }
 
     await solicitacoes_collection.update_one(
         {"_id": doc["_id"]},
@@ -433,7 +497,7 @@ async def concluir_producao(protocolo: str, dados: ConcluirProducaoEntrada, cont
             await impressoras_collection.update_one({"_id": ObjectId(impressora_id)}, {"$set": {"status": "Disponível"}})
 
     atualizado = await solicitacoes_collection.find_one({"_id": doc["_id"]})
-    return solicitacao_publica(atualizado)
+    return await solicitacao_publica(atualizado)
 
 
 @router.post("/solicitacoes/{protocolo}/aprovar")
@@ -442,7 +506,7 @@ async def aprovar_solicitacao(protocolo: str, contexto=Depends(exigir_organizaca
     agora = agora_texto()
     evento = {
         "data": agora, "tipo": "Aprovação", "titulo": "Peça aprovada",
-        "descricao": "A organização solicitante aprovou a peça recebida.", "autor": autor_texto(usuario, org["nome"]),
+        "descricao": "A organização solicitante aprovou a peça recebida.", **autor_campos(usuario, org),
     }
     resultado = await solicitacoes_collection.find_one_and_update(
         {"protocolo": protocolo, "requerente_org_id": org["_id"], "status": "Pronta para retirada"},
@@ -451,17 +515,17 @@ async def aprovar_solicitacao(protocolo: str, contexto=Depends(exigir_organizaca
     )
     if resultado is None:
         raise HTTPException(status_code=409, detail="Só é possível aprovar uma peça que esteja pronta para retirada.")
-    return solicitacao_publica(resultado)
+    return await solicitacao_publica(resultado)
 
 
 @router.post("/solicitacoes/{protocolo}/reprovar")
 async def reprovar_solicitacao(protocolo: str, dados: ReprovarEntrada, contexto=Depends(exigir_organizacao_solicitante)):
     usuario, org, _ = contexto
     agora = agora_texto()
-    ajuste = {"motivo": dados.motivo, "data": agora, "autor": autor_texto(usuario, org["nome"])}
+    ajuste = {"motivo": dados.motivo, "data": agora, **autor_campos(usuario, org)}
     evento = {
         "data": agora, "tipo": "Devolução", "titulo": "Devolvida para ajuste",
-        "descricao": f"Motivo: {dados.motivo}", "autor": autor_texto(usuario, org["nome"]),
+        "descricao": f"Motivo: {dados.motivo}", **autor_campos(usuario, org),
     }
     resultado = await solicitacoes_collection.find_one_and_update(
         {"protocolo": protocolo, "requerente_org_id": org["_id"], "status": "Pronta para retirada"},
@@ -475,13 +539,13 @@ async def reprovar_solicitacao(protocolo: str, dados: ReprovarEntrada, contexto=
     if impressora_id and ObjectId.is_valid(impressora_id):
         await impressoras_collection.update_one({"_id": ObjectId(impressora_id)}, {"$set": {"status": "Em uso"}})
 
-    return solicitacao_publica(resultado)
+    return await solicitacao_publica(resultado)
 
 
 @router.get("/solicitacoes/{protocolo}/historico")
 async def historico_solicitacao(protocolo: str, usuario: dict = Depends(usuario_atual)):
     doc = await buscar_visivel(protocolo, usuario)
-    return doc.get("historico", [])
+    return [await evento_publico(e) for e in doc.get("historico", [])]
 
 
 @router.post("/solicitacoes/{protocolo}/historico")
@@ -498,13 +562,13 @@ async def adicionar_historico(protocolo: str, request: Request, usuario: dict = 
         raise HTTPException(status_code=422, detail="Escreva uma mensagem ou anexe um arquivo.")
 
     ctx_sol = await organizacao_ativa(usuario["_id"], tipo="organizacao")
-    org_nome = ""
+    org_ativa = None
     if ctx_sol and doc["requerente_org_id"] == ctx_sol["org"]["_id"]:
-        org_nome = ctx_sol["org"]["nome"]
+        org_ativa = ctx_sol["org"]
     else:
         ctx_fab = await organizacao_ativa(usuario["_id"], tipo="fabricante")
         if ctx_fab:
-            org_nome = ctx_fab["org"]["nome"]
+            org_ativa = ctx_fab["org"]
 
     tipo = "Comentário"
     descricao = mensagem
@@ -519,10 +583,10 @@ async def adicionar_historico(protocolo: str, request: Request, usuario: dict = 
     evento = {
         "data": agora_texto(), "tipo": tipo,
         "titulo": "Comentário" if tipo == "Comentário" else "Anexo adicionado",
-        "descricao": descricao, "autor": autor_texto(usuario, org_nome),
+        "descricao": descricao, **autor_campos(usuario, org_ativa),
     }
     await solicitacoes_collection.update_one({"_id": doc["_id"]}, {"$push": {"historico": evento}})
-    return evento
+    return await evento_publico(evento)
 
 
 @router.get("/solicitacoes/{protocolo}/arquivo3d")

@@ -535,3 +535,49 @@
     background-position: right 14px center;
     background-size: 16px;
 }
+
+
+/* =========================
+   REQUISITOS DA SENHA (feedback ao vivo)
+   Mesmo padrão visual de html/recuperar-senha.html.
+========================= */
+
+.requisitos-senha {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+
+    color: var(--cor-texto-secundario);
+    font-size: 0.88rem;
+}
+
+.requisitos-senha li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.requisitos-senha li::before {
+    content: "";
+
+    width: 8px;
+    height: 8px;
+
+    border-radius: 50%;
+    background: var(--cor-borda);
+
+    flex-shrink: 0;
+}
+
+.requisitos-senha li.ok {
+    color: #1a7f37;
+}
+
+.requisitos-senha li.ok::before {
+    background: #1a7f37;
+}

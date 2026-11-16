@@ -247,6 +247,7 @@ async function salvarMaterial(e) {
     renderResumoMateriais();
     renderTabelaMateriais();
     mensagemMateriais(id ? 'Material atualizado.' : 'Material adicionado.');
+    setTimeout(() => location.reload(), 700);
   } catch (erro) {
     document.querySelector('#erroMaterial').textContent = erro.message;
   } finally {
@@ -263,6 +264,7 @@ async function removerMaterial(id) {
     renderResumoMateriais();
     renderTabelaMateriais();
     mensagemMateriais('Material removido.');
+    setTimeout(() => location.reload(), 700);
   } catch (erro) {
     mensagemMateriais(erro.message, true);
   }

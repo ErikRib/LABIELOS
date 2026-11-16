@@ -365,20 +365,61 @@ da organização é apagado de `organizacoes_collection`, junto com todos os
 `memberships`, `materiais` e `impressoras` dela — não só marcados como
 removidos.
 
-Isso é seguro porque o nome da organização **já é salvo junto da própria
-solicitação** no momento da criação (`requerente_nome`/`atribuido_nome` em
-`solicitacoes_collection`, ver `solicitacao_publica()` em
-`routes/solicitacoes.py`) — não é resolvido ao vivo buscando a organização.
-Então uma solicitação concluída continua mostrando o nome da organização
-corretamente mesmo depois dela ser apagada de vez. Testado manualmente:
-criada uma organização de teste, uma solicitação marcada como concluída,
-a organização removida — confirmado que ela sumiu de
-`organizacoes_collection` e `memberships_collection`, e que a solicitação
-antiga continuou intacta com o nome certo.
+Isso é seguro porque, além do nome, a solicitação **já guarda os ids**
+(`requerente_org_id`/`atribuido_org_id`, e cada evento do histórico guarda
+`autor_user_id`/`autor_org_id`) — o que permite o próximo ponto.
+
+### 🆕 Nomes resolvidos ao vivo, com o nome antigo só como fallback
+
+Inicialmente `requerente_nome`/`atribuido_nome` e o `autor` de cada evento
+do histórico eram gravados como texto pronto, "congelado" para sempre —
+então se o usuário mudasse o próprio nome, ou a organização fosse
+renomeada, solicitações e eventos antigos continuavam mostrando o nome de
+quando foram criados (bug relatado pelo usuário). Agora `solicitacao_publica()`
+e `evento_publico()` (em `routes/solicitacoes.py`) buscam o usuário/organização
+**pelo id** na hora de responder a requisição e usam o nome **atual**; o
+texto congelado só entra como fallback quando o usuário ou a organização
+referenciados não existem mais (ex.: depois de um hard delete) — nesse
+caso, o que ainda existir dos dois (só o nome do usuário, só o da
+organização, ou nenhum) decide o que aparece, sem erro 500.
+
+Testado manualmente: solicitação criada, aceita por um fabricante (gera
+histórico) → nome do usuário e da organização trocados (`PATCH /api/me`,
+`PATCH /api/organizations/{id}`) → histórico e `requerente`/`atribuido`
+passam a mostrar o nome novo imediatamente → organização apagada de vez
+(hard delete) → evento antigo dela no histórico volta a mostrar o nome
+congelado (ou só o nome do usuário, já que ele continua existindo), sem
+quebrar.
+
+Dados antigos (histórico gravado antes dessa mudança) não têm os ids —
+nesse caso não há como resolver ao vivo, e o texto congelado é usado
+normalmente, sem erro.
 
 O que isso tira: se você reabrir a tela de administração de uma
 organização removida (por um link salvo, por exemplo), ela realmente não
 existe mais — não tem como "desfazer" a remoção.
+
+---
+
+## 12. `PATCH /api/me/memberships/{membership_id}/cargo` — rota nova, fora do contrato original
+
+Não estava em `docs/integracao-backend.md`: o usuário pediu para poder
+editar o próprio cargo (`job_title`) pela tela de perfil. O cargo é
+guardado **por vínculo** (`memberships.job_title`), não no usuário — a
+mesma pessoa pode ter cargos diferentes em organizações diferentes — então
+é o dono do vínculo quem edita, sem checagem de admin (diferente de
+`PATCH /api/organizations/{org_id}/members/{membership_id}`, que só o admin
+usa, e só para trocar o papel admin/member).
+
+```json
+{ "cargo": "Coordenador de Produção" }
+```
+`cargo`: obrigatório, 1 a 80 caracteres. `404` se o `membership_id` não for
+de um vínculo ativo do usuário logado. `GET /api/me` agora também devolve
+`job_title` e `membership_id` em cada item de `memberships`. Testado de
+ponta a ponta (cadastro → `GET /api/me` → `PATCH .../cargo` → `GET /api/me`
+confirmando a troca → casos de erro: id inexistente `404`, cargo vazio
+`422`).
 
 ---
 

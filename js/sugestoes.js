@@ -60,6 +60,45 @@
     const opcoes = () => [...lista.options].map(o => o.value).filter(Boolean);
     const itens = () => [...ul.querySelectorAll('[role="option"]')];
 
+    // A lista normalmente fica posicionada (`position: absolute`) dentro do
+    // próprio campo. Mas, dentro de um modal com rolagem interna (ex.: o
+    // assistente de "Nova solicitação"), isso faz a lista ser cortada na
+    // borda da área rolável em vez de flutuar por cima. Enquanto aberta, a
+    // lista é "teletransportada" para o <dialog> mais próximo (ou para
+    // <body>, se não houver um) com `position: fixed`, calculada a partir da
+    // posição real do campo na tela — assim ela sempre aparece inteira,
+    // por cima de tudo.
+    function reposicionar() {
+      const r = input.getBoundingClientRect();
+      Object.assign(ul.style, {
+        position: 'fixed',
+        top: `${r.bottom + 4}px`,
+        left: `${r.left}px`,
+        width: `${r.width}px`,
+        right: 'auto',
+      });
+    }
+
+    function escaparRolagem() {
+      const destino = input.closest('dialog') || document.body;
+      if (ul.parentElement !== destino) destino.appendChild(ul);
+      reposicionar();
+      // Reconfere um instante depois: se abrir a lista mudou a altura do
+      // conteúdo e isso fez a barra de rolagem do modal aparecer/sumir
+      // (o que desloca todo o conteúdo para o lado), a primeira medição
+      // já fica desatualizada. Esse segundo cálculo, já com o layout
+      // assentado, corrige sozinho — sem precisar que o usuário role a tela.
+      requestAnimationFrame(reposicionar);
+    }
+
+    function voltarAoLugar() {
+      if (ul.parentElement !== wrap) wrap.appendChild(ul);
+      ['position', 'top', 'left', 'width', 'right'].forEach(prop => { ul.style[prop] = ''; });
+    }
+
+    window.addEventListener('scroll', () => { if (!ul.hidden) reposicionar(); }, true);
+    window.addEventListener('resize', () => { if (!ul.hidden) reposicionar(); });
+
     function abrir(filtrar = true) {
       const termo = filtrar ? normalizar(input.value.trim()) : '';
       const valores = opcoes().filter(v => !termo || normalizar(v).includes(termo));
@@ -69,6 +108,7 @@
       ul.hidden = false;
       input.setAttribute('aria-expanded', 'true');
       wrap.classList.add('aberto');
+      escaparRolagem();
       marcar(-1);
     }
 
@@ -77,6 +117,7 @@
       input.setAttribute('aria-expanded', 'false');
       input.removeAttribute('aria-activedescendant');
       wrap.classList.remove('aberto');
+      voltarAoLugar();
     }
 
     function marcar(i) {

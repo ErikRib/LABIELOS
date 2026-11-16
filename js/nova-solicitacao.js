@@ -79,7 +79,7 @@ function templateNovaSolicitacao() {
             </div>
             <div class="campo">
               <label for="novaPrioridade">Prioridade</label>
-              <select id="novaPrioridade" name="prioridade" required>
+              <select id="novaPrioridade" name="prioridade" required data-select-estilizado>
                 <option>Baixa</option>
                 <option selected>Média</option>
                 <option>Alta</option>
@@ -196,7 +196,10 @@ function irParaEtapa(indice) {
   atualizarBotoesNova();
   novaQ('[data-nova-anuncio]').textContent = `Etapa ${indice + 1} de 4: ${NOVA_ETAPAS[indice].titulo}`;
   novaQ('.assistente-corpo').scrollTop = 0;
-  novaQ(`[data-etapa="${indice}"]`).querySelector('input:not([readonly]):not([type=file]), select, textarea')?.focus();
+  // Pula campos com sugestões (ex.: Material, Categoria): focá-los automaticamente
+  // dispara a abertura da lista inteira (ver js/sugestoes.js), como se o usuário
+  // tivesse clicado — mesmo bug corrigido em js/materiais.js.
+  novaQ(`[data-etapa="${indice}"]`).querySelector('input:not([readonly]):not([type=file]):not([data-sugestoes]), select, textarea')?.focus();
 }
 
 function atualizarBotoesNova(estadoEnvio) {
@@ -444,6 +447,7 @@ function prepararNovaSolicitacao() {
   document.body.insertAdjacentHTML('beforeend', templateNovaSolicitacao());
   // Categoria e material: texto livre com sugestões (js/sugestoes.js).
   window.ativarSugestoes?.(document.querySelector('#modalNovaSolicitacao'));
+  window.ativarSelectsEstilizados?.(document.querySelector('#modalNovaSolicitacao'));
 
   const dialog = document.querySelector('#modalNovaSolicitacao');
   prepararDropzone();

@@ -106,10 +106,24 @@ const senha = document.querySelector('#senha');
 const confirmeSenha = document.querySelector('#confirmeSenha');
 [senha, confirmeSenha].forEach(campo => campo.addEventListener('input', () => confirmeSenha.setCustomValidity('')));
 
+// Requisitos da senha com feedback ao vivo (mesmo padrão de recuperar-senha.html).
+function conferirRequisitosCadastro() {
+    const tamanho = senha.value.length >= 8;
+    const iguais = tamanho && senha.value === confirmeSenha.value;
+    document.querySelector('#cadastroReqTamanho').classList.toggle('ok', tamanho);
+    document.querySelector('#cadastroReqIguais').classList.toggle('ok', iguais);
+    return tamanho && iguais;
+}
+[senha, confirmeSenha].forEach(campo => campo.addEventListener('input', conferirRequisitosCadastro));
+
 document.querySelector('#cadastroPage1 form').addEventListener('submit', event => {
     event.preventDefault();
-    confirmeSenha.setCustomValidity(senha.value === confirmeSenha.value ? '' : 'As senhas não coincidem.');
-    if (!confirmeSenha.reportValidity()) return;
+    if (!conferirRequisitosCadastro()) {
+        confirmeSenha.setCustomValidity('A senha precisa ter 8 caracteres ou mais e as duas devem ser iguais.');
+        confirmeSenha.reportValidity();
+        return;
+    }
+    confirmeSenha.setCustomValidity('');
     mostrarEtapa(2);
 });
 

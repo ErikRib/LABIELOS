@@ -82,6 +82,47 @@
     color: var(--cor-texto-secundario);
 
     font-size: 0.95rem;
+    white-space: pre-line;
+}
+
+/* Descrição longa: recolhida até uma altura razoável, com "Ver mais" para
+   não tomar a tela toda (ver js/prototipo.js, ativarDescricaoColapsavel). */
+.texto-detalhe.texto-colapsavel {
+    position: relative;
+
+    max-height: 8.4em;
+    overflow: hidden;
+
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 1.4em), transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 1.4em), transparent 100%);
+}
+
+.texto-detalhe.texto-colapsavel.expandida {
+    max-height: none;
+
+    mask-image: none;
+    -webkit-mask-image: none;
+}
+
+.btn-ver-mais {
+    display: inline-block;
+    margin-top: 8px;
+
+    padding: 0;
+
+    border: 0;
+    background: none;
+
+    color: var(--cor-primaria);
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.btn-ver-mais:hover {
+    text-decoration: underline;
 }
 
 

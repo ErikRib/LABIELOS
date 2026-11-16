@@ -20,7 +20,7 @@ def _oid(valor):
     return valor if isinstance(valor, ObjectId) else ObjectId(valor)
 
 
-async def criar_sessao(response: Response, user_id) -> str:
+async def criar_sessao(response: Response, user_id, lembrar: bool = True) -> str:
     token = secrets.token_urlsafe(32)
     agora = agora_utc_naive()
     await sessoes_collection.insert_one({
@@ -29,9 +29,12 @@ async def criar_sessao(response: Response, user_id) -> str:
         "criado_em": agora,
         "expira_em": agora + timedelta(days=DIAS_EXPIRACAO),
     })
+    # "Lembrar de mim" desmarcado: cookie de sessão (sem max_age), some
+    # quando o navegador fecha. Marcado (ou em fluxos sem a opção, como
+    # cadastro): cookie persistente pelos mesmos 30 dias da sessão no banco.
     response.set_cookie(
-        NOME_COOKIE, token, httponly=True, samesite="lax",
-        max_age=DIAS_EXPIRACAO * 24 * 3600, path="/",
+        NOME_COOKIE, token, httponly=True, samesite="lax", path="/",
+        max_age=DIAS_EXPIRACAO * 24 * 3600 if lembrar else None,
     )
     return token
 

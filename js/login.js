@@ -4,7 +4,11 @@ document.querySelector('#formLogin').addEventListener('submit', async event => {
     const aviso = document.querySelector('#mensagemLogin');
     aviso.textContent = 'Entrando...';
     try {
-        await api('/api/auth/login', { method: 'POST', body: JSON.stringify({ email: document.querySelector('#email').value, senha: document.querySelector('#senha').value }) });
+        await api('/api/auth/login', { method: 'POST', body: JSON.stringify({
+            email: document.querySelector('#email').value,
+            senha: document.querySelector('#senha').value,
+            lembrar: document.querySelector('input[name="lembrar"]').checked,
+        }) });
         location.href = await destinoAposEntrar();
     } catch (erro) { aviso.textContent = erro.message; }
 });

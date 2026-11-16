@@ -343,3 +343,124 @@ body.alto-contraste .sugestoes-lista [role="option"]:hover {
     background-color: #ffff00;
     color: #000000;
 }
+
+
+/* =========================
+   SELECT ESTILIZADO (js/select-estilizado.js)
+   Substitui a aparência do <select> nativo (que abre uma lista com o
+   visual do sistema operacional) por um botão + lista no mesmo estilo
+   do campo com sugestões acima — o <select> original continua no DOM,
+   só ele importa pro valor/validação do formulário.
+========================= */
+
+.select-estilizado-botao {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 8px;
+
+    width: 100%;
+    padding: 10px 12px;
+
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto);
+
+    font-family: var(--fonte-texto);
+    font-size: 0.95rem;
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+        border-color var(--transicao),
+        box-shadow var(--transicao);
+}
+
+.select-estilizado-botao:focus-visible,
+.campo-sugestoes.aberto > .select-estilizado-botao {
+    outline: none;
+
+    border-color: var(--cor-primaria);
+    box-shadow: 0 0 0 3px rgba(11, 39, 64, 0.12);
+}
+
+.select-estilizado-botao svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+
+    transition: transform var(--transicao);
+}
+
+.campo-sugestoes.aberto > .select-estilizado-botao svg {
+    transform: rotate(180deg);
+}
+
+/* O <select> original: continua no DOM e acessível por teclado/leitor de
+   tela (é ele quem o formulário валida), mas quem aparece na tela é o
+   botão acima — por isso fica reduzido a 1x1px, sem sumir do layout. */
+.select-estilizado-nativo {
+    position: absolute;
+
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+
+    border: 0;
+}
+
+
+/* =========================
+   REQUISITOS DA SENHA (feedback ao vivo)
+   Mesmo visual usado em html/recuperar-senha.html (classe .rec-requisitos
+   lá), com nome genérico aqui para reaproveitar em qualquer formulário
+   com campo de senha (cadastro, alterar senha no perfil...).
+========================= */
+
+.requisitos-senha {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+
+    color: var(--cor-texto-secundario);
+    font-size: 0.88rem;
+}
+
+.requisitos-senha li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.requisitos-senha li::before {
+    content: "";
+
+    width: 8px;
+    height: 8px;
+
+    border-radius: 50%;
+    background: var(--cor-borda);
+
+    flex-shrink: 0;
+}
+
+.requisitos-senha li.ok {
+    color: #1a7f37;
+}
+
+.requisitos-senha li.ok::before {
+    background: #1a7f37;
+}

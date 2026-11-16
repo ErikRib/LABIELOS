@@ -102,6 +102,7 @@ async function aplicarAcaoDemanda(protocolo, acao) {
     if (resultado) {
       avisoFabricante(mensagem(resultado));
       await atualizarTelasFabricante();
+      setTimeout(() => location.reload(), 700);
     }
     return;
   }
@@ -115,11 +116,13 @@ async function aplicarAcaoDemanda(protocolo, acao) {
       'aceitar': `Solicitação ${protocolo} aceita. Ela agora está em Demandas.`,
       'devolver': `Solicitação ${protocolo} devolvida à fila.`
     }[acao]);
+    await atualizarTelasFabricante();
+    setTimeout(() => location.reload(), 700);
   } catch (erro) {
     // 409 = outro parceiro aceitou primeiro (ou o status já mudou).
     avisoFabricante(erro.message, true);
+    await atualizarTelasFabricante();
   }
-  await atualizarTelasFabricante();
 }
 
 // Texto curto de um endereço (rua, número · bairro, cidade/UF · CEP).

@@ -37,6 +37,24 @@ function badgeClass(valor) {
     .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 }
 
+// Recolhe uma descrição longa até uma altura razoável, com botão "Ver mais"
+// (só aparece quando o texto realmente ultrapassa essa altura).
+function ativarDescricaoColapsavel(el) {
+  el.classList.add('texto-colapsavel');
+  requestAnimationFrame(() => {
+    if (el.scrollHeight <= el.clientHeight + 2) { el.classList.remove('texto-colapsavel'); return; }
+    const botao = document.createElement('button');
+    botao.type = 'button';
+    botao.className = 'btn-ver-mais';
+    botao.textContent = 'Ver descrição completa';
+    botao.addEventListener('click', () => {
+      const expandida = el.classList.toggle('expandida');
+      botao.textContent = expandida ? 'Mostrar menos' : 'Ver descrição completa';
+    });
+    el.after(botao);
+  });
+}
+
 // Formata um tamanho em bytes como "123 KB" ou "4,2 MB".
 function formatarTamanhoArquivo(bytes) {
   if (!bytes) return 'Tamanho não informado';
@@ -280,6 +298,9 @@ async function renderDetalheSolicitacao() {
     }
   });
 
+  const descricaoEl = document.querySelector('[data-detalhe="descricao"]');
+  if (descricaoEl) ativarDescricaoColapsavel(descricaoEl);
+
   // Fluxo: a linha é preenchida até a bolinha da etapa atual (--progresso
   // vai de 0 a 1) e as etapas anteriores ficam com ✓. Em "Concluída" o
   // fluxo inteiro fica concluído. Status fora da sequência (ex.: legado
@@ -467,6 +488,7 @@ function renderAcoesSolicitante(s) {
     if (!ok) return;
     avisoDetalhe('#mensagemSolicitante', `Peça aprovada. A solicitação ${s.protocolo} foi concluída.`);
     await renderDetalheSolicitacao();
+    setTimeout(() => location.reload(), 700);
   }));
   area.querySelector('[data-avaliar="reprovar"]').addEventListener('click', () => abrirModalAcao({
     eyebrow: s.protocolo,
@@ -485,6 +507,7 @@ function renderAcoesSolicitante(s) {
     if (!ok) return;
     avisoDetalhe('#mensagemSolicitante', `Solicitação ${s.protocolo} devolvida para ajuste. O parceiro vê o motivo no topo da demanda.`);
     await renderDetalheSolicitacao();
+    setTimeout(() => location.reload(), 700);
   }));
 }
 
@@ -713,6 +736,7 @@ function prepararEdicaoSolicitacao(s) {
         await api(`/api/solicitacoes/${encodeURIComponent(s.protocolo)}`, { method: 'PATCH', body: corpo });
         modal.close();
         await renderDetalheSolicitacao();
+        setTimeout(() => location.reload(), 700);
       } catch (erro) {
         alert(erro.message);
       }

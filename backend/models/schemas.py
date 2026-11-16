@@ -19,6 +19,7 @@ Email = Annotated[str, Field(pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$", min_length=3
 class LoginEntrada(BaseModel):
     email: Email
     senha: str
+    lembrar: bool = False
 
 
 class EnderecoEntrada(BaseModel):
@@ -60,6 +61,10 @@ class PerfilParcial(BaseModel):
     nome: Optional[str] = None
     sobrenome: Optional[str] = None
     telefone: Optional[str] = None
+
+
+class AtualizarCargo(BaseModel):
+    cargo: str = Field(min_length=1, max_length=80)
 
 
 class IniciarTrocaEmail(BaseModel):

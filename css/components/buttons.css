@@ -36,6 +36,14 @@
 }
 
 
+/* Variante compacta, para ações inline (ex.: dentro de uma lista). */
+.btn-pequeno {
+    padding: 6px 14px;
+
+    font-size: 0.82rem;
+}
+
+
 /* PRINCIPAL */
 
 .btn-principal {

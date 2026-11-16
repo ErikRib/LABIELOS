@@ -195,6 +195,7 @@ async function executar(botao, acao, sucesso) {
     await acao();
     mensagem(sucesso);
     await recarregarListas();
+    setTimeout(() => location.reload(), 700);
   } catch (erro) {
     mensagem(erro.message, true);
     botao.disabled = false;
@@ -307,6 +308,7 @@ async function salvarDadosOrganizacao(e) {
     preencherFormularioOrganizacao();
     msg.textContent = 'Dados da organização atualizados.';
     msg.classList.remove('mensagem-erro');
+    setTimeout(() => location.reload(), 700);
   } catch (erro) {
     msg.textContent = erro.message;
     msg.classList.add('mensagem-erro');

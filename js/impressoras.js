@@ -181,6 +181,7 @@ async function salvarImpressora(e) {
     renderResumoImpressoras();
     renderTabelaImpressoras();
     avisoImpressoras(id ? 'Impressora atualizada.' : 'Impressora registrada.');
+    setTimeout(() => location.reload(), 700);
   } catch (erro) {
     document.querySelector('#erroImpressora').textContent = erro.message;
   } finally {
@@ -197,6 +198,7 @@ async function removerImpressora(id) {
     renderResumoImpressoras();
     renderTabelaImpressoras();
     avisoImpressoras('Impressora removida.');
+    setTimeout(() => location.reload(), 700);
   } catch (erro) {
     avisoImpressoras(erro.message, true);
   }

@@ -16,7 +16,7 @@ from database import (
 )
 from email_util import montar_email_codigo, tentar_enviar_email
 from models.schemas import (
-    ConfirmarTrocaEmail, ConfirmarVerificacaoEmail, EsqueciSenhaEntrada, IniciarTrocaEmail,
+    AtualizarCargo, ConfirmarTrocaEmail, ConfirmarVerificacaoEmail, EsqueciSenhaEntrada, IniciarTrocaEmail,
     IniciarVerificacaoEmail, LoginEntrada, PerfilParcial, RedefinirSenhaEntrada, RegistroEntrada,
     TrocarSenha, VerificarCodigoEntrada,
 )
@@ -58,12 +58,14 @@ def usuario_publico(usuario: dict, memberships: list[dict]) -> dict:
 def memberships_publico(memberships: list[dict]) -> list[dict]:
     return [
         {
+            "membership_id": str(item["membership"]["_id"]),
             "org_id": str(item["org"]["_id"]),
             "organization": item["org"]["nome"],
             "organization_type": item["org"]["tipo"],
             "organization_status": item["org"]["status"],
             "role": item["membership"]["role"],
             "membership_status": item["membership"]["status"],
+            "job_title": item["membership"].get("job_title", ""),
         }
         for item in memberships
     ]
@@ -84,7 +86,7 @@ async def login(dados: LoginEntrada, response: Response):
             detail="Seu acesso ainda não foi aprovado por um administrador da organização.",
         )
 
-    await criar_sessao(response, usuario["_id"])
+    await criar_sessao(response, usuario["_id"], lembrar=dados.lembrar)
     return {"message": "Login realizado com sucesso."}
 
 
@@ -215,6 +217,26 @@ async def atualizar_me(dados: PerfilParcial, usuario: dict = Depends(usuario_atu
     if campos:
         await usuarios_collection.update_one({"_id": usuario["_id"]}, {"$set": campos})
     return {"message": "Perfil atualizado."}
+
+
+@router.patch("/me/memberships/{membership_id}/cargo")
+async def atualizar_meu_cargo(membership_id: str, dados: AtualizarCargo, usuario: dict = Depends(usuario_atual)):
+    # O cargo é guardado por vínculo (membership), não no usuário: a mesma
+    # pessoa pode ter cargos diferentes em organizações diferentes. Por isso
+    # é o próprio dono do vínculo quem edita — nenhuma checagem de admin
+    # aqui (é diferente de PATCH /api/organizations/{org_id}/members/...,
+    # que só o admin da organização pode usar, e só para o papel).
+    try:
+        oid = ObjectId(membership_id)
+    except Exception:
+        raise HTTPException(status_code=404, detail="Vínculo não encontrado.")
+    resultado = await memberships_collection.update_one(
+        {"_id": oid, "user_id": usuario["_id"], "status": "active"},
+        {"$set": {"job_title": dados.cargo.strip()}},
+    )
+    if resultado.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Vínculo não encontrado.")
+    return {"message": "Cargo atualizado."}
 
 
 @router.delete("/me", status_code=204)
