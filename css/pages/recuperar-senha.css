@@ -1,0 +1,328 @@
+/* =========================
+   RECUPERAÇÃO DE SENHA EM ETAPAS
+   Complementa login.css (cartão, campos e botões).
+========================= */
+
+.login-container.recuperar {
+    gap: 24px;
+}
+
+/* As etapas usam display flex/grid; o atributo hidden precisa prevalecer. */
+.rec-passo[hidden] {
+    display: none !important;
+}
+
+/* ---------- Indicador de progresso ---------- */
+.rec-progresso {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.rec-progresso-texto {
+    margin: 0;
+
+    color: var(--cor-texto-secundario);
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.rec-barra {
+    position: relative;
+
+    height: 6px;
+    overflow: hidden;
+
+    border-radius: 999px;
+    background: var(--cor-borda);
+}
+
+.rec-barra-preenchida {
+    display: block;
+
+    width: 0;
+    height: 100%;
+
+    border-radius: inherit;
+    background: var(--cor-primaria);
+
+    transition: width 0.35s ease;
+}
+
+.rec-etapas {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+}
+
+.rec-etapa {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+
+    color: var(--cor-texto-secundario);
+    font-size: 0.82rem;
+    text-align: center;
+}
+
+.rec-etapa:first-child {
+    align-items: flex-start;
+}
+
+.rec-etapa:last-child {
+    align-items: flex-end;
+}
+
+.rec-bolinha {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 30px;
+    height: 30px;
+
+    border: 2px solid var(--cor-borda);
+    border-radius: 50%;
+    background: #fff;
+
+    font-weight: 700;
+
+    transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+
+.rec-etapa.ativa {
+    color: var(--cor-primaria);
+    font-weight: 600;
+}
+
+.rec-etapa.ativa .rec-bolinha {
+    border-color: var(--cor-primaria);
+    box-shadow: 0 0 0 4px rgba(11, 39, 64, 0.12);
+}
+
+.rec-etapa.feita {
+    color: var(--cor-primaria);
+}
+
+/* Etapa concluída: troca o número por um "check". */
+.rec-etapa.feita .rec-bolinha {
+    border-color: var(--cor-primaria);
+    background: var(--cor-primaria);
+    color: transparent;
+
+    position: relative;
+}
+
+.rec-etapa.feita .rec-bolinha::after {
+    content: "";
+
+    position: absolute;
+
+    width: 6px;
+    height: 11px;
+
+    border: solid #fff;
+    border-width: 0 2.5px 2.5px 0;
+
+    transform: translateY(-1px) rotate(45deg);
+}
+
+/* ---------- Conteúdo das etapas ---------- */
+.rec-passo h1:focus {
+    outline: none;
+}
+
+.rec-mensagem {
+    min-height: 0;
+    margin: 0;
+
+    color: #b42318;
+    font-size: 0.9rem;
+}
+
+.rec-mensagem:empty {
+    display: none;
+}
+
+.rec-botoes {
+    display: flex;
+    gap: 12px;
+}
+
+.rec-botoes .btn {
+    flex: 1;
+}
+
+/* Caixa do modo demonstração com o código. */
+.rec-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    padding: 14px 16px;
+
+    border: 1px dashed var(--cor-primaria);
+    border-radius: 10px;
+    background: rgba(11, 39, 64, 0.05);
+
+    color: var(--cor-texto-secundario);
+    font-size: 0.9rem;
+}
+
+.rec-demo[hidden] {
+    display: none;
+}
+
+.rec-demo-titulo {
+    color: var(--cor-primaria);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.rec-codigo {
+    color: var(--cor-primaria);
+    font-size: 1.05rem;
+    letter-spacing: 0.18em;
+}
+
+.rec-demo-validade {
+    font-size: 0.8rem;
+}
+
+.campo input.rec-input-codigo {
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: 0.5em;
+    text-align: center;
+}
+
+.rec-reenviar {
+    margin: 0;
+
+    color: var(--cor-texto-secundario);
+    font-size: 0.9rem;
+}
+
+.rec-link {
+    padding: 0;
+
+    border: 0;
+    background: none;
+
+    color: var(--cor-primaria);
+    font: inherit;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.rec-link:hover:not(:disabled) {
+    text-decoration: underline;
+}
+
+.rec-link:disabled {
+    color: var(--cor-texto-secundario);
+    cursor: default;
+}
+
+/* Requisitos da senha com feedback ao vivo. */
+.rec-requisitos {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+
+    color: var(--cor-texto-secundario);
+    font-size: 0.88rem;
+}
+
+.rec-requisitos li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rec-requisitos li::before {
+    content: "";
+
+    width: 8px;
+    height: 8px;
+
+    border-radius: 50%;
+    background: var(--cor-borda);
+
+    flex-shrink: 0;
+}
+
+.rec-requisitos li.ok {
+    color: #1a7f37;
+}
+
+.rec-requisitos li.ok::before {
+    background: #1a7f37;
+}
+
+/* ---------- Sucesso ---------- */
+.rec-sucesso {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+
+    text-align: center;
+}
+
+.rec-sucesso h1 {
+    margin: 0;
+}
+
+.rec-sucesso p {
+    margin: 0 0 8px;
+
+    color: var(--cor-texto-secundario);
+}
+
+.rec-sucesso-icone {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 64px;
+    height: 64px;
+
+    border-radius: 50%;
+    background: #e7f5ec;
+}
+
+.rec-sucesso-icone svg {
+    width: 34px;
+    height: 34px;
+
+    fill: none;
+    stroke: #1a7f37;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+@media (max-width: 480px) {
+    .rec-botoes {
+        flex-direction: column-reverse;
+    }
+
+    .rec-rotulo {
+        font-size: 0.75rem;
+    }
+}

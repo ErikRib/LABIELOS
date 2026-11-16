@@ -73,6 +73,13 @@
     gap: 18px;
 }
 
+/* Etapa 0 usa dois <form> dentro da mesma seção, alternando com `hidden`
+   (em vez de duas seções inteiras); sem isto, "display: flex" acima
+   sobrepõe o [hidden] nativo do navegador. */
+.cadastro-form[hidden] {
+    display: none;
+}
+
 /* Cada campo possui label e input empilhados. */
 .campo {
     display: flex;
@@ -447,6 +454,73 @@
 /* Só parceiros de manufatura informam endereço de retirada. */
 .cadastro-endereco[hidden] {
     display: none;
+}
+
+/* =========================
+   ETAPA 0: CONFIRMAÇÃO DE E-MAIL
+   (mesmo padrão visual de css/pages/recuperar-senha.css)
+========================= */
+
+.cadastro-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    padding: 14px 16px;
+
+    border: 1px dashed var(--cor-primaria);
+    border-radius: 10px;
+    background: rgba(11, 39, 64, 0.05);
+
+    color: var(--cor-texto-secundario);
+    font-size: 0.9rem;
+}
+
+.cadastro-demo[hidden] {
+    display: none;
+}
+
+.cadastro-demo-titulo {
+    color: var(--cor-primaria);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.cadastro-codigo-destaque {
+    color: var(--cor-primaria);
+    font-size: 1.05rem;
+    letter-spacing: 0.18em;
+}
+
+.campo input.cadastro-input-codigo {
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: 0.5em;
+    text-align: center;
+}
+
+.btn-link {
+    padding: 0;
+
+    border: 0;
+    background: none;
+
+    color: var(--cor-primaria);
+    font: inherit;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.btn-link:hover:not(:disabled) {
+    text-decoration: underline;
+}
+
+.btn-link:disabled {
+    color: var(--cor-texto-secundario);
+    cursor: default;
 }
 
 /* Mesma seta das listas do restante da plataforma (css/components/forms.css). */

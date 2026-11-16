@@ -65,6 +65,7 @@ async function carregarUsuarioAtual() {
       id: user.id,
       nome: `${user.nome} ${user.sobrenome}`.trim(),
       organizacao: user.organizacao || '',
+      foto: user.foto || '',
       memberships
     };
     atualizarIdentidadeNav(usuarioLogado);
@@ -87,6 +88,9 @@ function atualizarIdentidadeNav(usuario) {
   });
   document.querySelectorAll('.perfil-name').forEach(el => { el.textContent = usuario.nome; });
   document.querySelectorAll('.perfil-org').forEach(el => { if (usuario.organizacao) el.textContent = usuario.organizacao; });
+  if (usuario.foto) {
+    document.querySelectorAll('.nav-perfil img').forEach(img => { img.src = usuario.foto; });
+  }
 }
 
 // Se o usuário for administrador ativo de alguma organização, adiciona

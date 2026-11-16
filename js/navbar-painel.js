@@ -62,7 +62,7 @@ function desenharNavbar(user, memberships) {
       <div class="nav-acoes">
         <div class="nav-perfil-wrap">
           <button class="nav-perfil" type="button" aria-expanded="false" aria-haspopup="true">
-            <img src="/content/img/user.png" alt="Foto de perfil do usuário">
+            <img src="${user.foto || '/content/img/user.png'}" alt="Foto de perfil do usuário">
             <span class="nav-identidade"><strong>${escNav(nome)}</strong><small>${escNav(org)}</small></span>
             <span class="nav-seta" aria-hidden="true">▾</span>
           </button>

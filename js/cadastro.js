@@ -17,6 +17,90 @@ function mostrarEtapa(numero) {
     document.querySelector(`#btnBackCadastro${numero}`).addEventListener('click', () => mostrarEtapa(numero === 5 ? 3 : numero - 1));
 });
 
+// =========================
+// ETAPA 0: CONFIRMAÇÃO DE E-MAIL
+// Antes de escolher organização/vínculo, confirma que o e-mail é do usuário
+// por um código de 6 dígitos (mesmo padrão de js/recuperar-senha.js).
+// =========================
+
+let emailConfirmado = '';
+let codigoConfirmado = '';
+
+async function pedirCodigoCadastro(email) {
+    const resposta = await api('/api/auth/email/verify/start', { method: 'POST', body: JSON.stringify({ email }) });
+    document.querySelector('#emailDestinoCadastro0').textContent = email;
+    document.querySelector('#codigoDemoCadastro0').textContent = resposta.codigo || '';
+    document.querySelector('#avisoCodigoCadastro0').hidden = !resposta.codigo;
+    return resposta;
+}
+
+document.querySelector('#formEmailCadastro0').addEventListener('submit', async event => {
+    event.preventDefault();
+    const campo = document.querySelector('#emailCadastro0');
+    const mensagem = document.querySelector('#mensagemCadastro0a');
+    if (!campo.checkValidity()) { mensagem.textContent = 'Informe um e-mail válido.'; return; }
+    const botao = event.submitter;
+    botao.disabled = true;
+    try {
+        await pedirCodigoCadastro(campo.value.trim());
+        mensagem.textContent = '';
+        document.querySelector('#formEmailCadastro0').hidden = true;
+        document.querySelector('#formCodigoCadastro0').hidden = false;
+        document.querySelector('#codigoCadastro0').focus();
+    } catch (erro) {
+        mensagem.textContent = erro.message;
+    } finally {
+        botao.disabled = false;
+    }
+});
+
+document.querySelector('#codigoCadastro0').addEventListener('input', event => {
+    event.target.value = event.target.value.replace(/\D/g, '').slice(0, 6);
+});
+
+document.querySelector('#formCodigoCadastro0').addEventListener('submit', async event => {
+    event.preventDefault();
+    const email = document.querySelector('#emailCadastro0').value.trim();
+    const codigo = document.querySelector('#codigoCadastro0').value;
+    const mensagem = document.querySelector('#mensagemCadastro0b');
+    if (!/^\d{6}$/.test(codigo)) { mensagem.textContent = 'O código tem 6 dígitos.'; return; }
+    const botao = event.submitter;
+    botao.disabled = true;
+    try {
+        await api('/api/auth/email/verify/confirm', { method: 'POST', body: JSON.stringify({ email, codigo }) });
+        emailConfirmado = email;
+        codigoConfirmado = codigo;
+        document.querySelector('#email').value = email;
+        mostrarEtapa(1);
+    } catch (erro) {
+        mensagem.textContent = erro.message;
+    } finally {
+        botao.disabled = false;
+    }
+});
+
+document.querySelector('#reenviarCodigoCadastro0').addEventListener('click', async () => {
+    const mensagem = document.querySelector('#mensagemCadastro0b');
+    try {
+        await pedirCodigoCadastro(document.querySelector('#emailCadastro0').value.trim());
+        mensagem.textContent = 'Novo código gerado.';
+    } catch (erro) { mensagem.textContent = erro.message; }
+});
+
+document.querySelector('#btnVoltarCadastro0').addEventListener('click', () => {
+    document.querySelector('#formCodigoCadastro0').hidden = true;
+    document.querySelector('#formEmailCadastro0').hidden = false;
+});
+
+// Volta para a etapa 0 para usar outro e-mail (ex.: digitou errado).
+document.querySelector('#trocarEmailCadastro').addEventListener('click', () => {
+    emailConfirmado = ''; codigoConfirmado = '';
+    document.querySelector('#email').value = '';
+    document.querySelector('#formCodigoCadastro0').hidden = true;
+    document.querySelector('#formEmailCadastro0').hidden = false;
+    mostrarEtapa(0);
+});
+
 // Etapa 1: valida senhas e campos pessoais.
 const senha = document.querySelector('#senha');
 const confirmeSenha = document.querySelector('#confirmeSenha');
@@ -96,7 +180,8 @@ function montarPayload(vinculo) {
         sobrenome: document.querySelector('#segundoNome').value.trim(),
         email: document.querySelector('#email').value.trim(),
         senha: senha.value, tipo, vinculo,
-        termos: document.querySelector('#cadastroPage1 input[name="termos"]').checked
+        termos: document.querySelector('#cadastroPage1 input[name="termos"]').checked,
+        verificacao_codigo: codigoConfirmado
     };
     if (vinculo === 'existente') {
         payload.organizacao_id = organizacaoSelecionada.id;

@@ -1,5 +1,18 @@
 # LABIELOS
 
+## Versão local para apresentação
+
+Backend FastAPI + SQLite e quatro usuários de demonstração, com o front-end original preservado.
+Para executar ou levar a versão portátil a outro computador, consulte [`docs/apresentacao.md`](./docs/apresentacao.md).
+
+> ⚠️ Esta seção descreve uma variante **SQLite**, desenvolvida numa branch
+> separada (`feature/backend-gustavo`) que nunca foi mesclada à `main`. O
+> back-end que está de fato em `backend/` hoje usa **MongoDB Atlas** (ver
+> [`docs/backend-implementacao.md`](./docs/backend-implementacao.md) e
+> [`docs/variante-sqlite-local.md`](./docs/variante-sqlite-local.md)
+> para o contexto completo). As duas implementações ainda não foram
+> reconciliadas pela equipe.
+
 O **LABIELOS** é uma plataforma desenvolvida como parte de um Projeto Integrador Interdisciplinar (PI).
 
 O projeto tem como objetivo criar um hub digital para conectar **instituições de saúde e reabilitação** (organizações solicitantes) a parceiros de manufatura, como FabLabs, auxiliando no processo de solicitação, produção e acompanhamento de próteses produzidas por meio de manufatura aditiva.
@@ -50,6 +63,9 @@ A documentação técnica do projeto está disponível no diretório [`docs/`](.
 - [`integracao-backend.md`](./docs/integracao-backend.md) — **guia para a equipe do back-end**: JSON de entrada/saída de cada rota usada pelo front, mapa tela → rota e checklist.
 - [`backend.md`](./docs/backend.md) — contrato de referência da API (FastAPI + MongoDB Atlas): endpoints, instalação e limitações.
 - [`database.md`](./docs/database.md) — modelo de dados (coleções, campos e índices do MongoDB), para conferir contra o banco no Atlas.
+- [`backend-implementacao.md`](./docs/backend-implementacao.md) — aponta para `backend/README.md`, o guia completo de como o back-end foi implementado de fato.
+- [`apresentacao.md`](./docs/apresentacao.md) — versão local para demonstração offline (FastAPI + SQLite, branch separada).
+- [`variante-sqlite-local.md`](./docs/variante-sqlite-local.md) — contexto sobre as duas implementações de back-end existentes (MongoDB vs. SQLite) e por que ainda não foram unificadas.
 
 Novos documentos serão adicionados conforme outras partes da aplicação forem desenvolvidas.
 
@@ -57,6 +73,7 @@ Novos documentos serão adicionados conforme outras partes da aplicação forem 
 
 ```text
 LABIELOS/
+├── backend/
 ├── content/
 ├── css/
 ├── docs/

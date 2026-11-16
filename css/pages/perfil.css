@@ -139,3 +139,48 @@
 #linkAdmin {
     margin-top: 12px;
 }
+
+/* Zona de perigo — excluir conta (mesmo padrão visual de css/pages/admin.css) */
+.zona-perigo {
+    margin-top: 24px;
+
+    border-color: var(--cor-erro);
+
+    background-color: #fffafa;
+}
+
+.zona-perigo h2 {
+    margin-bottom: 8px;
+
+    color: var(--cor-erro-texto);
+
+    font-size: 1.15rem;
+}
+
+.zona-perigo > p {
+    margin-bottom: 8px;
+}
+
+.zona-perigo .campo {
+    max-width: 480px;
+
+    margin: 16px 0 12px;
+}
+
+.btn-perigo-cheio {
+    border: none;
+
+    background-color: var(--cor-erro);
+    color: var(--cor-texto-claro);
+}
+
+.btn-perigo-cheio:hover:not(:disabled) {
+    background-color: var(--cor-erro-texto);
+}
+
+.btn-perigo-cheio:disabled {
+    background-color: var(--cor-fundo-secundario);
+    color: var(--cor-texto-secundario);
+
+    cursor: not-allowed;
+}

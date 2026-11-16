@@ -632,6 +632,13 @@ objeto atualizado (o front atualiza o nome no cabeçalho).
 #### `DELETE /api/organizations/{org_id}` — remover organização 🆕
 A tela exige que o admin digite o nome da organização para habilitar o botão.
 
+> ⚠️ **Divergência da implementação real** (a pedido do usuário): em vez do
+> soft delete descrito abaixo, a implementação atual apaga de verdade a
+> organização e seus vínculos/materiais/impressoras (hard delete). Isso não
+> quebra o histórico porque o nome da organização já é salvo junto de cada
+> solicitação no momento da criação, não resolvido ao vivo. Ver
+> `backend/README.md`, seção 11, para os detalhes e o teste feito.
+
 - **Bloqueio (`409`)** se houver trabalho em andamento. Para organização
   solicitante: solicitações com status diferente de `Concluída`. Para
   fabricante: demandas `Em análise`, `Em produção` ou `Pronta para retirada`. O `detail` deve

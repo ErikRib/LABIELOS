@@ -215,7 +215,8 @@ function abrirModalMaterial(id) {
     });
   }
   modal.showModal();
-  form.elements.material.focus();
+  // Sem foco automático no campo "Material": ele tem sugestões (js/sugestoes.js),
+  // que abrem a lista inteira ao ganhar foco — abriria sozinha ao abrir o modal.
 }
 
 async function salvarMaterial(e) {

@@ -1,6 +1,7 @@
 // Perfil autenticado: carrega e atualiza os dados no backend.
 const $ = seletor => document.querySelector(seletor);
 const aviso = (seletor, texto) => { $(seletor).textContent = texto; };
+let emailUsuario = '';
 
 // O link "voltar" e a navbar do painel certo vêm de js/navbar-painel.js.
 async function carregarPerfil() {
@@ -16,6 +17,8 @@ async function carregarPerfil() {
       : 'Nenhum vínculo institucional cadastrado.';
     // Atalho para html/admin.html só para administradores ativos.
     $('#linkAdmin').hidden = !memberships.some(m => m.role === 'admin' && m.membership_status === 'active');
+    $('#emailConfirmacaoConta').textContent = user.email;
+    emailUsuario = user.email;
   } catch { location.href = '/html/login.html'; }
 }
 carregarPerfil();
@@ -56,5 +59,23 @@ $('#formSenha').addEventListener('submit', async event => {
     const result = await api('/api/me/password', { method: 'POST', body: JSON.stringify({ senha_atual: $('#senhaAtual').value, nova_senha: $('#novaSenha').value }) });
     alert(result.message); location.href = '/html/login.html';
   } catch (erro) { aviso('#mensagemSeguranca', erro.message); }
+});
+
+// Excluir conta: só libera o botão quando o e-mail digitado bate com o da conta.
+$('#confirmarExclusaoConta').addEventListener('input', e => {
+  $('#btnExcluirConta').disabled = e.target.value.trim() !== emailUsuario;
+});
+$('#btnExcluirConta').addEventListener('click', async () => {
+  if ($('#confirmarExclusaoConta').value.trim() !== emailUsuario) return;
+  const botao = $('#btnExcluirConta');
+  botao.disabled = true;
+  try {
+    await api('/api/me', { method: 'DELETE' });
+    try { await api('/api/auth/logout', { method: 'POST' }); } catch { /* sessão já encerrada */ }
+    location.href = '/index.html';
+  } catch (erro) {
+    aviso('#mensagemExclusaoConta', erro.message);   // ex.: 409 sendo único admin de uma organização
+    botao.disabled = false;
+  }
 });
 

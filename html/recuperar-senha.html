@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Recuperar senha</title>
+
+    <!-- CSS global e componentes reutilizados no site público -->
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/components/navbar.css">
+    <link rel="stylesheet" href="/css/components/buttons.css">
+    <link rel="stylesheet" href="/css/components/accessibility.css">
+    <link rel="stylesheet" href="/css/components/footer.css">
+
+    <!-- CSS exclusivo da tela de login -->
+    <link rel="stylesheet" href="/css/pages/login.css">
+    <link rel="stylesheet" href="/css/pages/recuperar-senha.css">
+
+    <link rel="icon" type="image/png" href="/content/img/favicon.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <script src="/js/acessibilidade.js" defer></script>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script src="https://cdn.userway.org/widget.js" data-account="yhU6qPJU60" data-position="6"></script>
+    <script src="/js/interface.js" defer></script>
+
+<body>
+
+    <!-- =========================
+         RECUPERAÇÃO DE SENHA EM ETAPAS
+    ========================== -->
+    <main class="login-pagina">
+
+        <section class="login-container recuperar" aria-labelledby="tituloEtapa">
+
+            <!-- Progresso: 3 etapas + barra -->
+            <nav class="rec-progresso" aria-label="Progresso da recuperação">
+                <p class="rec-progresso-texto" id="progressoTexto" aria-live="polite">Etapa 1 de 3</p>
+                <div class="rec-barra" role="progressbar" aria-labelledby="progressoTexto" aria-valuemin="1" aria-valuemax="3" aria-valuenow="1">
+                    <span class="rec-barra-preenchida" id="barraProgresso"></span>
+                </div>
+                <ol class="rec-etapas">
+                    <li class="rec-etapa ativa" data-etapa="1"><span class="rec-bolinha">1</span><span class="rec-rotulo">E-mail</span></li>
+                    <li class="rec-etapa" data-etapa="2"><span class="rec-bolinha">2</span><span class="rec-rotulo">Código</span></li>
+                    <li class="rec-etapa" data-etapa="3"><span class="rec-bolinha">3</span><span class="rec-rotulo">Nova senha</span></li>
+                </ol>
+            </nav>
+
+            <!-- Etapa 1: identificar a conta -->
+            <form class="login-form rec-passo" id="passo1" data-passo="1" novalidate>
+                <div class="login-texto">
+                    <span class="login-tag">Recuperação de senha</span>
+                    <h1 id="tituloEtapa" tabindex="-1">Esqueceu sua senha?</h1>
+                    <p>Informe o e-mail da sua conta. Vamos gerar um código de verificação de 6 dígitos.</p>
+                </div>
+                <div class="campo">
+                    <label for="email">E-mail</label>
+                    <input id="email" name="email" type="email" autocomplete="email" placeholder="nome@exemplo.com" required>
+                </div>
+                <p class="rec-mensagem" id="msg1" role="alert"></p>
+                <div class="rec-botoes">
+                    <a href="/html/login.html" class="btn btn-secundario">Voltar ao login</a>
+                    <button type="submit" class="btn btn-principal">Enviar código</button>
+                </div>
+            </form>
+
+            <!-- Etapa 2: confirmar o código -->
+            <form class="login-form rec-passo" id="passo2" data-passo="2" hidden novalidate>
+                <div class="login-texto">
+                    <span class="login-tag">Verificação</span>
+                    <h1 tabindex="-1">Digite o código</h1>
+                    <p><span id="textoDestino">Enviamos um código para</span> <strong id="emailDestino"></strong>. <span id="dicaSpam">Se não encontrar, confira a caixa de spam.</span></p>
+                </div>
+                <div class="rec-demo" id="avisoCodigo" role="status">
+                    <span class="rec-demo-titulo">Modo demonstração</span>
+                    <span id="textoDemo">Para a apresentação, o código também aparece aqui: <strong id="codigoDemo" class="rec-codigo"></strong></span>
+                    <span class="rec-demo-validade">Válido por 10 minutos.</span>
+                </div>
+                <div class="campo">
+                    <label for="codigo">Código de verificação</label>
+                    <input id="codigo" name="codigo" class="rec-input-codigo" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000" required>
+                </div>
+                <p class="rec-mensagem" id="msg2" role="alert"></p>
+                <p class="rec-reenviar">Não recebeu? <button type="button" class="rec-link" id="reenviar">Gerar novo código</button></p>
+                <div class="rec-botoes">
+                    <button type="button" class="btn btn-secundario" data-voltar="1">Voltar</button>
+                    <button type="submit" class="btn btn-principal">Verificar código</button>
+                </div>
+            </form>
+
+            <!-- Etapa 3: nova senha -->
+            <form class="login-form rec-passo" id="passo3" data-passo="3" hidden novalidate>
+                <div class="login-texto">
+                    <span class="login-tag">Nova senha</span>
+                    <h1 tabindex="-1">Crie sua nova senha</h1>
+                    <p>Escolha uma senha que você ainda não tenha usado.</p>
+                </div>
+                <div class="campo">
+                    <label for="novaSenha">Nova senha</label>
+                    <input id="novaSenha" type="password" minlength="8" maxlength="128" autocomplete="new-password" placeholder="Mínimo de 8 caracteres" required>
+                </div>
+                <div class="campo">
+                    <label for="confirmarSenha">Confirmar nova senha</label>
+                    <input id="confirmarSenha" type="password" minlength="8" maxlength="128" autocomplete="new-password" placeholder="Repita a nova senha" required>
+                </div>
+                <ul class="rec-requisitos" aria-label="Requisitos da senha">
+                    <li id="reqTamanho">Pelo menos 8 caracteres</li>
+                    <li id="reqIguais">As duas senhas coincidem</li>
+                </ul>
+                <p class="rec-mensagem" id="msg3" role="alert"></p>
+                <div class="rec-botoes">
+                    <button type="button" class="btn btn-secundario" data-voltar="2">Voltar</button>
+                    <button type="submit" class="btn btn-principal">Redefinir senha</button>
+                </div>
+            </form>
+
+            <!-- Concluído -->
+            <section class="rec-passo rec-sucesso" id="passo4" data-passo="4" hidden>
+                <span class="rec-sucesso-icone" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M5 12.5 10 17.5 19 7"/></svg>
+                </span>
+                <h1 tabindex="-1">Senha redefinida!</h1>
+                <p>Sua senha foi alterada com sucesso. Por segurança, as sessões abertas foram encerradas.</p>
+                <a href="/html/login.html" class="btn btn-principal btn-login">Ir para o login</a>
+            </section>
+
+        </section>
+
+    </main>
+
+    <footer class="footer-principal">
+        <div class="footer-conteudo">
+            <nav class="footer-links" aria-label="Links do rodapé">
+                <a href="/index.html">Início</a>
+                <a href="/html/contato.html">Contato</a>
+                <a href="/html/termos.html">Termos de Uso</a>
+                <a href="/html/privacidade.html">Política de Privacidade</a>
+            </nav>
+            <p class="footer-copy-outros">&copy; 2026 - LABIELOS · Todos os direitos reservados</p>
+        </div>
+    </footer>
+
+<script src="/js/api.js" defer></script>
+<script src="/js/recuperar-senha.js" defer></script>
+<script src="/js/mostrar-senha.js" defer></script>
+</body>
+
+</html>

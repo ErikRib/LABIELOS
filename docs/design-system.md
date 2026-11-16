@@ -337,7 +337,7 @@ docs/
                                 MongoDB Atlas, confirmado como a stack
                                 real do back-end — ver seção 11)
 
-README_API.md (raiz do projeto) — resumo da versão com API
+variante-sqlite-local.md — resumo da versão com API (antigo README_API.md, movido para cá)
 ```
 
 ---

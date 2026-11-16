@@ -1,3 +1,20 @@
 Doc-PI/
 .vscode/
+.runtime/
+.venv/
 __pycache__/
+*.pyc
+data/
+dist/
+*.log
+
+# Ambiente virtual e Python embutido do backend (local, não versionado)
+backend/venv/
+backend/source/
+
+# Arquivos enviados pelos usuários (fotos de perfil, anexos 3D)
+backend/uploads/
+
+# Segredos locais
+.env
+**/.env

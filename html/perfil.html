@@ -29,6 +29,7 @@
     <script src="/js/api.js" defer></script>
     <script src="/js/navbar-painel.js" defer></script>
     <script src="/js/perfil.js" defer></script>
+    <script src="/js/mostrar-senha.js" defer></script>
 </head>
 
 <body>
@@ -161,6 +162,20 @@
                 <p id="minhasOrganizacoes" class="texto-detalhe">Carregando vínculos institucionais...</p>
                 <a href="/html/admin.html" class="btn btn-secundario btn-acao" id="linkAdmin" hidden>Administrar organização</a>
             </article>
+
+            <section class="painel-bloco zona-perigo" aria-labelledby="tituloExcluirConta">
+                <h2 id="tituloExcluirConta">Excluir conta</h2>
+                <p>Exclui a sua conta do LABIELOS permanentemente: seus vínculos com organizações são encerrados e
+                    você perde o acesso. <strong>Não é possível desfazer.</strong></p>
+                <p class="texto-apoio">Só é permitido quando você não é o único administrador ativo de nenhuma
+                    organização.</p>
+                <div class="campo">
+                    <label for="confirmarExclusaoConta">Para confirmar, digite seu e-mail: <strong id="emailConfirmacaoConta"></strong></label>
+                    <input id="confirmarExclusaoConta" autocomplete="off">
+                </div>
+                <p class="perfil-aviso" id="mensagemExclusaoConta" role="alert"></p>
+                <button type="button" class="btn btn-acao btn-perigo-cheio" id="btnExcluirConta" disabled>Excluir minha conta</button>
+            </section>
 
         </div>
 

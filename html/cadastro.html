@@ -35,8 +35,53 @@
          ÁREA DE CADASTRO
     ========================== -->
     <main class="cadastro-pagina">
-        
-        <section aria-labelledby="titulo-cadastro-1" class="cadastro-container" id="cadastroPage1">
+
+        <!-- ETAPA 0: CONFIRMAÇÃO DE E-MAIL (antes de escolher organização/vínculo) -->
+        <section aria-labelledby="titulo-cadastro-0" class="cadastro-container" id="cadastroPage0">
+
+            <header class="cadastro-texto">
+                <span class="cadastro-tag">Confirme seu e-mail</span>
+                <h1 id="titulo-cadastro-0">Vamos confirmar seu e-mail</h1>
+                <p>Informe o e-mail que você vai usar para entrar no LABIELOS. Enviamos um código de 6 dígitos para
+                    confirmar que ele é seu.</p>
+            </header>
+
+            <form class="cadastro-form" id="formEmailCadastro0">
+                <div class="campo">
+                    <label for="emailCadastro0">E-mail *</label>
+                    <input autocomplete="email" id="emailCadastro0" name="email" placeholder="nome@exemplo.com"
+                        required type="email" />
+                </div>
+                <p id="mensagemCadastro0a" class="cadastro-aviso cadastro-erro" role="alert"></p>
+                <div class="cadastro-botoes">
+                    <button class="btn btn-principal" type="submit">Enviar código</button>
+                </div>
+            </form>
+
+            <form class="cadastro-form" id="formCodigoCadastro0" hidden>
+                <p>Enviamos um código para <strong id="emailDestinoCadastro0"></strong>. Se não encontrar, confira a
+                    caixa de spam.</p>
+                <div class="cadastro-demo" id="avisoCodigoCadastro0" role="status">
+                    <span class="cadastro-demo-titulo">Modo demonstração</span>
+                    <span>Para a apresentação, o código também aparece aqui:
+                        <strong id="codigoDemoCadastro0" class="cadastro-codigo-destaque"></strong></span>
+                </div>
+                <div class="campo">
+                    <label for="codigoCadastro0">Código de verificação *</label>
+                    <input id="codigoCadastro0" class="cadastro-input-codigo" inputmode="numeric"
+                        pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000" required />
+                </div>
+                <p id="mensagemCadastro0b" class="cadastro-aviso cadastro-erro" role="alert"></p>
+                <p class="cadastro-aviso">Não recebeu? <button type="button" class="btn-link" id="reenviarCodigoCadastro0">Gerar novo código</button></p>
+                <div class="cadastro-botoes">
+                    <button class="btn btn-secundario" type="button" id="btnVoltarCadastro0">Voltar</button>
+                    <button class="btn btn-principal" type="submit">Confirmar e continuar</button>
+                </div>
+            </form>
+
+        </section>
+
+        <section aria-labelledby="titulo-cadastro-1" class="cadastro-container" hidden id="cadastroPage1">
 
             <!-- Texto introdutório do card -->
             <header class="cadastro-texto">
@@ -62,7 +107,8 @@
                 <div class="campo">
                     <label for="email">E-mail *</label>
                     <input autocomplete="email" id="email" name="email" placeholder="nome@exemplo.com" required=""
-                        type="email" />
+                        type="email" readonly />
+                    <small class="cadastro-aviso">Já confirmado. <button type="button" class="btn-link" id="trocarEmailCadastro">Usar outro e-mail</button></small>
                 </div>
 
                 <div class="campo">
@@ -307,6 +353,7 @@
     </button>
     <script src="/js/api.js" defer></script>
     <script src="/js/cadastro.js" defer></script>
+    <script src="/js/mostrar-senha.js" defer></script>
 </body>
 
 </html>

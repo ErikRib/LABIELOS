@@ -5,13 +5,18 @@
 > exato (JSON de entrada e saída) de cada rota que o front-end chama,
 > o mapa tela → rota e um checklist de entrega.
 
-> **Nota:** a pasta `backend/` referenciada neste documento (com
-> `app.py`, `requirements.txt`, `.env.example` etc.) **não
-> está incluída neste repositório** — este arquivo é só o contrato de
-> referência (rotas, formatos de entrada/saída) para quem for implementar
-> o back-end em FastAPI, não uma pasta que já existe aqui. Os nomes de
-> rota e campos aqui descritos são o ponto de partida; ajuste conforme a
-> implementação real avançar.
+> ⚠️ **Este documento está desatualizado.** Ele foi escrito como
+> planejamento, antes da implementação existir — inclusive dizia que a
+> pasta `backend/` "não está incluída neste repositório", o que não é
+> mais verdade: ela existe, está implementada e funcionando. Vários
+> detalhes abaixo também não batem mais com a implementação real (ex.:
+> variáveis de ambiente `MONGODB_URI`/`MONGODB_DB`/`SESSION_SECRET` vs. o
+> `MONGO_URI` único usado hoje; hash de senha com Argon2 vs. bcrypt na
+> implementação real). **Para a instalação e a arquitetura reais, use
+> [`backend-implementacao.md`](./backend-implementacao.md)** (que aponta
+> para `backend/README.md`). O resto deste arquivo pode ainda servir como
+> referência histórica do contrato de rotas, mas prefira
+> `integracao-backend.md` para o contrato oficial.
 
 ## Tecnologias
 

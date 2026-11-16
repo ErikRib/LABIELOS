@@ -12,6 +12,17 @@
 > são `datetime` em UTC; o front recebe `"dd/mm/aaaa"` ou
 > `"dd/mm/aaaa hh:mm"`, e a formatação é feita na API. Campos marcados
 > **derivado** não são guardados: a API calcula na resposta.
+>
+> ⚠️ **Divergência de nomenclatura:** este documento usa nomes de coleção
+> em inglês (`users`, `organizations`, `sessions`, `email_codes`), mas a
+> implementação real (`backend/database.py`) usa nomes em português:
+> `usuarios`, `organizacoes`, `memberships`, `sessoes`, `solicitacoes`,
+> `materiais`, `impressoras`, `contadores` (sequência do protocolo),
+> `codigos_recuperacao` (recuperação de senha) e
+> `codigos_verificacao_cadastro` (confirmação de e-mail no cadastro). A
+> estrutura de campos descrita abaixo é, em geral, equivalente — a
+> diferença é só o nome da coleção. Ver `backend/criar_indices.py` para
+> os índices realmente criados.
 
 ## Visão geral
 
