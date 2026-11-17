@@ -1,72 +1,40 @@
 # LABIELOS
 
-## Versão local para apresentação
-
-Backend FastAPI + SQLite e quatro usuários de demonstração, com o front-end original preservado.
-Para executar ou levar a versão portátil a outro computador, consulte [`docs/apresentacao.md`](./docs/apresentacao.md).
-
-> ⚠️ Esta seção descreve uma variante **SQLite**, desenvolvida numa branch
-> separada (`feature/backend-gustavo`) que nunca foi mesclada à `main`. O
-> back-end que está de fato em `backend/` hoje usa **MongoDB Atlas** (ver
-> [`docs/backend.md`](./docs/backend.md) e
-> [`docs/variante-sqlite-local.md`](./docs/variante-sqlite-local.md)
-> para o contexto completo). As duas implementações ainda não foram
-> reconciliadas pela equipe.
-
 O **LABIELOS** é uma plataforma desenvolvida como parte de um Projeto Integrador Interdisciplinar (PI).
 
 O projeto tem como objetivo criar um hub digital para conectar **instituições de saúde e reabilitação** (organizações solicitantes) a parceiros de manufatura, como FabLabs, auxiliando no processo de solicitação, produção e acompanhamento de próteses produzidas por meio de manufatura aditiva.
 
-> O projeto encontra-se atualmente em desenvolvimento.
-
-## Status do projeto
-
-Atualmente, o desenvolvimento está concentrado principalmente no **front-end da aplicação**.
-
-Já foram desenvolvidas interfaces iniciais para:
-
-- página pública do LABIELOS;
-- autenticação;
-- dashboard da organização solicitante;
-- gerenciamento e acompanhamento de solicitações;
-- parceiros de manufatura (impressoras livres, materiais para doação, locais de retirada e contato);
-- relatórios da organização solicitante (todas as solicitações, indicadores, gráficos e exportação CSV);
-- nova solicitação em assistente de 4 etapas (informações, arquivo e especificações, revisão, envio), que entra numa fila global vista por todos os fabricantes;
-- fila global de novas solicitações para os fabricantes (o primeiro que aceitar assume a demanda);
-- registro de impressoras do fabricante (base da capacidade produtiva);
-- fluxo completo de produção: impressora e origem do material (doado pelo parceiro, com baixa no estoque, ou fornecido pelo solicitante, com a etapa "Aguardando material"), conclusão com local de retirada, aprovação da peça ou devolução para ajuste;
-- visualizador 3D dos arquivos anexados (STL, OBJ e 3MF, com three.js);
-- materiais de impressão disponíveis para doação (consulta pela organização solicitante e gestão pelo fabricante);
-- administração da organização (pedidos de ingresso, membros, dados de cadastro, endereços de retirada e remoção da organização); quem cria uma organização nova entra direto como administrador;
-- recursos iniciais de acessibilidade.
-
-Login, cadastro, perfil, administração, materiais e os painéis da organização solicitante/fabricante já chamam uma API real. O contrato está em `docs/integracao-backend.md`, `docs/backend.md` e `docs/database.md`. O back-end (FastAPI) está com a equipe de back, e o banco já existe no MongoDB Atlas; essas telas dependem do servidor rodando para funcionar.
-
 ## Tecnologias
 
-Atualmente o front-end utiliza:
+- **Front-end:** HTML5, CSS3 e JavaScript puro (sem frameworks).
+- **Back-end:** Python com FastAPI.
+- **Banco de dados:** MongoDB Atlas (não relacional), incluindo GridFS para os arquivos enviados (fotos de perfil, arquivos 3D e anexos do histórico).
 
-- HTML5;
-- CSS3;
-- JavaScript.
+Front-end e back-end rodam juntos, na mesma porta — a própria API serve os arquivos estáticos (HTML/CSS/JS).
 
-Novas tecnologias serão adicionadas à documentação conforme a arquitetura da aplicação evoluir.
+## Funcionalidades
+
+- Cadastro (com confirmação de e-mail por código), login, recuperação de senha e perfil (dados pessoais, foto, troca de e-mail/senha, exclusão de conta);
+- Administração da organização (pedidos de ingresso, membros, dados de cadastro, endereços de retirada, remoção da organização); quem cria uma organização nova entra direto como administrador;
+- Nova solicitação em assistente de etapas (informações, arquivo e especificações, revisão, envio), que entra numa fila global vista por todos os fabricantes;
+- Fila global de novas solicitações para os fabricantes (o primeiro que aceitar assume a demanda), com edição da solicitação também em etapas;
+- Fluxo completo de produção: impressora e origem do material (doado pelo parceiro, com baixa no estoque, ou fornecido pelo solicitante, com a etapa "Aguardando material"), conclusão com local e contato de retirada, aprovação da peça ou devolução para ajuste;
+- Visualizador 3D dos arquivos anexados (STL, OBJ e 3MF, com three.js);
+- Registro de impressoras e materiais de impressão disponíveis para doação (consulta pela organização solicitante e gestão pelo fabricante);
+- Parceiros de manufatura (impressoras livres, materiais para doação, locais de retirada e contato) e relatórios da organização solicitante (indicadores, gráficos e exportação);
+- Formulário de contato com envio de e-mail;
+- Paginação em todas as listas do sistema;
+- Recursos de acessibilidade.
 
 ## Documentação
 
-A documentação técnica do projeto está disponível no diretório [`docs/`](./docs/).
+A documentação técnica do projeto está no diretório [`docs/`](./docs/):
 
-### Documentos disponíveis
-
-- [`frontend.md`](./docs/frontend.md) — estrutura, páginas, componentes, funcionalidades e estado atual do front-end.
-- [`design-system.md`](./docs/design-system.md) — Design System (Figma) aplicado ao projeto, painel do fabricante, filtros avançados e demais mudanças.
-- [`integracao-backend.md`](./docs/integracao-backend.md) — **guia para a equipe do back-end**: JSON de entrada/saída de cada rota usada pelo front, mapa tela → rota e checklist.
-- [`backend.md`](./docs/backend.md) — **guia do back-end** (FastAPI + MongoDB Atlas): arquitetura, como rodar, configuração de e-mail (Brevo), arquivos no MongoDB, mapa de rotas e decisões tomadas.
-- [`database.md`](./docs/database.md) — modelo de dados (coleções, campos e índices do MongoDB), para conferir contra o banco no Atlas.
-- [`apresentacao.md`](./docs/apresentacao.md) — versão local para demonstração offline (FastAPI + SQLite, branch separada).
-- [`variante-sqlite-local.md`](./docs/variante-sqlite-local.md) — contexto sobre as duas implementações de back-end existentes (MongoDB vs. SQLite) e por que ainda não foram unificadas.
-
-Novos documentos serão adicionados conforme outras partes da aplicação forem desenvolvidas.
+- [`backend.md`](./docs/backend.md) — arquitetura do back-end (FastAPI + MongoDB Atlas), como rodar, rotas, configuração de e-mail e decisões tomadas.
+- [`database.md`](./docs/database.md) — modelo de dados (coleções, campos e índices do MongoDB).
+- [`integracao-backend.md`](./docs/integracao-backend.md) — contrato entre front-end e back-end (formato de cada requisição/resposta).
+- [`frontend.md`](./docs/frontend.md) — estrutura, páginas, componentes e funcionalidades do front-end.
+- [`design-system.md`](./docs/design-system.md) — Design System aplicado ao projeto.
 
 ## Estrutura
 
@@ -80,3 +48,21 @@ LABIELOS/
 ├── js/
 ├── index.html
 └── README.md
+```
+
+## Como rodar localmente
+
+Veja o passo a passo completo em [`docs/backend.md`](./docs/backend.md). Resumo:
+
+```bash
+cd backend
+pip install -r requirements.txt
+```
+
+Configure `backend/.env` (copie `.env.example`) com a `MONGO_URI` do MongoDB Atlas, depois:
+
+```bash
+uvicorn main:app --reload
+```
+
+Acesse `http://127.0.0.1:8000/html/login.html`.
