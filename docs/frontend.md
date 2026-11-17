@@ -164,7 +164,7 @@ A página `html/login.html` contém a interface de autenticação.
 > ⚠️ **Atualização:** esta seção estava desatualizada — dizia que a
 > autenticação "ainda dependerá da implementação posterior do back-end".
 > Isso já foi implementado (`backend/routes/auth.py`, ver
-> `docs/backend-implementacao.md`): login, cadastro e sessão por cookie
+> `docs/backend.md`): login, cadastro e sessão por cookie
 > já funcionam de verdade contra a API.
 
 Além de `login.html`, existe `html/recuperar-senha.html` — tela de
@@ -180,7 +180,7 @@ e `css/pages/recuperar-senha.css`, e reaproveita `js/mostrar-senha.js`
 assistente: o usuário informa o e-mail, recebe um código de 6 dígitos e
 confirma, só então o formulário de organização/senha aparece. Rotas:
 `POST /api/auth/email/verify/start` e `.../confirm` (ver
-`docs/backend-implementacao.md`).
+`docs/backend.md`).
 
 ### 4.3 Contato
 

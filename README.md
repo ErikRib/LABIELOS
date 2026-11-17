@@ -8,7 +8,7 @@ Para executar ou levar a versão portátil a outro computador, consulte [`docs/a
 > ⚠️ Esta seção descreve uma variante **SQLite**, desenvolvida numa branch
 > separada (`feature/backend-gustavo`) que nunca foi mesclada à `main`. O
 > back-end que está de fato em `backend/` hoje usa **MongoDB Atlas** (ver
-> [`docs/backend-implementacao.md`](./docs/backend-implementacao.md) e
+> [`docs/backend.md`](./docs/backend.md) e
 > [`docs/variante-sqlite-local.md`](./docs/variante-sqlite-local.md)
 > para o contexto completo). As duas implementações ainda não foram
 > reconciliadas pela equipe.
@@ -61,9 +61,8 @@ A documentação técnica do projeto está disponível no diretório [`docs/`](.
 - [`frontend.md`](./docs/frontend.md) — estrutura, páginas, componentes, funcionalidades e estado atual do front-end.
 - [`design-system.md`](./docs/design-system.md) — Design System (Figma) aplicado ao projeto, painel do fabricante, filtros avançados e demais mudanças.
 - [`integracao-backend.md`](./docs/integracao-backend.md) — **guia para a equipe do back-end**: JSON de entrada/saída de cada rota usada pelo front, mapa tela → rota e checklist.
-- [`backend.md`](./docs/backend.md) — contrato de referência da API (FastAPI + MongoDB Atlas): endpoints, instalação e limitações.
+- [`backend.md`](./docs/backend.md) — **guia do back-end** (FastAPI + MongoDB Atlas): arquitetura, como rodar, configuração de e-mail (Brevo), arquivos no MongoDB, mapa de rotas e decisões tomadas.
 - [`database.md`](./docs/database.md) — modelo de dados (coleções, campos e índices do MongoDB), para conferir contra o banco no Atlas.
-- [`backend-implementacao.md`](./docs/backend-implementacao.md) — aponta para `backend/README.md`, o guia completo de como o back-end foi implementado de fato.
 - [`apresentacao.md`](./docs/apresentacao.md) — versão local para demonstração offline (FastAPI + SQLite, branch separada).
 - [`variante-sqlite-local.md`](./docs/variante-sqlite-local.md) — contexto sobre as duas implementações de back-end existentes (MongoDB vs. SQLite) e por que ainda não foram unificadas.
 

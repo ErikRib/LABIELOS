@@ -2,7 +2,7 @@
 
 Esta é a versão local para apresentação acadêmica. O HTML, CSS, JavaScript e as imagens originais foram preservados. A API implementa o contrato que o front-end já utiliza. Não precisa de MongoDB, Docker, Git, conta na nuvem ou instalação de banco.
 
-> ⚠️ **Nota de estado (ver [`backend-implementacao.md`](./backend-implementacao.md), seção 11, e o README raiz):** esta via SQLite foi desenvolvida numa branch separada (`feature/backend-gustavo`) e nunca foi integrada ao `backend/` que está em uso hoje na `main` — o `backend/app.py` atual é a implementação em FastAPI + MongoDB Atlas, não a SQLite descrita aqui. Os arquivos citados abaixo (`backend/db.py`, `data/labielos.sqlite3`, o ZIP em `dist/`, `tests/test_api.py`, `scripts/build_portable.py`) correspondem a essa via alternativa e podem estar desatualizados ou incompatíveis com o `backend/` atual. Antes de usar este guia, confirme com a equipe qual das duas implementações é a vigente.
+> ⚠️ **Nota de estado (ver [`backend.md`](./backend.md), seção 11, e o README raiz):** esta via SQLite foi desenvolvida numa branch separada (`feature/backend-gustavo`) e nunca foi integrada ao `backend/` que está em uso hoje na `main` — o `backend/app.py` atual é a implementação em FastAPI + MongoDB Atlas, não a SQLite descrita aqui. Os arquivos citados abaixo (`backend/db.py`, `data/labielos.sqlite3`, o ZIP em `dist/`, `tests/test_api.py`, `scripts/build_portable.py`) correspondem a essa via alternativa e podem estar desatualizados ou incompatíveis com o `backend/` atual. Antes de usar este guia, confirme com a equipe qual das duas implementações é a vigente.
 
 ## Levar para uma máquina limpa
 

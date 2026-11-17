@@ -2,7 +2,7 @@
 from datetime import datetime, timedelta, timezone
 
 # Horário de Brasília fixo (sem horário de verão) — simplificação para o
-# projeto; ver backend/README.md.
+# projeto; ver docs/backend.md.
 FUSO_BRASILIA = timezone(timedelta(hours=-3))
 
 

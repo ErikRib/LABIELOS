@@ -7,12 +7,12 @@ from urllib.parse import quote
 
 from bson import ObjectId
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from pymongo import ReturnDocument
 
 from contexto import organizacao_ativa
 from database import (
-    contadores_collection, impressoras_collection, materiais_collection, organizacoes_collection,
+    arquivos_bucket, contadores_collection, impressoras_collection, materiais_collection, organizacoes_collection,
     solicitacoes_collection, usuarios_collection,
 )
 from deps import exigir_fabricante, exigir_organizacao_solicitante
@@ -25,8 +25,9 @@ from utilitarios import FUSO_BRASILIA, calcular_situacao, endereco_texto, format
 
 router = APIRouter(prefix="/api", tags=["Solicitações"])
 
+# Só usada como respaldo para arquivos antigos, enviados antes de os
+# arquivos irem para o GridFS (ver database.py).
 UPLOAD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "uploads", "arquivos3d")
-os.makedirs(UPLOAD_DIR, exist_ok=True)
 EXTENSOES_3D = {"stl", "obj", "3mf", "step", "stp", "iges", "igs"}
 TAMANHO_MAX_3D = 50 * 1024 * 1024
 
@@ -80,12 +81,18 @@ async def nome_organizacao_atual(org_id, fallback: Optional[str]) -> Optional[st
     return fallback
 
 
-async def evento_publico(evento: dict) -> dict:
+async def evento_publico(evento: dict, protocolo: str | None = None) -> dict:
     autor = await autor_atual(evento.get("autor_user_id"), evento.get("autor_org_id"), evento.get("autor", ""))
-    return {
+    publico = {
         "data": evento["data"], "tipo": evento["tipo"], "titulo": evento["titulo"],
         "descricao": evento["descricao"], "autor": autor,
     }
+    if evento.get("anexo") and protocolo:
+        publico["anexo"] = {
+            "nome": evento["anexo"]["nome"],
+            "url": f"/api/solicitacoes/{quote(protocolo)}/anexos/{evento['anexo']['id']}",
+        }
+    return publico
 
 
 def validar_prazo(prazo: Optional[str]) -> None:
@@ -126,20 +133,42 @@ async def salvar_arquivo3d(arquivo) -> dict:
     conteudo = await arquivo.read()
     if len(conteudo) > TAMANHO_MAX_3D:
         raise HTTPException(status_code=422, detail="Arquivo 3D maior que 50 MB.")
-    nome_disco = f"{uuid.uuid4().hex}.{extensao}"
-    with open(os.path.join(UPLOAD_DIR, nome_disco), "wb") as f:
-        f.write(conteudo)
+    content_type = arquivo.content_type or "application/octet-stream"
+    arquivo_id = await arquivos_bucket.upload_from_stream(
+        nome_original, conteudo, metadata={"content_type": content_type, "tipo": "arquivo3d"}
+    )
     return {
         "nome": nome_original, "formato": extensao.upper(), "tamanho": formatar_tamanho(len(conteudo)),
-        "arquivo_disco": nome_disco, "content_type": arquivo.content_type or "application/octet-stream",
+        "arquivo_id": arquivo_id, "content_type": content_type,
     }
+
+
+async def apagar_arquivo_gridfs(arquivo_id) -> None:
+    if not arquivo_id:
+        return
+    try:
+        await arquivos_bucket.delete(arquivo_id)
+    except Exception:  # já apagado: nada a fazer
+        pass
+
+
+async def resposta_arquivo_gridfs(arquivo_id, nome: str, content_type: str) -> Response:
+    try:
+        fluxo = await arquivos_bucket.open_download_stream(arquivo_id)
+    except Exception:
+        raise HTTPException(status_code=404, detail="Arquivo não encontrado no servidor.")
+    conteudo = await fluxo.read()
+    return Response(
+        content=conteudo, media_type=content_type,
+        headers={"Content-Disposition": "attachment; filename*=UTF-8''" + quote(nome)},
+    )
 
 
 async def solicitacao_publica(doc: dict) -> dict:
     # "requerente"/"atribuido": resolvidos ao vivo pelo id da organização
     # (requerente_org_id/atribuido_org_id); o nome gravado na criação só
     # serve de fallback se a organização tiver sido apagada (hard delete —
-    # ver backend/README.md §11).
+    # ver docs/backend.md §11).
     requerente = await nome_organizacao_atual(doc.get("requerente_org_id"), doc["requerente_nome"])
     atribuido = await nome_organizacao_atual(doc.get("atribuido_org_id"), doc.get("atribuido_nome"))
 
@@ -262,6 +291,7 @@ async def editar_solicitacao(protocolo: str, request: Request, contexto=Depends(
 
     if arquivo is not None:
         campos["arquivo3d"] = await salvar_arquivo3d(arquivo)
+        await apagar_arquivo_gridfs((doc.get("arquivo3d") or {}).get("arquivo_id"))
 
     agora = agora_texto()
     campos["ultima_atualizacao"] = agora
@@ -545,7 +575,7 @@ async def reprovar_solicitacao(protocolo: str, dados: ReprovarEntrada, contexto=
 @router.get("/solicitacoes/{protocolo}/historico")
 async def historico_solicitacao(protocolo: str, usuario: dict = Depends(usuario_atual)):
     doc = await buscar_visivel(protocolo, usuario)
-    return [await evento_publico(e) for e in doc.get("historico", [])]
+    return [await evento_publico(e, doc["protocolo"]) for e in doc.get("historico", [])]
 
 
 @router.post("/solicitacoes/{protocolo}/historico")
@@ -575,9 +605,16 @@ async def adicionar_historico(protocolo: str, request: Request, usuario: dict = 
     if arquivo is not None:
         tipo = "Anexo"
         conteudo = await arquivo.read()
-        nome_disco = f"{uuid.uuid4().hex}_{arquivo.filename}"
-        with open(os.path.join(UPLOAD_DIR, nome_disco), "wb") as f:
-            f.write(conteudo)
+        if len(conteudo) > TAMANHO_MAX_3D:
+            raise HTTPException(status_code=422, detail="Anexo maior que 50 MB.")
+        content_type = arquivo.content_type or "application/octet-stream"
+        anexo = {
+            "id": await arquivos_bucket.upload_from_stream(
+                arquivo.filename, conteudo, metadata={"content_type": content_type, "tipo": "anexo"}
+            ),
+            "nome": arquivo.filename,
+            "content_type": content_type,
+        }
         descricao = f"{mensagem} (anexo: {arquivo.filename})".strip()
 
     evento = {
@@ -585,8 +622,10 @@ async def adicionar_historico(protocolo: str, request: Request, usuario: dict = 
         "titulo": "Comentário" if tipo == "Comentário" else "Anexo adicionado",
         "descricao": descricao, **autor_campos(usuario, org_ativa),
     }
+    if arquivo is not None:
+        evento["anexo"] = anexo
     await solicitacoes_collection.update_one({"_id": doc["_id"]}, {"$push": {"historico": evento}})
-    return await evento_publico(evento)
+    return await evento_publico(evento, doc["protocolo"])
 
 
 @router.get("/solicitacoes/{protocolo}/arquivo3d")
@@ -595,7 +634,23 @@ async def baixar_arquivo3d(protocolo: str, usuario: dict = Depends(usuario_atual
     arquivo = doc.get("arquivo3d")
     if not arquivo:
         raise HTTPException(status_code=404, detail="Esta solicitação não tem arquivo 3D.")
-    caminho = os.path.join(UPLOAD_DIR, arquivo["arquivo_disco"])
-    if not os.path.exists(caminho):
+    content_type = arquivo.get("content_type", "application/octet-stream")
+    if arquivo.get("arquivo_id"):
+        return await resposta_arquivo_gridfs(arquivo["arquivo_id"], arquivo["nome"], content_type)
+    # Respaldo: arquivos antigos, gravados em disco antes do GridFS.
+    caminho = os.path.join(UPLOAD_DIR, arquivo.get("arquivo_disco") or "")
+    if not arquivo.get("arquivo_disco") or not os.path.exists(caminho):
         raise HTTPException(status_code=404, detail="Arquivo não encontrado no servidor.")
-    return FileResponse(caminho, media_type=arquivo.get("content_type", "application/octet-stream"), filename=arquivo["nome"])
+    return FileResponse(caminho, media_type=content_type, filename=arquivo["nome"])
+
+
+@router.get("/solicitacoes/{protocolo}/anexos/{anexo_id}")
+async def baixar_anexo(protocolo: str, anexo_id: str, usuario: dict = Depends(usuario_atual)):
+    doc = await buscar_visivel(protocolo, usuario)
+    anexo = next(
+        (ev["anexo"] for ev in doc.get("historico", []) if ev.get("anexo") and str(ev["anexo"]["id"]) == anexo_id),
+        None,
+    )
+    if not anexo:
+        raise HTTPException(status_code=404, detail="Anexo não encontrado.")
+    return await resposta_arquivo_gridfs(anexo["id"], anexo["nome"], anexo["content_type"])

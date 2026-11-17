@@ -36,6 +36,8 @@
     <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
     <script src="https://cdn.userway.org/widget.js" data-account="yhU6qPJU60" data-position="6"></script>
     <script src="/js/interface.js" defer></script>
+    <script src="/js/api.js" defer></script>
+    <script src="/js/contato.js" defer></script>
 </head>
 
 <body>
@@ -58,11 +60,8 @@
                     </p>
                 </div>
 
-                <!--
-                    O formulário ainda não possui integração de envio.
-                    O CSS abaixo deixa a interface pronta; a ação poderá ser conectada ao backend depois.
-                -->
-                <form class="contato-form">
+                <!-- Envio: js/contato.js -> POST /api/contato (backend/routes/contato.py). -->
+                <form class="contato-form" id="formContato" novalidate>
 
                     <div class="campo-duplo">
                         <div class="campo">
@@ -92,6 +91,8 @@
                         <label for="mensagem">Mensagem</label>
                         <textarea id="mensagem" name="mensagem" rows="6" required></textarea>
                     </div>
+
+                    <p id="contatoStatus" class="contato-status" role="status" aria-live="polite" hidden></p>
 
                     <button type="submit" class="btn btn-principal btn-enviar">Enviar mensagem</button>
                 </form>

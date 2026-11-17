@@ -6,7 +6,7 @@ que quiser conferir se os índices existem):
     python criar_indices.py
 
 É seguro rodar mais de uma vez — `create_index` não duplica um índice que já
-existe com a mesma definição. Ver backend/README.md, seção "Banco de dados",
+existe com a mesma definição. Ver docs/backend.md, seção "Banco de dados",
 para a explicação de cada coleção.
 """
 import asyncio

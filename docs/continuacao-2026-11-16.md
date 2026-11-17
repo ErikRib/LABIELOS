@@ -4,7 +4,7 @@
 > computador:** leia este arquivo primeiro. Ele resume tudo que foi feito
 > numa sessão longa de implementação do back-end e ajustes finos de
 > front-end, pra você continuar sem precisar reconstruir o contexto do
-> zero. Complementa `backend/README.md` (arquitetura/rotas) e
+> zero. Complementa `docs/backend.md` (arquitetura/rotas) e
 > `docs/integracao-backend.md` (contrato original do front).
 
 ## ⚠️ Antes de qualquer coisa: commit pendente
@@ -28,7 +28,7 @@ Hub de manufatura aditiva (impressão 3D) conectando organizações que
 precisam de peças (ex.: clínicas de reabilitação) a fabricantes parceiros.
 Back-end **FastAPI + MongoDB Atlas**, front-end **HTML/CSS/JS puro**,
 servidos juntos na mesma porta (a API serve os estáticos). Veja
-`backend/README.md` pra arquitetura completa.
+`docs/backend.md` pra arquitetura completa.
 
 ## Estado do banco (MongoDB Atlas)
 
@@ -51,7 +51,7 @@ servidos juntos na mesma porta (a API serve os estáticos). Veja
    e-mail/senha, excluir conta), administração de organizações, fluxo
    completo de solicitações (fila global, aceitar, produção, retirada,
    aprovar/reprovar), materiais, impressoras, parceiros. Ver
-   `backend/README.md` pra lista completa de rotas e simplificações
+   `docs/backend.md` pra lista completa de rotas e simplificações
    assumidas (ex.: upload em disco em vez de GridFS, SMTP opcional com
    modo demonstração).
 2. **Hard-delete de organização**: `DELETE /api/organizations/{id}` apaga

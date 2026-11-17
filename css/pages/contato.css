@@ -169,3 +169,13 @@
         width: 100%;
     }
 }
+
+/* Retorno do envio do formulário de contato (js/contato.js). */
+.contato-status {
+    margin: 0;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
+.contato-status[data-tipo="sucesso"] { background: #e7f6ec; color: #17603a; border: 1px solid #b7e1c6; }
+.contato-status[data-tipo="erro"] { background: #fdecec; color: #8a1f1f; border: 1px solid #f3c2c2; }

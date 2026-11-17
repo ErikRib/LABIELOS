@@ -334,6 +334,7 @@ async function renderDetalheSolicitacao() {
             <time>${evento.data}</time>
           </div>
           <p>${evento.descricao}</p>
+          ${evento.anexo ? `<a class="link-detalhe" href="${evento.anexo.url}" download>Baixar anexo: ${evento.anexo.nome}</a>` : ""}
           <span class="timeline-autor">Por ${evento.autor}</span>
         </div>
       </article>`).join('');

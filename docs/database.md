@@ -220,10 +220,22 @@ fabricantes ativos; o fabricante lê e escreve só os seus.
 ## Arquivos
 
 Os arquivos 3D (`stl, obj, 3mf, step, stp, iges, igs`, até 50 MB) e os anexos
-do histórico ficam em GridFS (bucket `arquivos`) ou em storage de objetos
-privado. O documento guarda só a referência (`file_id`). O download passa
-pela API (`GET /api/solicitacoes/{protocolo}/arquivo3d`), que confere a
+do histórico ficam em **GridFS, bucket `arquivos`** (coleções
+`arquivos.files` e `arquivos.chunks`). A solicitação guarda a referência em
+`arquivo3d.arquivo_id`; cada evento com anexo guarda
+`anexo: {id, nome, content_type}`. O download passa pela API
+(`GET /api/solicitacoes/{protocolo}/arquivo3d` e
+`GET /api/solicitacoes/{protocolo}/anexos/{anexo_id}`), que confere a
 visibilidade.
+
+A foto de perfil (até 2 MB) fica na coleção **`fotos_perfil`**
+(`_id` = id do usuário, `conteudo` em bytes, `mime`); o usuário guarda só
+`foto_arquivo` e `foto_atualizada_em` (usado para cache-busting).
+
+Nada é gravado em disco no servidor — assim, todas as máquinas que usam o
+mesmo banco enxergam os mesmos arquivos (ver [`backend.md`](./backend.md),
+seção 13). Registros antigos com `arquivo_disco` ainda são lidos de
+`backend/uploads/` como respaldo.
 
 ## Remoção de organização (soft delete)
 

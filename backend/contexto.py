@@ -3,7 +3,7 @@
 Um usuário pode, em tese, ter vínculo com mais de uma organização, mas o
 front-end (ver js/api.js → destinoAposEntrar) sempre trabalha com "a
 primeira organização ativa" do usuário. Este módulo segue a mesma regra:
-é uma simplificação deliberada (ver backend/README.md)."""
+é uma simplificação deliberada (ver docs/backend.md)."""
 from bson import ObjectId
 
 from database import memberships_collection, organizacoes_collection

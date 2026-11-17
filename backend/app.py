@@ -18,7 +18,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from routes import auth, impressoras, materiais, organizations, parceiros, solicitacoes
+from routes import auth, contato, impressoras, materiais, organizations, parceiros, solicitacoes
 
 app = FastAPI(
     title="LABIELOS API",
@@ -43,6 +43,7 @@ app.include_router(solicitacoes.router)
 app.include_router(materiais.router)
 app.include_router(impressoras.router)
 app.include_router(parceiros.router)
+app.include_router(contato.router)
 
 
 @app.get("/api/health")

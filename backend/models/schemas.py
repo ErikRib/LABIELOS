@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 # Não usamos o EmailStr do pydantic (biblioteca email-validator) porque ela
 # rejeita domínios de teste como "...@algo.test" ou "...@exemplo" — e tanto
 # os dados de exemplo do doc quanto os testes deste projeto usam esse tipo
-# de e-mail fictício. Ver backend/README.md.
+# de e-mail fictício. Ver docs/backend.md.
 Email = Annotated[str, Field(pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$", min_length=3, max_length=200)]
 
 # ---------------------------------------------------------------------------
@@ -42,7 +42,7 @@ class RegistroEntrada(BaseModel):
     termos: bool
     # Código de 6 dígitos confirmado em POST /auth/email/verify/confirm antes
     # de chegar aqui (rota não documentada em docs/integracao-backend.md —
-    # ver backend/README.md). Validado manualmente na rota, não aqui, para
+    # ver docs/backend.md). Validado manualmente na rota, não aqui, para
     # devolver uma mensagem de erro específica.
     verificacao_codigo: Optional[str] = None
     # vínculo == "existente"

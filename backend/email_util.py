@@ -5,7 +5,7 @@ Sem nenhuma variável SMTP_* configurada em backend/.env, `tentar_enviar_email`
 simplesmente não tenta enviar e devolve False — o chamador então decide o
 que fazer (nesses dois casos, mostrar o código na resposta em vez de confiar
 no e-mail). Isso é uma simplificação deliberada para a demonstração: ver
-backend/README.md."""
+docs/backend.md."""
 import html
 import os
 import smtplib
@@ -18,7 +18,34 @@ COR_BORDA = "#e2e5ea"
 
 
 def smtp_configurado() -> bool:
-    return bool(os.getenv("SMTP_HOST"))
+    return bool(os.getenv("SMTP_HOST") or os.getenv("BREVO_API_KEY"))
+
+
+def _enviar_via_brevo(destinatario: str, assunto: str, corpo: str, corpo_html: str | None, responder_para: str | None = None) -> None:
+    """Envio pela API HTTPS da Brevo (porta 443). Útil em redes/máquinas que
+    bloqueiam SMTP (portas 587/465)."""
+    import json
+    import urllib.request
+
+    remetente = os.getenv("SMTP_FROM") or os.getenv("SMTP_USER") or "no-reply@labielos.local"
+    dados = {
+        "sender": {"name": "LABIELOS", "email": remetente},
+        "to": [{"email": destinatario}],
+        "subject": assunto,
+        "textContent": corpo,
+    }
+    if corpo_html:
+        dados["htmlContent"] = corpo_html
+    if responder_para:
+        dados["replyTo"] = {"email": responder_para}
+    requisicao = urllib.request.Request(
+        "https://api.brevo.com/v3/smtp/email",
+        data=json.dumps(dados).encode("utf-8"),
+        headers={"api-key": os.environ["BREVO_API_KEY"], "Content-Type": "application/json", "Accept": "application/json"},
+        method="POST",
+    )
+    with urllib.request.urlopen(requisicao, timeout=10):
+        pass
 
 
 def montar_email_codigo(titulo: str, nome: str, codigo: str, instrucao: str, rodape: str) -> str:
@@ -27,7 +54,7 @@ def montar_email_codigo(titulo: str, nome: str, codigo: str, instrucao: str, rod
     porque e-mail HTML não roda <style> externo nem variáveis CSS — as
     cores abaixo são as mesmas de --cor-primaria etc. em css/style.css,
     copiadas aqui como valor fixo."""
-    codigo_espacado = " ".join(codigo)
+    codigo_espacado = codigo  # sem espaços: assim copiar e colar o código funciona
     saudacao = f"Olá, {html.escape(nome)}!" if nome else "Olá!"
     return f"""\
 <!DOCTYPE html>
@@ -55,7 +82,7 @@ def montar_email_codigo(titulo: str, nome: str, codigo: str, instrucao: str, rod
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center" style="background-color:{COR_PRIMARIA}; border-radius:10px; padding:20px;">
-                    <span style="color:{COR_TEXTO_CLARO}; font-size:32px; font-weight:bold; letter-spacing:10px; font-family:'Courier New', monospace;">
+                    <span style="color:{COR_TEXTO_CLARO}; font-size:32px; font-weight:bold; letter-spacing:14px; font-family:'Courier New', monospace;">
                       {codigo_espacado}
                     </span>
                   </td>
@@ -77,10 +104,15 @@ def montar_email_codigo(titulo: str, nome: str, codigo: str, instrucao: str, rod
 """
 
 
-def tentar_enviar_email(destinatario: str, assunto: str, corpo: str, corpo_html: str | None = None) -> bool:
+def tentar_enviar_email(
+    destinatario: str, assunto: str, corpo: str, corpo_html: str | None = None, responder_para: str | None = None
+) -> bool:
     if not smtp_configurado():
         return False
     try:
+        if os.getenv("BREVO_API_KEY"):
+            _enviar_via_brevo(destinatario, assunto, corpo, corpo_html, responder_para)
+            return True
         host = os.environ["SMTP_HOST"]
         porta = int(os.getenv("SMTP_PORT", "587"))
         usuario = os.getenv("SMTP_USER")
@@ -91,6 +123,8 @@ def tentar_enviar_email(destinatario: str, assunto: str, corpo: str, corpo_html:
         mensagem["Subject"] = assunto
         mensagem["From"] = remetente
         mensagem["To"] = destinatario
+        if responder_para:
+            mensagem["Reply-To"] = responder_para
         # multipart/alternative: clientes que não mostram HTML (raros hoje em
         # dia) caem para este texto simples automaticamente.
         mensagem.set_content(corpo)

@@ -19,3 +19,17 @@ async function destinoAposEntrar() {
     return '/html/perfil.html';
   }
 }
+
+// Campos de código de 6 dígitos: ao colar, descarta espaços e qualquer
+// outro caractere que venha junto (ex.: "4 7 7 4 9 1" copiado de um e-mail),
+// para que o maxlength não corte o código no meio.
+document.addEventListener('paste', (evento) => {
+  const campo = evento.target;
+  if (!(campo instanceof HTMLInputElement) || campo.getAttribute('pattern') !== '[0-9]{6}') return;
+  const texto = (evento.clipboardData || window.clipboardData).getData('text');
+  const digitos = texto.replace(/\D/g, '').slice(0, 6);
+  if (!digitos) return;
+  evento.preventDefault();
+  campo.value = digitos;
+  campo.dispatchEvent(new Event('input', { bubbles: true }));
+});

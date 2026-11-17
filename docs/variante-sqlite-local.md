@@ -13,7 +13,7 @@ diferentes de maturidade:
 1. **FastAPI + MongoDB Atlas** — a que está em uso em `backend/` na
    branch `main` hoje. Documentada em [`backend.md`](./backend.md),
    [`database.md`](./database.md) e, com mais detalhe de implementação,
-   em [`backend-implementacao.md`](./backend-implementacao.md).
+   em [`backend.md`](./backend.md).
 2. **FastAPI + SQLite** — uma versão local, sem dependência de nuvem,
    pensada para apresentação/demonstração offline, com pacote portátil
    (`../dist/*.zip`) e quatro contas de teste prontas. Documentada em
@@ -22,7 +22,7 @@ diferentes de maturidade:
 ⚠️ **Essas duas vieram de branches diferentes e não foram unificadas.**
 A SQLite foi desenvolvida em `feature/backend-gustavo` (nunca mesclada à
 `main`); o `backend/app.py` que está de fato rodando hoje é o da
-implementação MongoDB. Ver `backend-implementacao.md`, seção 11, para
+implementação MongoDB. Ver `backend.md`, seção 11, para
 mais contexto. Antes de seguir qualquer um dos dois guias, confirme com
 a equipe qual implementação vocês querem levar adiante.
 

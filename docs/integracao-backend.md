@@ -547,6 +547,16 @@ Lista em **ordem cronológica** (o front inverte para mostrar o mais recente pri
 `{"tipo": "Comentário" | "Anexo", "mensagem": "..."}` ou multipart com
 `tipo`, `mensagem` e `arquivo`. 🆕 A tela não tem mais o seletor "Tipo de registro": o front manda `tipo="Anexo"` quando há arquivo e `"Comentário"` quando não há. O back pode até ignorar o campo e decidir pela presença do arquivo. `data` e `autor` vêm da sessão. Resposta: o evento criado.
 
+🆕 Eventos com arquivo trazem também `"anexo": {"nome": "...", "url": "/api/solicitacoes/{protocolo}/anexos/{anexo_id}"}`
+(em `GET .../historico` e na resposta do `POST`). A `url` baixa o arquivo
+(mesma regra de visibilidade da solicitação); o front mostra um link
+"Baixar anexo" no evento. Extensão deste back-end — ver `docs/backend.md`, seção 13.
+
+### `POST /api/contato` 🆕 (formulário "Fale conosco", sem login)
+`{"primeiroNome", "segundoNome", "email", "assunto", "mensagem"}` → `200 {"message": "..."}`.
+Envia a mensagem por e-mail para a equipe. Erros: `422` (campo vazio/e-mail
+inválido), `502` (falha no envio). Detalhes em `docs/backend.md`, seção 15.
+
 ### Página de detalhes: fluxo da solicitação
 A linha e as bolinhas do "Fluxo da solicitação" são calculadas no front a
 partir de `status`: `Aberta`=1, `Em análise`=2, `Em produção`=3 e
@@ -637,7 +647,7 @@ A tela exige que o admin digite o nome da organização para habilitar o botão.
 > organização e seus vínculos/materiais/impressoras (hard delete). Isso não
 > quebra o histórico porque o nome da organização já é salvo junto de cada
 > solicitação no momento da criação, não resolvido ao vivo. Ver
-> `backend/README.md`, seção 11, para os detalhes e o teste feito.
+> `docs/backend.md`, seção 11, para os detalhes e o teste feito.
 
 - **Bloqueio (`409`)** se houver trabalho em andamento. Para organização
   solicitante: solicitações com status diferente de `Concluída`. Para

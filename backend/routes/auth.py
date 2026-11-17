@@ -7,11 +7,12 @@ from datetime import timedelta
 
 from bson import ObjectId
 from fastapi import APIRouter, Depends, File, HTTPException, Request, Response, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response as RespostaBruta
 
 from contexto import listar_memberships
 from database import (
-    codigos_recuperacao_collection, codigos_verificacao_cadastro_collection, memberships_collection,
+    codigos_recuperacao_collection, codigos_verificacao_cadastro_collection, fotos_perfil_collection,
+    memberships_collection,
     organizacoes_collection, usuarios_collection,
 )
 from email_util import montar_email_codigo, tentar_enviar_email
@@ -112,7 +113,7 @@ async def registrar(dados: RegistroEntrada, response: Response):
 
     # E-mail já tem conta (por exemplo: a organização anterior dele foi
     # removida, mas a conta continua existindo). Se a senha bater, reaproveita
-    # a conta em vez de recusar o cadastro — ver backend/README.md.
+    # a conta em vez de recusar o cadastro — ver docs/backend.md.
     usuario_existente = await usuarios_collection.find_one({"email": email})
     if usuario_existente:
         if not verificar_senha(dados.senha, usuario_existente.get("senha_hash", "")):
@@ -268,6 +269,7 @@ async def excluir_conta(response: Response, usuario: dict = Depends(usuario_atua
         caminho = os.path.join(FOTOS_DIR, usuario["foto_arquivo"])
         if os.path.exists(caminho):
             os.remove(caminho)
+    await fotos_perfil_collection.delete_one({"_id": usuario["_id"]})
     await usuarios_collection.delete_one({"_id": usuario["_id"]})
     await revogar_sessoes_usuario(usuario["_id"])
     response.delete_cookie(NOME_COOKIE, path="/")
@@ -282,14 +284,14 @@ async def enviar_foto(photo: UploadFile = File(...), usuario: dict = Depends(usu
     if len(conteudo) > 2 * 1024 * 1024:
         raise HTTPException(status_code=422, detail="Imagem maior que 2 MB.")
 
-    for extensao in EXTENSAO_POR_MIME.values():
-        caminho_antigo = os.path.join(FOTOS_DIR, f"{usuario['_id']}.{extensao}")
-        if os.path.exists(caminho_antigo):
-            os.remove(caminho_antigo)
-
+    # A foto fica no próprio MongoDB (e não em disco), para que todos os
+    # computadores que usam o mesmo banco enxerguem a mesma foto.
+    await fotos_perfil_collection.replace_one(
+        {"_id": usuario["_id"]},
+        {"_id": usuario["_id"], "conteudo": conteudo, "mime": photo.content_type},
+        upsert=True,
+    )
     nome_arquivo = f"{usuario['_id']}.{EXTENSAO_POR_MIME[photo.content_type]}"
-    with open(os.path.join(FOTOS_DIR, nome_arquivo), "wb") as arquivo:
-        arquivo.write(conteudo)
 
     await usuarios_collection.update_one(
         {"_id": usuario["_id"]},
@@ -302,6 +304,10 @@ async def enviar_foto(photo: UploadFile = File(...), usuario: dict = Depends(usu
 async def obter_foto(usuario: dict = Depends(usuario_atual)):
     if not usuario.get("foto_arquivo"):
         raise HTTPException(status_code=404, detail="Sem foto cadastrada.")
+    foto = await fotos_perfil_collection.find_one({"_id": usuario["_id"]})
+    if foto:
+        return RespostaBruta(content=bytes(foto["conteudo"]), media_type=foto["mime"])
+    # Respaldo: fotos antigas, enviadas antes de irem para o banco.
     caminho = os.path.join(FOTOS_DIR, usuario["foto_arquivo"])
     if not os.path.exists(caminho):
         raise HTTPException(status_code=404, detail="Sem foto cadastrada.")
@@ -373,7 +379,7 @@ async def logout(request: Request, response: Response):
 # Confirmação de e-mail antes de concluir o cadastro.
 #
 # Rota adicional, não documentada em docs/integracao-backend.md (ver
-# backend/README.md). Mesmo padrão de "modo demonstração" da recuperação de
+# docs/backend.md). Mesmo padrão de "modo demonstração" da recuperação de
 # senha: sem SMTP configurado, o código vem na própria resposta.
 # ---------------------------------------------------------------------------
 
@@ -429,7 +435,7 @@ async def confirmar_verificacao_email(dados: ConfirmarVerificacaoEmail):
 # ---------------------------------------------------------------------------
 # Recuperação de senha por código de 6 dígitos (sem login)
 #
-# Simplificação deliberada (ver backend/README.md): se não houver variáveis
+# Simplificação deliberada (ver docs/backend.md): se não houver variáveis
 # SMTP_* configuradas em backend/.env (ou se o envio falhar), a rota não
 # depende de um servidor de e-mail de verdade — ela devolve o próprio código
 # na resposta ("modo demonstração"), e o front mostra esse código na tela.
