@@ -336,8 +336,6 @@ docs/
 └── backend.md, database.md — contrato de referência da API (FastAPI +
                                 MongoDB Atlas, confirmado como a stack
                                 real do back-end — ver seção 11)
-
-variante-sqlite-local.md — resumo da versão com API (antigo README_API.md, movido para cá)
 ```
 
 ---
