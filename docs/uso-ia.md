@@ -14,6 +14,10 @@ A estrutura base foi implementada pela equipe. IA generativa foi usada para comp
 
 A modelagem e a implementação das coleções do MongoDB foram feitas manualmente, sem uso de IA.
 
+## Documentação
+
+A documentação técnica do projeto (os arquivos em `docs/`, este incluído) também foi escrita com apoio de IA generativa, a partir do que foi de fato implementado no código.
+
 ---
 
 Em todos os casos, as regras de negócio, o fluxo do sistema e os testes finais de cada funcionalidade foram definidos e validados pela equipe.
