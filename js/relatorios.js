@@ -102,18 +102,20 @@ function renderRelatorio() {
   const porStatus = aplicarFiltrosRel(solicitacoes, f, 'status');
   renderBarras($r('#graficoStatus'),
     ORDEM_STATUS_REL.map(st => [st, porStatus.filter(s => s.status === st).length]).filter(([, n]) => n),
-    v => { $r('#relStatus').value = $r('#relStatus').value === v ? '' : v; renderRelatorio(); }, f.status);
+    v => { $r('#relStatus').value = $r('#relStatus').value === v ? '' : v; $r('#relStatus').dispatchEvent(new Event('change')); renderRelatorio(); }, f.status);
   const porParceiro = aplicarFiltrosRel(solicitacoes, f, 'parceiro').filter(s => s.atribuido);
   const contagem = {};
   porParceiro.forEach(s => { contagem[s.atribuido] = (contagem[s.atribuido] || 0) + 1; });
   renderBarras($r('#graficoParceiro'),
     Object.entries(contagem).sort((a, b) => b[1] - a[1]),
-    v => { $r('#relParceiro').value = $r('#relParceiro').value === v ? '' : v; renderRelatorio(); }, f.parceiro);
+    v => { $r('#relParceiro').value = $r('#relParceiro').value === v ? '' : v; $r('#relParceiro').dispatchEvent(new Event('change')); renderRelatorio(); }, f.parceiro);
 
   // Tabela
   const tbody = $r('#tabelaRelatorio tbody');
-  tbody.innerHTML = linhas.length
-    ? linhas.map(({ s, conclusao, dias }) => `
+  renderComPaginacao({
+    chave: 'tabelaRelatorio', tbody, itens: linhas,
+    vazio: '<tr><td colspan="8" class="estado-vazio">Nenhuma solicitação com os filtros escolhidos.</td></tr>',
+    renderLinhas: pagina => pagina.map(({ s, conclusao, dias }) => `
       <tr class="linha-clicavel" tabindex="0" data-protocolo="${escaparHTML(s.protocolo)}" aria-label="Abrir detalhes da solicitação ${escaparHTML(s.protocolo)}">
         <td>${escaparHTML(s.protocolo)}</td>
         <td>${escaparHTML(s.solicitacao)}</td>
@@ -123,9 +125,10 @@ function renderRelatorio() {
         <td>${escaparHTML(s.abertura)}</td>
         <td>${escaparHTML(conclusao || '—')}</td>
         <td>${dias ?? '—'}${s.status !== 'Concluída' && dias !== null ? ' <small class="texto-apoio">(em aberto)</small>' : ''}</td>
-      </tr>`).join('')
-    : '<tr><td colspan="8" class="estado-vazio">Nenhuma solicitação com os filtros escolhidos.</td></tr>';
+      </tr>`).join(''),
+  });
   ativarLinhasClicaveis(tbody);
+  if (!tbody.dataset.pagOuvinte) { tbody.dataset.pagOuvinte = '1'; tbody.addEventListener('paginacao-mudou', renderRelatorio); }
 }
 
 // CSV com ";" (abre direto no Excel em português) e BOM para os acentos.
@@ -153,11 +156,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   preencherOpcoes($r('#relStatus'), presentes);
   preencherOpcoes($r('#relCategoria'), [...new Set(solicitacoes.map(s => s.categoria).filter(Boolean))].sort());
   preencherOpcoes($r('#relParceiro'), [...new Set(solicitacoes.map(s => s.atribuido).filter(Boolean))].sort());
+  // Só agora, com as opções já populadas, troca a aparência dos <select>
+  // pelo mesmo visual das listas de sugestão do resto do site.
+  window.ativarSelectsEstilizados?.();
 
   ['#relBusca', '#relStatus', '#relCategoria', '#relParceiro', '#relDe', '#relAte'].forEach(sel =>
     $r(sel).addEventListener(sel === '#relBusca' ? 'input' : 'change', renderRelatorio));
   $r('#relLimpar').addEventListener('click', () => {
-    ['#relBusca', '#relStatus', '#relCategoria', '#relParceiro', '#relDe', '#relAte'].forEach(sel => { $r(sel).value = ''; });
+    ['#relBusca', '#relStatus', '#relCategoria', '#relParceiro', '#relDe', '#relAte'].forEach(sel => {
+      $r(sel).value = '';
+      $r(sel).dispatchEvent(new Event('change'));
+    });
     renderRelatorio();
   });
   $r('#exportarRelatorio').addEventListener('click', exportarRelatorio);

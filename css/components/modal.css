@@ -294,3 +294,10 @@
 
     font-weight: 600;
 }
+
+
+/* Com qualquer <dialog> aberto, trava a rolagem da página de fundo
+   (ver a trava em js/prototipo.js, no fim do arquivo). */
+body.modal-aberto {
+    overflow: hidden;
+}

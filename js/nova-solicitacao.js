@@ -31,7 +31,7 @@ const NOVA_ETAPAS = [
 // Formatos aceitos e tamanho máximo do arquivo 3D (o back-end deve
 // validar os mesmos limites — ver docs/backend.md).
 const NOVA_FORMATOS_3D = ['stl', 'obj', '3mf', 'step', 'stp', 'iges', 'igs'];
-const NOVA_TAMANHO_MAX_3D = 50 * 1024 * 1024; // 50 MB
+const NOVA_TAMANHO_MAX_3D = 200 * 1024 * 1024; // 200 MB
 
 const NOVA_CATEGORIAS = ['Órtese', 'Prótese', 'Adaptação', 'Dispositivo assistivo', 'Peça de reposição'];
 const NOVA_MATERIAIS_PADRAO = ['PLA', 'PETG', 'TPU', 'ABS', 'Nylon', 'Resina'];
@@ -121,7 +121,7 @@ function templateNovaSolicitacao() {
                   accept="${NOVA_FORMATOS_3D.map(f => '.' + f).join(',')}" aria-describedby="ajudaArquivo3d">
                 <span class="dropzone-icone" aria-hidden="true">3D</span>
                 <span class="dropzone-texto"><strong>Clique para escolher</strong> ou arraste o arquivo aqui</span>
-                <small class="campo-ajuda" id="ajudaArquivo3d">Opcional. STL, OBJ, 3MF, STEP/STP ou IGES/IGS — até 50 MB.</small>
+                <small class="campo-ajuda" id="ajudaArquivo3d">Opcional. STL, OBJ, 3MF, STEP/STP ou IGES/IGS — até 200 MB.</small>
               </label>
               <div class="arquivo-escolhido" data-arquivo-escolhido hidden>
                 <span class="anexo-icone" aria-hidden="true">3D</span>
@@ -270,7 +270,7 @@ function definirArquivo(arquivo) {
   if (arquivo) {
     const ext = arquivo.name.split('.').pop().toLowerCase();
     if (!NOVA_FORMATOS_3D.includes(ext)) { erro.textContent = 'Formato não suportado. Use STL, OBJ, 3MF, STEP/STP ou IGES/IGS.'; return; }
-    if (arquivo.size > NOVA_TAMANHO_MAX_3D) { erro.textContent = 'Arquivo maior que 50 MB.'; return; }
+    if (arquivo.size > NOVA_TAMANHO_MAX_3D) { erro.textContent = 'Arquivo maior que 200 MB.'; return; }
   }
   novaArquivo = arquivo || null;
   const escolhido = novaQ('[data-arquivo-escolhido]');

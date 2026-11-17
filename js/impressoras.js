@@ -94,8 +94,10 @@ function renderTabelaImpressoras() {
     && (!f.status || i.status === f.status));
 
   const e = escaparHTML;
-  tbody.innerHTML = lista.length
-    ? lista.map(i => `
+  renderComPaginacao({
+    chave: 'tabelaImpressoras', tbody, itens: lista,
+    vazio: `<tr><td colspan="7" class="estado-vazio">${impressoras.length ? 'Nenhuma impressora encontrada com os filtros.' : 'Nenhuma impressora registrada.'}</td></tr>`,
+    renderLinhas: pagina => pagina.map(i => `
       <tr>
         <td><strong>${e(i.nome)}</strong>${i.modelo ? `<br><small class="texto-apoio">${e(i.modelo)}</small>` : ''}</td>
         <td>${e(i.tecnologia)}</td>
@@ -109,14 +111,15 @@ function renderTabelaImpressoras() {
             <button type="button" class="btn btn-acao-tabela btn-perigo" data-remover-impressora="${e(i.id)}">Remover</button>
           </div>
         </td>
-      </tr>`).join('')
-    : `<tr><td colspan="7" class="estado-vazio">${impressoras.length ? 'Nenhuma impressora encontrada com os filtros.' : 'Nenhuma impressora registrada.'}</td></tr>`;
+      </tr>`).join(''),
+  });
 
   const contador = document.querySelector('#contadorImpressoras');
   if (contador) contador.textContent = `${lista.length} de ${impressoras.length} impressoras`;
 
   tbody.querySelectorAll('[data-editar-impressora]').forEach(b => b.addEventListener('click', () => abrirModalImpressora(b.dataset.editarImpressora)));
   tbody.querySelectorAll('[data-remover-impressora]').forEach(b => b.addEventListener('click', () => removerImpressora(b.dataset.removerImpressora)));
+  if (!tbody.dataset.pagOuvinte) { tbody.dataset.pagOuvinte = '1'; tbody.addEventListener('paginacao-mudou', renderTabelaImpressoras); }
 }
 
 function prepararFiltrosImpressoras() {

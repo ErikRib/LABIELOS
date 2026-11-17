@@ -87,17 +87,8 @@
                             <input id="sobrenomePerfil" name="sobrenome" autocomplete="family-name" required
                                 maxlength="80">
                         </div>
-                        <div class="campo">
-                            <label for="telefonePerfil">Telefone</label>
-                            <input id="telefonePerfil" name="telefone" type="tel" autocomplete="tel"
-                                placeholder="(11) 99999-9999" maxlength="20">
-                        </div>
                     </div>
 
-                    <div class="perfil-form-rodape">
-                        <p id="mensagemPerfil" class="perfil-aviso" role="status"></p>
-                        <button class="btn btn-principal btn-acao" type="submit">Salvar alterações</button>
-                    </div>
                 </form>
             </article>
 
@@ -188,6 +179,14 @@
                 <button type="button" class="btn btn-acao btn-perigo-cheio" id="btnExcluirConta" disabled>Excluir minha conta</button>
             </section>
 
+        </div>
+
+        <!-- Ação de "Dados pessoais" fora do card, no fim da página: o
+             formulário (#formPerfil) continua lá dentro, este botão só
+             aponta pra ele via o atributo "form". -->
+        <div class="perfil-rodape-pagina">
+            <p id="mensagemPerfil" class="perfil-aviso" role="status"></p>
+            <button class="btn btn-principal btn-acao" type="submit" form="formPerfil">Salvar alterações</button>
         </div>
 
     </main>

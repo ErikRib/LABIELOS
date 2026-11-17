@@ -2,7 +2,11 @@
 async function api(url, options = {}) {
   const response = await fetch(url, { credentials: 'same-origin', ...options, headers: { ...(options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }), ...(options.headers || {}) } });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(typeof data.detail === 'string' ? data.detail : 'Não foi possível concluir a operação.');
+  if (!response.ok) {
+    const erro = new Error(typeof data.detail === 'string' ? data.detail : 'Não foi possível concluir a operação.');
+    erro.status = response.status; // ex.: 401 = sessão inválida/expirada — ver uso em páginas autenticadas.
+    throw erro;
+  }
   return data;
 }
 

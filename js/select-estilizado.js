@@ -67,6 +67,10 @@
       textoAtual.textContent = select.options[select.selectedIndex]?.textContent.trim() || '';
     }
     atualizarTexto();
+    // Sincroniza o texto do botão quando o valor é trocado por fora (ex.:
+    // `select.value = 'x'; select.dispatchEvent(new Event('change'))`,
+    // como filtros que também reagem a clique num badge da própria tela).
+    select.addEventListener('change', atualizarTexto);
 
     function render() {
       ul.innerHTML = opcoes().map((o, i) => {

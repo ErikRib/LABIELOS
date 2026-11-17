@@ -18,7 +18,6 @@ async function carregarPerfil() {
     const { user, memberships } = await api('/api/me');
     $('#nomePerfil').value = user.nome;
     $('#sobrenomePerfil').value = user.sobrenome;
-    $('#telefonePerfil').value = user.telefone || '';
     $('#emailAtual').textContent = user.email;
     if (user.foto) $('#fotoPreview').src = user.foto + '?v=' + Date.now();
     renderizarOrganizacoes(memberships);
@@ -26,7 +25,15 @@ async function carregarPerfil() {
     $('#linkAdmin').hidden = !memberships.some(m => m.role === 'admin' && m.membership_status === 'active');
     $('#emailConfirmacaoConta').textContent = user.email;
     emailUsuario = user.email;
-  } catch { location.href = '/html/login.html'; }
+  } catch (erro) {
+    // Só manda pro login se for mesmo falta de sessão (401) — qualquer
+    // outro erro (ex.: JS desatualizado em cache tentando ler um campo
+    // que não existe mais) ficava mandando pro login sem motivo, o que
+    // mais confunde do que ajuda.
+    if (erro.status === 401) { location.href = '/html/login.html'; return; }
+    console.error('Falha ao carregar o perfil:', erro);
+    aviso('#mensagemPerfil', 'Não foi possível carregar seus dados. Recarregue a página (Ctrl+Shift+R) e tente de novo.');
+  }
 }
 // Lista "Organização": uma linha por vínculo, com o cargo editável
 // (o cargo é por vínculo — a mesma pessoa pode ter cargos diferentes
@@ -126,7 +133,7 @@ carregarPerfil();
 $('#formPerfil').addEventListener('submit', async event => {
   event.preventDefault();
   try {
-    await api('/api/me', { method: 'PATCH', body: JSON.stringify({ nome: $('#nomePerfil').value, sobrenome: $('#sobrenomePerfil').value, telefone: $('#telefonePerfil').value }) });
+    await api('/api/me', { method: 'PATCH', body: JSON.stringify({ nome: $('#nomePerfil').value, sobrenome: $('#sobrenomePerfil').value }) });
     const arquivo = $('#foto').files[0];
     if (arquivo) {
       if (arquivo.size > 2*1024*1024 || !['image/png','image/jpeg','image/webp'].includes(arquivo.type)) throw new Error('Imagem inválida. Use JPG, PNG ou WebP até 2 MB.');

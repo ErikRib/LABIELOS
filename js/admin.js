@@ -58,7 +58,10 @@ async function iniciarAdmin() {
   let dados;
   try {
     dados = await api('/api/me');
-  } catch {
+  } catch (erro) {
+    // Só manda pro login se for mesmo falta de sessão (401) — ver o
+    // mesmo ajuste em js/perfil.js e js/prototipo.js.
+    if (erro.status !== 401) { console.error('Falha ao carregar os dados do usuário:', erro); throw erro; }
     location.href = '/html/login.html';
     return;
   }
@@ -128,8 +131,10 @@ function renderContadores() {
 
 function renderPedidos() {
   const tbody = $a('#tabelaPedidos tbody');
-  tbody.innerHTML = adminPedidos.length
-    ? adminPedidos.map(p => `
+  renderComPaginacao({
+    chave: 'tabelaPedidos', tbody, itens: adminPedidos,
+    vazio: '<tr><td colspan="6" class="estado-vazio">Nenhum pedido de ingresso pendente.</td></tr>',
+    renderLinhas: lista => lista.map(p => `
       <tr>
         <td><strong>${esc(nomeCompleto(p))}</strong></td>
         <td>${esc(p.email)}</td>
@@ -142,11 +147,12 @@ function renderPedidos() {
             <button type="button" class="btn btn-acao-tabela btn-perigo" data-decidir="${esc(p.membership_id)}" data-aprovar="false">Recusar</button>
           </div>
         </td>
-      </tr>`).join('')
-    : '<tr><td colspan="6" class="estado-vazio">Nenhum pedido de ingresso pendente.</td></tr>';
+      </tr>`).join(''),
+  });
 
   tbody.querySelectorAll('[data-decidir]').forEach(b =>
     b.addEventListener('click', () => decidirPedido(b.dataset.decidir, b.dataset.aprovar === 'true', b)));
+  if (!tbody.dataset.pagOuvinte) { tbody.dataset.pagOuvinte = '1'; tbody.addEventListener('paginacao-mudou', renderPedidos); }
 }
 
 function renderMembros() {
@@ -156,8 +162,10 @@ function renderMembros() {
     .filter(m => m.membership_status === 'active')
     .filter(m => !busca || [nomeCompleto(m), m.email, m.job_title].join(' ').toLowerCase().includes(busca));
 
-  tbody.innerHTML = lista.length
-    ? lista.map(m => {
+  renderComPaginacao({
+    chave: 'tabelaMembros', tbody, itens: lista,
+    vazio: `<tr><td colspan="6" class="estado-vazio">${busca ? 'Nenhum membro encontrado.' : 'Nenhum membro ativo.'}</td></tr>`,
+    renderLinhas: pagina => pagina.map(m => {
       const euMesmo = String(m.user_id) === String(adminUsuario.id);
       const admin = m.role === 'admin';
       return `
@@ -175,11 +183,12 @@ function renderMembros() {
           </div>
         </td>
       </tr>`;
-    }).join('')
-    : `<tr><td colspan="6" class="estado-vazio">${busca ? 'Nenhum membro encontrado.' : 'Nenhum membro ativo.'}</td></tr>`;
+    }).join(''),
+  });
 
   tbody.querySelectorAll('[data-papel]').forEach(b => b.addEventListener('click', () => alterarPapel(b.dataset.papel, b.dataset.novoPapel, b)));
   tbody.querySelectorAll('[data-remover]').forEach(b => b.addEventListener('click', () => removerMembro(b.dataset.remover, b)));
+  if (!tbody.dataset.pagOuvinte) { tbody.dataset.pagOuvinte = '1'; tbody.addEventListener('paginacao-mudou', renderMembros); }
 }
 
 

@@ -158,15 +158,18 @@ function renderTabelaMateriais() {
   const colunas = document.querySelectorAll('#tabelaMateriais thead th').length;
   const filtradas = materiais.filter(m => materialCorresponde(m, filtrosMateriais()));
 
-  tbody.innerHTML = filtradas.length
-    ? filtradas.map(linhaMaterial).join('')
-    : `<tr><td colspan="${colunas}" class="estado-vazio">${materiais.length ? 'Nenhum material encontrado com os filtros informados.' : 'Nenhum material cadastrado até o momento.'}</td></tr>`;
+  renderComPaginacao({
+    chave: 'tabelaMateriais', tbody, itens: filtradas,
+    vazio: `<tr><td colspan="${colunas}" class="estado-vazio">${materiais.length ? 'Nenhum material encontrado com os filtros informados.' : 'Nenhum material cadastrado até o momento.'}</td></tr>`,
+    renderLinhas: pagina => pagina.map(linhaMaterial).join(''),
+  });
 
   const contador = document.querySelector('#contadorMateriais');
   if (contador) contador.textContent = `${filtradas.length} de ${materiais.length} itens`;
 
   tbody.querySelectorAll('[data-editar-material]').forEach(b => b.addEventListener('click', () => abrirModalMaterial(b.dataset.editarMaterial)));
   tbody.querySelectorAll('[data-remover-material]').forEach(b => b.addEventListener('click', () => removerMaterial(b.dataset.removerMaterial)));
+  if (!tbody.dataset.pagOuvinte) { tbody.dataset.pagOuvinte = '1'; tbody.addEventListener('paginacao-mudou', renderTabelaMateriais); }
 }
 
 function prepararFiltrosMateriais() {

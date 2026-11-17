@@ -88,7 +88,11 @@ async function carregarUsuarioAtual() {
     };
     atualizarIdentidadeNav(usuarioLogado);
     adicionarLinkAdministracao(memberships);
-  } catch {
+  } catch (erro) {
+    // Só manda pro login se for mesmo falta de sessão (401) — qualquer
+    // outro erro (ex.: JS desatualizado em cache) não deve jogar o
+    // usuário logado de volta pra tela de login sem motivo.
+    if (erro.status !== 401) { console.error('Falha ao carregar os dados do usuário:', erro); throw erro; }
     location.href = '/html/login.html';
     throw new Error('Sessão inválida, redirecionando para o login.');
   }
@@ -234,13 +238,16 @@ function renderTabelaSolicitacoes() {
   const emAndamento = solicitacoes.filter(s => s.status !== 'Concluída');
   const filtradas = emAndamento.filter(s => itemCorrespondeFiltros(s, filtros, extratorSolicitacao));
 
-  tbody.innerHTML = filtradas.length
-    ? filtradas.map(linhaSolicitacao).join('')
-    : '<tr><td colspan="6" class="estado-vazio">Nenhuma solicitação encontrada com os filtros informados.</td></tr>';
+  renderComPaginacao({
+    chave: 'tabelaSolicitacoes', tbody, itens: filtradas,
+    vazio: '<tr><td colspan="6" class="estado-vazio">Nenhuma solicitação encontrada com os filtros informados.</td></tr>',
+    renderLinhas: pagina => pagina.map(linhaSolicitacao).join(''),
+  });
 
   const contador = document.querySelector('#contadorSolicitacoes');
   if (contador) contador.textContent = `${filtradas.length} de ${emAndamento.length} solicitações em andamento`;
   ativarLinhasClicaveis(tbody);
+  if (!tbody.dataset.pagOuvinte) { tbody.dataset.pagOuvinte = '1'; tbody.addEventListener('paginacao-mudou', renderTabelaSolicitacoes); }
 }
 
 // Torna cada linha de solicitação clicável (mouse e teclado), levando
@@ -416,7 +423,7 @@ function renderRetiradaEAjuste(s) {
           <div><dt>Local</dt><dd>${escaparHTML(r.local)} · ${escaparHTML(r.parceiro || '')}</dd></div>
           <div><dt>Endereço</dt><dd>${escaparHTML(r.endereco)}</dd></div>
           ${r.instrucoes ? `<div><dt>Instruções</dt><dd>${escaparHTML(r.instrucoes)}</dd></div>` : ''}
-          ${r.telefone ? `<div><dt>Contato</dt><dd>${escaparHTML(r.telefone)}</dd></div>` : ''}
+          ${(r.telefone || r.email) ? `<div><dt>Contato</dt><dd>${[r.email, r.telefone].filter(Boolean).map(escaparHTML).join(' · ')}</dd></div>` : ''}
         </dl>
         <a class="btn btn-secundario btn-sm" target="_blank" rel="noopener"
            href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.endereco)}">Abrir no mapa</a>`;
@@ -686,6 +693,90 @@ function escaparHTML(valor) {
 // API (PATCH) e recarrega a página de detalhes. Parceiro e status não
 // são editáveis aqui: o parceiro vem do aceite na fila global e o status
 // é conduzido por ele.
+const EDIT_TOTAL_ETAPAS = 3;
+let editEtapaAtual = 0;
+
+// Etapas visíveis do assistente de edição: mesmo visual/comportamento do
+// assistente "Nova solicitação" (js/nova-solicitacao.js), adaptado pra
+// edição (sem a etapa de envio — "Revisão" já termina em "Salvar
+// alterações").
+function irParaEtapaEdicao(indice) {
+  editEtapaAtual = indice;
+  const modal = document.querySelector('#modalEditarSolicitacao');
+
+  modal.querySelectorAll('[data-etapa]').forEach(p => { p.hidden = Number(p.dataset.etapa) !== indice; });
+  modal.querySelectorAll('[data-etapa-indicador]').forEach(li => {
+    const i = Number(li.dataset.etapaIndicador);
+    li.classList.toggle('concluida', i < indice);
+    li.classList.toggle('atual', i === indice);
+    const ponto = li.querySelector('.stepper-ponto');
+    ponto.textContent = i < indice ? '✓' : String(i + 1);
+    ponto.disabled = !(i < indice);
+    if (i === indice) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
+  });
+
+  if (indice === 2) renderRevisaoEdicao();
+
+  const voltar = modal.querySelector('[data-edit-voltar]');
+  const avancar = modal.querySelector('[data-edit-avancar]');
+  if (indice === 0) {
+    voltar.textContent = 'Cancelar';
+    avancar.innerHTML = 'Continuar <span aria-hidden="true">→</span>';
+  } else if (indice === 1) {
+    voltar.innerHTML = '<span aria-hidden="true">←</span> Voltar';
+    avancar.innerHTML = 'Continuar <span aria-hidden="true">→</span>';
+  } else {
+    voltar.innerHTML = '<span aria-hidden="true">←</span> Voltar';
+    avancar.textContent = 'Salvar alterações';
+  }
+
+  modal.querySelector('[data-edit-anuncio]').textContent = `Etapa ${indice + 1} de ${EDIT_TOTAL_ETAPAS}`;
+  modal.querySelector('.assistente-corpo').scrollTop = 0;
+  // Mesmo cuidado de js/nova-solicitacao.js: não focar campos com
+  // sugestões automaticamente (abriria a lista sozinha).
+  modal.querySelector(`[data-etapa="${indice}"]`)
+    .querySelector('input:not([readonly]):not([type=file]):not([data-sugestoes]), select, textarea')?.focus();
+}
+
+// Valida só os campos visíveis da etapa atual.
+function validarEtapaEdicao(indice) {
+  const modal = document.querySelector('#modalEditarSolicitacao');
+  const painel = modal.querySelector(`[data-etapa="${indice}"]`);
+  for (const campo of painel.querySelectorAll('input:not([type=checkbox]):not([type=file]), select, textarea')) {
+    if (!campo.checkValidity()) { campo.reportValidity(); campo.focus(); return false; }
+  }
+  return true;
+}
+
+function renderRevisaoEdicao() {
+  const form = document.querySelector('#formEditarSolicitacao');
+  const arquivo = form.elements.arquivo3d.files[0];
+  const e = escaparHTML;
+  const item = (rotulo, valor, amplo) => `<div class="detalhe${amplo ? ' amplo' : ''}"><dt>${rotulo}</dt><dd>${valor}</dd></div>`;
+
+  document.querySelector('[data-edit-revisao]').innerHTML = `
+    <article class="revisao-bloco">
+      <header><h4>Informações da peça</h4><button type="button" class="btn-texto" data-ir-etapa-edicao="0">Editar</button></header>
+      <dl class="detalhes-grid">
+        ${item('Solicitação', e(form.elements.solicitacao.value))}
+        ${item('Prioridade', `<span class="badge prioridade-${badgeClass(form.elements.prioridade.value)}">${e(form.elements.prioridade.value)}</span>`)}
+        ${item('Categoria', e(form.elements.categoria.value))}
+        ${item('Prazo', e(form.elements.prazo.value ? form.elements.prazo.value.split('-').reverse().join('/') : 'A definir'))}
+        ${item('Material', e(form.elements.material.value || 'A definir'))}
+      </dl>
+    </article>
+    <article class="revisao-bloco">
+      <header><h4>Arquivo e especificações</h4><button type="button" class="btn-texto" data-ir-etapa-edicao="1">Editar</button></header>
+      <dl class="detalhes-grid">
+        ${item('Descrição', `<span class="texto-preformatado">${e(form.elements.descricao.value)}</span>`, true)}
+        ${item('Arquivo 3D', arquivo ? `${e(arquivo.name)} · ${formatarTamanhoArquivo(arquivo.size)} (substitui o atual)` : 'Mantém o arquivo atual', true)}
+      </dl>
+    </article>`;
+
+  document.querySelector('[data-edit-revisao]').querySelectorAll('[data-ir-etapa-edicao]').forEach(b =>
+    b.addEventListener('click', () => irParaEtapaEdicao(Number(b.dataset.irEtapaEdicao))));
+}
+
 function prepararEdicaoSolicitacao(s) {
   const modal = document.querySelector('#modalEditarSolicitacao');
   const form = document.querySelector('#formEditarSolicitacao');
@@ -693,6 +784,7 @@ function prepararEdicaoSolicitacao(s) {
   if (!modal || !form || !btn) return;
 
   const preencher = () => {
+    form.reset();
     form.elements.solicitacao.value = s.solicitacao;
     form.elements.requerente.value = s.requerente;
     form.elements.prioridade.value = s.prioridade;
@@ -702,9 +794,38 @@ function prepararEdicaoSolicitacao(s) {
     form.elements.descricao.value = s.descricao;
   };
 
+  if (!modal.dataset.configurado) {
+    modal.dataset.configurado = 'true';
+    // Categoria/Material com sugestões, igual "Nova solicitação" — as
+    // mesmas opções padrão (NOVA_CATEGORIAS/NOVA_MATERIAIS_PADRAO vêm de
+    // js/nova-solicitacao.js, carregado antes deste trecho rodar).
+    modal.querySelector('#listaEditCategorias').innerHTML = NOVA_CATEGORIAS.map(c => `<option value="${c}">`).join('');
+    modal.querySelector('#listaEditMateriais').innerHTML = NOVA_MATERIAIS_PADRAO.map(m => `<option value="${m}">`).join('');
+    window.ativarSugestoes?.(modal);
+    window.ativarSelectsEstilizados?.(modal);
+
+    modal.querySelector('[data-edit-cancelar]').addEventListener('click', () => modal.close());
+    modal.addEventListener('cancel', e => { e.preventDefault(); modal.close(); });
+    modal.querySelectorAll('[data-ir-etapa-edicao]').forEach(b =>
+      b.addEventListener('click', () => irParaEtapaEdicao(Number(b.dataset.irEtapaEdicao))));
+
+    modal.querySelector('[data-edit-voltar]').addEventListener('click', () => {
+      if (editEtapaAtual === 0) { modal.close(); return; }
+      irParaEtapaEdicao(editEtapaAtual - 1);
+    });
+    modal.querySelector('[data-edit-avancar]').addEventListener('click', () => {
+      if (editEtapaAtual < EDIT_TOTAL_ETAPAS - 1) {
+        if (!validarEtapaEdicao(editEtapaAtual)) return;
+        irParaEtapaEdicao(editEtapaAtual + 1);
+      } else {
+        form.requestSubmit();
+      }
+    });
+  }
+
   if (!btn.dataset.configurado) {
     btn.dataset.configurado = 'true';
-    btn.addEventListener('click', () => { preencher(); modal.showModal(); });
+    btn.addEventListener('click', () => { preencher(); irParaEtapaEdicao(0); modal.showModal(); });
   }
 
   if (!form.dataset.configurado) {
@@ -969,3 +1090,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderTabelaSolicitacoes();
   });
 });
+
+
+/* =========================
+   TRAVA DE ROLAGEM COM MODAL ABERTO
+   -------------------------------------------------------------------------
+   Com qualquer <dialog> aberto (editar solicitação, visualizador 3D,
+   nova solicitação...), rolar o mouse fora da caixa não deve mexer na
+   página por trás. Observa o atributo "open" de qualquer <dialog> da
+   página (inclusive os injetados depois, como o de "Nova solicitação")
+   e liga/desliga ".modal-aberto" no <body> (ver css/components/modal.css).
+   Não interfere no controle de zoom/rotação do visualizador 3D: aquilo
+   usa o wheel/drag dentro do próprio <canvas>, que já intercepta o
+   evento antes de chegar a rolar qualquer coisa.
+========================= */
+(() => {
+  const atualizarTravaRolagem = () => {
+    document.body.classList.toggle('modal-aberto', document.querySelector('dialog[open]') !== null);
+  };
+  new MutationObserver(atualizarTravaRolagem)
+    .observe(document.body, { attributes: true, attributeFilter: ['open'], subtree: true });
+  atualizarTravaRolagem();
+})();

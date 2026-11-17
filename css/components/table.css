@@ -282,3 +282,105 @@
 .colunas-painel-item input[type="checkbox"]:disabled {
     accent-color: var(--cor-texto-secundario);
 }
+
+/* =========================
+   PAGINAÇÃO (js/paginacao.js)
+   Barra desenhada logo abaixo de ".tabela-wrap" quando a lista passa do
+   limite de linhas por página.
+========================= */
+
+.paginacao {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-top: 10px;
+
+    color: var(--cor-texto-secundario);
+    font-size: 0.85rem;
+}
+
+.paginacao-resumo {
+    margin: 0;
+}
+
+.paginacao-controles {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+
+    gap: 16px;
+}
+
+.paginacao-limite {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.paginacao-limite select {
+    padding: 4px 8px;
+
+    border: 1px solid var(--cor-borda);
+    border-radius: 6px;
+
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto);
+
+    font-size: 0.85rem;
+}
+
+.paginacao-paginas {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.paginacao-indicador {
+    white-space: nowrap;
+}
+
+.btn-pagina {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 30px;
+    height: 30px;
+
+    border: 1px solid var(--cor-borda);
+    border-radius: 6px;
+
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto);
+
+    font-size: 1rem;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition: background-color var(--transicao), border-color var(--transicao);
+}
+
+.btn-pagina:hover:not(:disabled) {
+    background-color: var(--cor-fundo-secundario);
+    border-color: var(--cor-primaria);
+}
+
+.btn-pagina:disabled {
+    color: var(--cor-texto-secundario);
+
+    cursor: not-allowed;
+
+    opacity: 0.5;
+}
+
+@media (max-width: 480px) {
+    .paginacao {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

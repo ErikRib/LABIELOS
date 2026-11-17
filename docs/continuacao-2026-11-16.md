@@ -142,3 +142,18 @@ ou gerar um novo).
 5. Se for continuar pedindo ajustes à IA, pode apontar essa conversa ou
    só este arquivo — ele cobre o essencial do que já foi decidido e por
    quê.
+
+## Rodada extra (17/11/2026): layout do perfil, telefone e e-mail de contato na retirada
+
+- Botão "Salvar alterações" (Dados pessoais) saiu de dentro do card e foi
+  pro rodapé da página inteira (`.perfil-rodape-pagina`), alinhado à
+  direita — usa o atributo `form="formPerfil"` pra continuar submetendo o
+  mesmo formulário mesmo estando fora dele. Ajustado o grid de 3 colunas
+  (`≥1240px`) pra "Dados pessoais" não ficar mais esticado ocupando duas
+  linhas (não precisa mais da sobra de altura pro botão flutuar).
+- Campo "Telefone" removido de "Dados pessoais" (não aparecia pra mais
+  ninguém na plataforma mesmo).
+- `retirada` (back-end, `concluir-producao`) ganhou o campo `email`
+  (e-mail institucional do fabricante), ao lado do `telefone` que já
+  existia — aparece no card "Retirada" da tela de detalhes, pros dois
+  lados (solicitante e fabricante, mesmo `js/prototipo.js`).

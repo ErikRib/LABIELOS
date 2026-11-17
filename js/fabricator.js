@@ -499,14 +499,17 @@ function renderDemandasFabricante() {
   const filtros = lerFiltros(colunas);
   const filtradas = demandas.filter(s => itemCorrespondeFiltros(s, filtros, (item, chave) => item[chave]));
 
-  tbody.innerHTML = filtradas.length
-    ? filtradas.map(s => linhaDemandaTabela(s, colunas)).join('')
-    : `<tr><td colspan="${colunas.length + 1}" class="estado-vazio">Nenhuma demanda encontrada com os filtros informados.</td></tr>`;
+  renderComPaginacao({
+    chave: 'tabelaDemandasFabricante', tbody, itens: filtradas,
+    vazio: `<tr><td colspan="${colunas.length + 1}" class="estado-vazio">Nenhuma demanda encontrada com os filtros informados.</td></tr>`,
+    renderLinhas: pagina => pagina.map(s => linhaDemandaTabela(s, colunas)).join(''),
+  });
 
   const contador = document.querySelector('#contadorDemandas');
   if (contador) contador.textContent = `${filtradas.length} de ${demandas.length} demandas`;
 
   ativarAcoesDemanda(tbody);
+  if (!tbody.dataset.pagOuvinte) { tbody.dataset.pagOuvinte = '1'; tbody.addEventListener('paginacao-mudou', renderDemandasFabricante); }
 }
 
 // Desenha a lista de checkboxes do seletor "Colunas" e liga cada um
@@ -612,8 +615,10 @@ function renderFila() {
     .sort((a, b) => (PESO_PRIORIDADE[a.prioridade] ?? 3) - (PESO_PRIORIDADE[b.prioridade] ?? 3) || chaveData(a.abertura) - chaveData(b.abertura));
 
   const e = escaparHTML;
-  tbody.innerHTML = lista.length
-    ? lista.map(s => `
+  renderComPaginacao({
+    chave: 'tabelaFila', tbody, itens: lista,
+    vazio: `<tr><td colspan="9" class="estado-vazio">${filaGlobal.length ? 'Nenhuma solicitação encontrada com os filtros.' : 'Nenhuma solicitação nova na fila no momento.'}</td></tr>`,
+    renderLinhas: pag => pag.map(s => `
       <tr>
         <td>${e(s.protocolo)}</td>
         <td><a class="link-detalhe" href="/html/fabricator/detalhe-demanda.html?protocolo=${encodeURIComponent(s.protocolo)}">${e(s.solicitacao)}</a>${s.arquivo3d ? '<br><small class="texto-apoio">Com arquivo 3D</small>' : ''}</td>
@@ -628,12 +633,13 @@ function renderFila() {
             ${botoesAcao(s)}
           </div>
         </td>
-      </tr>`).join('')
-    : `<tr><td colspan="9" class="estado-vazio">${filaGlobal.length ? 'Nenhuma solicitação encontrada com os filtros.' : 'Nenhuma solicitação nova na fila no momento.'}</td></tr>`;
+      </tr>`).join(''),
+  });
 
   const contador = document.querySelector('#contadorFila');
   if (contador) contador.textContent = `${lista.length} de ${filaGlobal.length} solicitações na fila`;
   ativarAcoesDemanda(tbody);
+  if (!tbody.dataset.pagOuvinte) { tbody.dataset.pagOuvinte = '1'; tbody.addEventListener('paginacao-mudou', renderFila); }
 }
 
 function prepararFiltrosFila() {

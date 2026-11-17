@@ -29,7 +29,7 @@ router = APIRouter(prefix="/api", tags=["Solicitações"])
 # arquivos irem para o GridFS (ver database.py).
 UPLOAD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "uploads", "arquivos3d")
 EXTENSOES_3D = {"stl", "obj", "3mf", "step", "stp", "iges", "igs"}
-TAMANHO_MAX_3D = 50 * 1024 * 1024
+TAMANHO_MAX_3D = 200 * 1024 * 1024
 
 
 def agora_texto() -> str:
@@ -132,7 +132,7 @@ async def salvar_arquivo3d(arquivo) -> dict:
         raise HTTPException(status_code=422, detail="Formato de arquivo 3D não suportado. Use STL, OBJ, 3MF, STEP/STP ou IGES/IGS.")
     conteudo = await arquivo.read()
     if len(conteudo) > TAMANHO_MAX_3D:
-        raise HTTPException(status_code=422, detail="Arquivo 3D maior que 50 MB.")
+        raise HTTPException(status_code=422, detail="Arquivo 3D maior que 200 MB.")
     content_type = arquivo.content_type or "application/octet-stream"
     arquivo_id = await arquivos_bucket.upload_from_stream(
         nome_original, conteudo, metadata={"content_type": content_type, "tipo": "arquivo3d"}
@@ -499,7 +499,8 @@ async def concluir_producao(protocolo: str, dados: ConcluirProducaoEntrada, cont
     retirada = {
         "local": endereco["nome"], "endereco": endereco_texto(endereco),
         "instrucoes": dados.instrucoes or "", "parceiro": org["nome"],
-        "telefone": org.get("telefone_institucional", ""), "data": agora,
+        "telefone": org.get("telefone_institucional", ""),
+        "email": org.get("email_institucional", ""), "data": agora,
     }
     descricao = f"A produção foi concluída e a peça está disponível para retirada em {endereco['nome']}: {endereco_texto(endereco)}."
     if dados.instrucoes:
@@ -606,7 +607,7 @@ async def adicionar_historico(protocolo: str, request: Request, usuario: dict = 
         tipo = "Anexo"
         conteudo = await arquivo.read()
         if len(conteudo) > TAMANHO_MAX_3D:
-            raise HTTPException(status_code=422, detail="Anexo maior que 50 MB.")
+            raise HTTPException(status_code=422, detail="Anexo maior que 200 MB.")
         content_type = arquivo.content_type or "application/octet-stream"
         anexo = {
             "id": await arquivos_bucket.upload_from_stream(

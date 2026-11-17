@@ -36,6 +36,7 @@
   <script src="/js/api.js" defer></script>
   <script src="/js/sugestoes.js" defer></script>
   <script src="/js/select-estilizado.js" defer></script>
+  <script src="/js/paginacao.js" defer></script>
   <script src="/js/prototipo.js" defer></script>
   <script src="/js/nova-solicitacao.js" defer></script>
 </head>
@@ -231,40 +232,102 @@
   </main>
   <button class="btn-topo" id="btnTopo">↑</button>
 
-  <dialog class="modal" id="modalEditarSolicitacao">
-    <header class="modal-cabecalho">
+  <dialog class="modal modal-assistente" id="modalEditarSolicitacao" data-fechar-fora="false" aria-labelledby="tituloEditarSolicitacao">
+    <header class="modal-cabecalho assistente-cabecalho">
       <div>
         <p>Edição</p>
-        <h2>Editar solicitação</h2>
-      </div><button class="modal-fechar" type="button" data-fechar-modal aria-label="Fechar">×</button>
-    </header>
-    <form id="formEditarSolicitacao">
-      <div class="modal-corpo">
-        <div class="form-grid">
-          <div class="campo"><label>Solicitação</label><input name="solicitacao" required></div>
-          <div class="campo"><label>Requerente</label><input name="requerente" readonly aria-readonly="true"></div>
-          <div class="campo"><label>Prioridade</label><select name="prioridade" data-select-estilizado>
-              <option>Baixa</option>
-              <option>Média</option>
-              <option>Alta</option>
-            </select></div>
-          <div class="campo"><label>Categoria</label><input name="categoria" required></div>
-          <div class="campo"><label>Prazo</label><input name="prazo" type="date"></div>
-          <div class="campo amplo"><label>Material</label><input name="material"></div>
-          <div class="campo amplo"><label>Descrição</label><textarea name="descricao" required></textarea></div>
-          <div class="campo amplo campo-arquivo"><label>Substituir arquivo 3D</label><input name="arquivo3d" type="file"
-              accept=".stl,.obj,.3mf,.step,.stp,.iges,.igs">
-            <p class="campo-ajuda">Deixe em branco para manter o arquivo atual.</p>
-          </div>
-        </div>
+        <h2 id="tituloEditarSolicitacao">Editar solicitação</h2>
       </div>
-      <footer class="modal-acoes"><button type="button" class="btn btn-secundario btn-acao"
-          data-fechar-modal>Cancelar</button><button type="submit" class="btn btn-principal btn-acao">Salvar
-          alterações</button></footer>
+      <button class="modal-fechar modal-fechar-contorno" type="button" data-edit-cancelar aria-label="Fechar">×</button>
+    </header>
+
+    <ol class="stepper stepper-3" aria-label="Etapas da edição">
+      <li class="stepper-etapa" data-etapa-indicador="0">
+        <button type="button" class="stepper-ponto" data-ir-etapa-edicao="0" disabled aria-label="Etapa 1: Informações da peça">1</button>
+        <span class="stepper-rotulo">Informações <br>da peça</span>
+      </li>
+      <li class="stepper-etapa" data-etapa-indicador="1">
+        <button type="button" class="stepper-ponto" data-ir-etapa-edicao="1" disabled aria-label="Etapa 2: Arquivo e especificações">2</button>
+        <span class="stepper-rotulo">Arquivo e <br>especificações</span>
+      </li>
+      <li class="stepper-etapa" data-etapa-indicador="2">
+        <button type="button" class="stepper-ponto" data-ir-etapa-edicao="2" disabled aria-label="Etapa 3: Revisão">3</button>
+        <span class="stepper-rotulo">Revisão</span>
+      </li>
+    </ol>
+    <p class="visualmente-oculto stepper-legenda" aria-live="polite" data-edit-anuncio></p>
+
+    <form id="formEditarSolicitacao" novalidate>
+      <div class="modal-corpo assistente-corpo">
+
+        <section class="assistente-painel" data-etapa="0">
+          <h3>Informações da peça</h3>
+          <p class="assistente-subtitulo">Ajuste as informações básicas da solicitação.</p>
+          <div class="form-grid">
+            <div class="campo">
+              <label for="editSolicitacao">Solicitação</label>
+              <input id="editSolicitacao" name="solicitacao" required maxlength="120">
+            </div>
+            <div class="campo">
+              <label for="editRequerente">Requerente</label>
+              <input id="editRequerente" name="requerente" readonly aria-readonly="true">
+            </div>
+            <div class="campo">
+              <label for="editPrioridade">Prioridade</label>
+              <select id="editPrioridade" name="prioridade" required data-select-estilizado>
+                <option>Baixa</option>
+                <option>Média</option>
+                <option>Alta</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label for="editCategoria">Categoria</label>
+              <input id="editCategoria" name="categoria" required list="listaEditCategorias" placeholder="Ex.: Órtese">
+              <datalist id="listaEditCategorias"></datalist>
+            </div>
+            <div class="campo">
+              <label for="editPrazo">Prazo</label>
+              <input id="editPrazo" name="prazo" type="date">
+            </div>
+            <div class="campo amplo">
+              <label for="editMaterial">Material</label>
+              <input id="editMaterial" name="material" list="listaEditMateriais" placeholder="Ex.: PLA / TPU">
+              <datalist id="listaEditMateriais"></datalist>
+            </div>
+          </div>
+        </section>
+
+        <section class="assistente-painel" data-etapa="1" hidden>
+          <h3>Arquivo e especificações</h3>
+          <p class="assistente-subtitulo">Atualize a descrição ou substitua o arquivo 3D, se precisar.</p>
+          <div class="form-grid">
+            <div class="campo amplo">
+              <label for="editDescricao">Descrição</label>
+              <textarea id="editDescricao" name="descricao" required maxlength="4000"></textarea>
+            </div>
+            <div class="campo amplo campo-arquivo">
+              <label for="editArquivo3d">Substituir arquivo 3D</label>
+              <input id="editArquivo3d" name="arquivo3d" type="file" accept=".stl,.obj,.3mf,.step,.stp,.iges,.igs">
+              <p class="campo-ajuda">Opcional. STL, OBJ, 3MF, STEP/STP ou IGES/IGS — até 200 MB. Deixe em branco para manter o arquivo atual.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="assistente-painel" data-etapa="2" hidden>
+          <h3>Revisão</h3>
+          <p class="assistente-subtitulo">Confira os dados antes de salvar.</p>
+          <div data-edit-revisao></div>
+        </section>
+      </div>
+
+      <footer class="modal-acoes assistente-acoes">
+        <button type="button" class="btn btn-secundario btn-acao" data-edit-voltar>Cancelar</button>
+        <button type="button" class="btn btn-principal btn-acao" data-edit-avancar>Continuar <span aria-hidden="true">→</span></button>
+      </footer>
     </form>
   </dialog>
 
-  <dialog class="modal modal-visualizador" id="modalVisualizarArquivo">
+  <dialog class="modal modal-visualizador" id="modalVisualizarArquivo" data-fechar-fora="false">
     <header class="modal-cabecalho">
       <div>
         <p>Arquivo 3D</p>

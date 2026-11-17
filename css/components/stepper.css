@@ -82,6 +82,13 @@
     list-style: none;
 }
 
+/* Variante com 3 etapas (ex.: "Editar solicitação") — sem isso, a grade
+   continua com 4 colunas e sobra uma vazia, empurrando tudo pra esquerda
+   em vez de centralizar. */
+.stepper.stepper-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
 .stepper-etapa {
     position: relative;
 
