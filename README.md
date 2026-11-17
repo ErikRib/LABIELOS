@@ -35,6 +35,7 @@ A documentação técnica do projeto está no diretório [`docs/`](./docs/):
 - [`integracao-backend.md`](./docs/integracao-backend.md) — contrato entre front-end e back-end (formato de cada requisição/resposta).
 - [`frontend.md`](./docs/frontend.md) — estrutura, páginas, componentes e funcionalidades do front-end.
 - [`design-system.md`](./docs/design-system.md) — Design System aplicado ao projeto.
+- [`uso-ia.md`](./docs/uso-ia.md) — divulgação do uso de IA generativa no desenvolvimento, por área.
 
 ## Estrutura
 
