@@ -99,7 +99,7 @@ essa página também é o FastAPI — ele serve tanto os arquivos estáticos
    ```bash
    uvicorn main:app --reload
    ```
-   Ou, da raiz do projeto (é o que `run.py` faz):
+   Ou, da raiz do projeto:
    ```bash
    uvicorn backend.app:app --reload
    ```

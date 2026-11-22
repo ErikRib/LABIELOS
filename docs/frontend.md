@@ -65,7 +65,6 @@ LABIELOS/
 ├── js/
 │   ├── acessibilidade.js
 │   ├── interface.js
-│   ├── legal.js
 │   ├── api.js
 │   ├── login.js
 │   ├── cadastro.js

@@ -1,74 +1,78 @@
 # Banco de dados — MongoDB Atlas
 
-> O banco **já existe no MongoDB Atlas**. Este documento descreve o que o
-> front-end precisa que a API consiga ler e gravar. Use-o como **checklist
-> de conferência** contra as coleções atuais: o que estiver aqui e não
-> existir lá (coleção, campo ou índice) precisa ser criado ou migrado.
-> Os formatos que a API devolve (JSON) estão em
-> [`integracao-backend.md`](./integracao-backend.md). Aqui está o que é
-> **guardado**.
->
-> Convenções: `_id` é `ObjectId`, e as referências (`*_id`) também. Datas
-> são `datetime` em UTC; o front recebe `"dd/mm/aaaa"` ou
-> `"dd/mm/aaaa hh:mm"`, e a formatação é feita na API. Campos marcados
-> **derivado** não são guardados: a API calcula na resposta.
->
-> ⚠️ **Divergência de nomenclatura:** este documento usa nomes de coleção
-> em inglês (`users`, `organizations`, `sessions`, `email_codes`), mas a
-> implementação real (`backend/database.py`) usa nomes em português:
-> `usuarios`, `organizacoes`, `memberships`, `sessoes`, `solicitacoes`,
-> `materiais`, `impressoras`, `contadores` (sequência do protocolo),
-> `codigos_recuperacao` (recuperação de senha) e
-> `codigos_verificacao_cadastro` (confirmação de e-mail no cadastro). A
-> estrutura de campos descrita abaixo é, em geral, equivalente — a
-> diferença é só o nome da coleção. Ver `backend/criar_indices.py` para
-> os índices realmente criados.
+Este documento descreve as coleções que a API (`backend/`) lê e grava no
+banco `labielos_db` do MongoDB Atlas. Os nomes de coleção e de campo abaixo
+são os usados no código ([`backend/database.py`](../backend/database.py) e
+rotas em `backend/routes/`). Os formatos que a API devolve (JSON) estão em
+[`integracao-backend.md`](./integracao-backend.md); aqui está o que é
+**guardado**.
+
+Convenções: `_id` é `ObjectId`, e as referências (`*_id`) também, salvo
+indicação contrária. Datas são `datetime` em UTC; o front recebe
+`"dd/mm/aaaa"` ou `"dd/mm/aaaa hh:mm"`, e a formatação é feita na API.
+Campos marcados **derivado** não são guardados: a API calcula na resposta.
 
 ## Visão geral
 
-| Coleção | Para quê | Novidade desde o último commit |
+| Coleção | Para quê |
+|---|---|
+| `usuarios` | contas (identidade pessoal) |
+| `organizacoes` | organizações solicitantes e fabricantes |
+| `memberships` | vínculo usuário ↔ organização (papel e aprovação) |
+| `sessoes` | sessões de login (cookie `labielos_session`) |
+| `codigos_verificacao_cadastro` | código de confirmação de e-mail no cadastro |
+| `codigos_recuperacao` | código de recuperação de senha |
+| `solicitacoes` | solicitações, com o `historico` embutido |
+| `contadores` | sequência que gera o protocolo público (`#0001`) |
+| `impressoras` | impressoras de cada fabricante |
+| `materiais` | estoque de materiais para doação de cada fabricante |
+| `fotos_perfil` | foto de perfil de cada usuário |
+| GridFS `arquivos` (`arquivos.files` + `arquivos.chunks`) | modelos 3D e anexos do histórico |
+
+## Índices
+
+Criados por [`backend/criar_indices.py`](../backend/criar_indices.py)
+(pode ser executado mais de uma vez sem duplicar nada):
+
+| Coleção | Índice | Motivo |
 |---|---|---|
-| `users` | contas | — |
-| `organizations` | organizações solicitantes e fabricantes | `enderecos` (lista) no lugar de `endereco`; `status="removed"` |
-| `memberships` | vínculo usuário ↔ organização (papel e aprovação) | — |
-| `sessions` | sessões de login | — |
-| `email_codes` | troca de e-mail | — |
-| `solicitacoes` | solicitações, com o `historico` embutido | status novos, `producao`, `retirada`, `ajuste`, `concluida_em` |
-| `impressoras` | impressoras de cada fabricante | coleção nova |
-| `materiais` | estoque de materiais para doação de cada fabricante | coleção nova |
-| GridFS `arquivos` (ou storage de objetos) | arquivos 3D e anexos do histórico | download por `GET .../arquivo3d` |
+| `usuarios` | `email` (único) | login por e-mail |
+| `organizacoes` | `cnpj` (único, parcial `status = "active"`) | CNPJ não se repete entre organizações ativas |
+| `memberships` | `user_id`; `org_id` | vínculos de um usuário / de uma organização |
+| `solicitacoes` | `protocolo` (único); `requerente_org_id`; `atribuido_org_id` | identificador público e filtros por organização |
+| `materiais`, `impressoras` | `org_id` | recursos sempre filtrados pela organização dona |
+| `sessoes` | `expira_em` (TTL) | sessão vencida some sozinha |
+| `codigos_recuperacao`, `codigos_verificacao_cadastro` | `expira_em` (TTL) | código vencido some sozinho |
 
----
-
-## `users`
+## `usuarios`
 
 | Campo | Tipo | Observação |
 |---|---|---|
 | `nome`, `sobrenome` | string | |
-| `email` | string | **índice único** (guardar em minúsculas) |
-| `password_hash` | string | Argon2, nunca a senha |
+| `email` | string | **índice único**, guardado em minúsculas |
+| `senha_hash` | string | PBKDF2-SHA256 com sal individual (`pbkdf2$<sal>$<hash>`), nunca a senha |
 | `telefone` | string | opcional |
-| `photo`, `photo_mime` | binário, string | opcional, até 2 MB |
-| `created_at` | datetime | |
+| `foto_arquivo`, `foto_atualizada_em` | string, datetime | referência à foto em `fotos_perfil`; a data serve de cache-busting |
+| `pendente_novo_email`, `pendente_codigo_email`, `pendente_codigo_expira` | string, string, datetime | só durante a troca de e-mail (código vale 15 min); removidos ao confirmar |
+| `criado_em` | datetime | |
 
-## `organizations`
+## `organizacoes`
 
 | Campo | Tipo | Observação |
 |---|---|---|
-| `name` | string | |
-| `cnpj` | string | dígitos verificadores válidos; **único entre organizações não removidas** (índice único parcial com `status != "removed"`) |
-| `type` | `"organizacao"` \| `"fabricante"` | **não editável** |
-| `institutional_email`, `phone` | string | |
+| `nome` | string | |
+| `cnpj` | string | 14 dígitos; **único entre organizações ativas** |
+| `tipo` | `"organizacao"` \| `"fabricante"` | `organizacao` = solicitante; **não editável** |
+| `email_institucional`, `telefone_institucional` | string | |
 | `enderecos` | lista | **só fabricante** (pelo menos 1). Solicitante: sempre `[]`. Ver abaixo |
-| `status` | `"active"` \| `"removed"` | `removed` = soft delete (o admin removeu). `pending` só em dados legados |
-| `created_by` | ObjectId → `users` | quem cadastrou (vira admin) |
-| `created_at`, `updated_at` | datetime | |
+| `status` | `"active"` | a remoção apaga o documento (ver "Remoção de organização") |
+| `criado_em` | datetime | |
 
 Cada item de `enderecos` é um **local de retirada** (e de entrega de
 material):
 
 ```json
-{ "id": "string única dentro da org", "nome": "Sede", "cep": "01310-100", "logradouro": "Avenida Paulista",
+{ "id": "uuid", "nome": "Sede", "cep": "01310-100", "logradouro": "Avenida Paulista",
   "numero": "1000", "complemento": "Sala 12", "bairro": "Bela Vista", "cidade": "São Paulo", "uf": "SP" }
 ```
 
@@ -86,44 +90,61 @@ livres, tecnologias e materiais disponíveis. São calculados a partir de
 
 | Campo | Tipo | Observação |
 |---|---|---|
-| `user_id`, `org_id` | ObjectId | **índice composto único** |
+| `user_id`, `org_id` | ObjectId | indexados separadamente |
 | `role` | `"admin"` \| `"member"` | quem cria a organização nasce `admin` |
 | `status` | `"pending"` \| `"active"` \| `"rejected"` \| `"removed"` | organização nova: `active` na hora; ingresso em existente: `pending` até um admin aprovar |
 | `job_title`, `justification` | string | do cadastro |
-| `created_at` | datetime | |
-| `approved_by`, `approved_at` | ObjectId, datetime | `approved_at` é devolvido como `joined_at` |
-| `updated_by`, `updated_at` | ObjectId, datetime | última mudança de papel ou remoção (auditoria) |
+| `created_at`, `joined_at` | datetime | |
+| `approved_by`, `approved_at` | ObjectId, datetime | quem aprovou ou recusou o ingresso |
 
-Remover um membro, ou remover a organização, marca `status="removed"`; não
-apaga o documento. A organização não pode ficar sem nenhum admin ativo.
+Remover um membro, ou excluir a própria conta, marca `status="removed"`;
+não apaga o documento. A organização não pode ficar sem nenhum admin ativo.
 
-## `sessions` e `email_codes`
+## `sessoes`
 
-- `sessions`: `user_id`, `token_hash` (SHA-256 do token do cookie) e
-  `expires_at`, com **índice TTL**. Revogue as sessões ao trocar a senha ou
-  o e-mail, ao remover o membro e ao remover a organização.
-- `email_codes`: `user_id`, `email`, `code_hash` (HMAC), `created_at`,
-  `expires_at` (TTL) e `attempts`. Um pedido por usuário.
+| Campo | Tipo | Observação |
+|---|---|---|
+| `_id` | string | o próprio token aleatório do cookie HttpOnly |
+| `user_id` | ObjectId | |
+| `criado_em`, `expira_em` | datetime | validade de 30 dias, **índice TTL** em `expira_em` |
+
+As sessões são revogadas ao trocar a senha ou o e-mail e quando o usuário
+fica sem nenhum vínculo ativo.
+
+## `codigos_verificacao_cadastro` e `codigos_recuperacao`
+
+| Campo | Tipo | Observação |
+|---|---|---|
+| `_id` | string | o e-mail (um código por e-mail) |
+| `codigo` | string | 6 dígitos |
+| `expira_em` | datetime | 10 minutos, **índice TTL** |
+| `verificado` | bool | `true` depois que o código é conferido |
+
+## `contadores`
+
+Um documento `{_id: "solicitacoes", seq: <int>}`. Cada nova solicitação
+incrementa `seq` de forma atômica (`find_one_and_update` com `$inc`) e o
+valor vira o protocolo (`#0007`).
 
 ## `solicitacoes`
 
 | Campo | Tipo | Observação |
 |---|---|---|
-| `protocolo` | string `"#NNNN"` | **índice único**; sequencial (contador em coleção `counters` ou similar) |
+| `protocolo` | string `"#NNNN"` | **índice único**; sequencial (coleção `contadores`) |
 | `solicitacao` | string | título |
-| `requerente_id` | ObjectId → `organizations` (`organizacao`) | |
-| `fabricante_id` | ObjectId → `organizations` (`fabricante`) ou `null` | `null` = na fila global; preenchido no aceite |
+| `requerente_org_id`, `requerente_nome` | ObjectId → `organizacoes` (`organizacao`), string | o nome é cópia de respaldo; a API resolve o nome atual pelo id |
+| `atribuido_org_id`, `atribuido_nome` | ObjectId → `organizacoes` (`fabricante`) ou `null`, string ou `null` | `null` = na fila global; preenchido no aceite |
 | `prioridade` | `"Baixa"` \| `"Média"` \| `"Alta"` | |
 | `status` | ver fluxo abaixo | |
-| `categoria`, `material`, `descricao` | string | `material` é o desejado pelo solicitante (texto livre) |
-| `abertura` | datetime | |
-| `prazo` | datetime ou `null` | `null` aparece como "A definir" |
-| `arquivo3d` | objeto ou `null` | `{nome, tamanho_bytes, formato, file_id}`; `file_id` aponta para GridFS ou storage |
+| `categoria`, `material`, `descricao` | string | `material` é o desejado pelo solicitante (texto livre; `"A definir"` se vazio) |
+| `abertura` | string `"dd/mm/aaaa"` | horário de Brasília |
+| `prazo` | string `"dd/mm/aaaa"` ou `"A definir"` | |
+| `arquivo3d` | objeto ou `null` | `{nome, formato, tamanho (texto, ex. "2.4 MB"), arquivo_id, content_type}`; `arquivo_id` aponta para o GridFS `arquivos` |
 | `producao` | objeto ou `null` | preenchido em "Iniciar produção" (ver abaixo) |
 | `retirada` | objeto ou `null` | preenchido em "Concluir produção" |
 | `ajuste` | objeto ou `null` | última devolução para ajuste |
-| `concluida_em` | datetime ou `null` | quando o solicitante aprova a peça |
-| `ultima_atualizacao` | datetime | |
+| `concluida_em` | string `"dd/mm/aaaa hh:mm"` ou `null` | quando o solicitante aprova a peça |
+| `ultima_atualizacao` | string `"dd/mm/aaaa hh:mm"` | |
 | `historico` | lista embutida | ver abaixo |
 
 **Fluxo de `status`:**
@@ -169,41 +190,37 @@ solicitante. Cada transição tem rota própria e deve ser **atômica**:
 
 | Campo | Observação |
 |---|---|
-| `data` | datetime |
+| `data` | string `"dd/mm/aaaa hh:mm"` (Brasília) |
 | `tipo` | `Criação`, `Atribuição`, `Status`, `Edição`, `Comentário`, `Anexo`, `Retirada`, `Aprovação`, `Devolução` |
 | `titulo`, `descricao` | texto mostrado na linha do tempo |
-| `autor_id`, `autor` | usuário + texto "Nome (Organização)" copiado no momento |
-| `anexo` | opcional, mesmo formato de `arquivo3d` |
+| `autor_user_id`, `autor_org_id`, `autor` | ids do autor + texto "Nome (Organização)" copiado como respaldo |
+| `anexo` | opcional, `{id, nome, content_type}` (arquivo no GridFS) |
 
 Os eventos de status (aceite, produção iniciada, aguardando material,
 material recebido, disponível para retirada, aprovação, devolução) são
 gerados **pela API**. Comentários e anexos vêm de
 `POST .../historico`.
 
-**Índices recomendados:**
-- `{protocolo: 1}`, único;
-- `{status: 1, fabricante_id: 1}`, para a fila e as demandas;
-- `{requerente_id: 1, abertura: -1}`, para a lista e os relatórios do solicitante;
-- `{fabricante_id: 1, status: 1}`, para os contadores do parceiro.
+Índices: ver a seção "Índices" no início deste documento.
 
 ## `impressoras`
 
 | Campo | Tipo | Observação |
 |---|---|---|
-| `organization_id` | ObjectId → `organizations` (`fabricante`) | índice |
+| `org_id` | ObjectId → `organizacoes` (`fabricante`) | índice |
 | `nome`, `modelo` | string | |
 | `tecnologia` | `FDM` \| `SLA` \| `DLP` \| `SLS` \| `Outra` | |
 | `largura_mm`, `profundidade_mm`, `altura_mm` | int ou `null` | volume de impressão |
 | `materiais` | string | materiais compatíveis (texto livre) |
 | `status` | `Disponível` \| `Em uso` \| `Em manutenção` \| `Inativa` | a API muda para `Em uso` ao iniciar a produção e volta para `Disponível` ao concluir (se não houver outra produção nela) |
 | `observacoes` | string | |
-| `created_at`, `updated_at`, `updated_by` | | |
+| `atualizado_em` | string ISO 8601 (UTC) | |
 
 ## `materiais` (estoque para doação)
 
 | Campo | Tipo | Observação |
 |---|---|---|
-| `organization_id` | ObjectId → `organizations` (`fabricante`) | índice |
+| `org_id` | ObjectId → `organizacoes` (`fabricante`) | índice |
 | `material` | string (≤ 60) | ex.: PLA, PETG |
 | `tipo` | `Filamento` \| `Resina` \| `Pó` \| `Outro` | |
 | `cor` | string | |
@@ -211,7 +228,7 @@ gerados **pela API**. Comentários e anexos vêm de
 | `unidade` | `kg` \| `g` \| `L` \| `mL` \| `un` | |
 | `estoque_minimo` | número ou `null` | |
 | `observacoes` | string | |
-| `created_at`, `updated_at`, `updated_by` | | |
+| `atualizado_em` | string ISO 8601 (UTC) | |
 
 `situacao` (`Disponível`, `Estoque baixo` ou `Esgotado`) é **derivada** de
 `quantidade` e `estoque_minimo`. A solicitante lê os itens de todos os
@@ -219,7 +236,7 @@ fabricantes ativos; o fabricante lê e escreve só os seus.
 
 ## Arquivos
 
-Os arquivos 3D (`stl, obj, 3mf, step, stp, iges, igs`, até 50 MB) e os anexos
+Os arquivos 3D (`stl, obj, 3mf, step, stp, iges, igs`, até 200 MB cada) e os anexos
 do histórico ficam em **GridFS, bucket `arquivos`** (coleções
 `arquivos.files` e `arquivos.chunks`). A solicitação guarda a referência em
 `arquivo3d.arquivo_id`; cada evento com anexo guarda
@@ -237,14 +254,14 @@ mesmo banco enxergam os mesmos arquivos (ver [`backend.md`](./backend.md),
 seção 13). Registros antigos com `arquivo_disco` ainda são lidos de
 `backend/uploads/` como respaldo.
 
-## Remoção de organização (soft delete)
+## Remoção de organização (hard delete)
 
-Remover uma organização faz o seguinte:
-- marca `organizations.status="removed"`;
-- marca todos os `memberships` dela como `removed`;
+Remover uma organização (`DELETE /api/organizations/{org_id}`, só admin):
+- **apaga** o documento em `organizacoes`;
+- apaga todos os `memberships`, `impressoras` e `materiais` dela;
 - revoga as sessões de quem ficou sem vínculo ativo;
-- remove os itens dela em `impressoras` e `materiais`;
-- mantém `solicitacoes`, para preservar o histórico.
+- mantém `solicitacoes`, para preservar o histórico. Como a solicitação
+  guarda os ids, o nome passa a aparecer como "Organização removida".
 
 É bloqueada (`409`) se houver trabalho em andamento:
 - solicitante: qualquer status diferente de `Concluída`;
@@ -256,6 +273,6 @@ Remover uma organização faz o seguinte:
 - Crie os índices na inicialização da API, ou por migração.
 - Em produção, aplique migrações controladas e mantenha backups.
 - Não guarde senhas, tokens ou códigos em texto puro.
-- Se no Atlas ainda houver `organizations.endereco` (objeto único), migre-o
-  para `enderecos: [{id, nome: "Sede", ...endereco}]` nos fabricantes e
-  `[]` nas solicitantes.
+- Registros antigos com `organizacoes.endereco` (objeto único) devem ser
+  migrados para `enderecos: [{id, nome: "Sede", ...endereco}]` nos
+  fabricantes e `[]` nas solicitantes.

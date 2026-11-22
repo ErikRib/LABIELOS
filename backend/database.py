@@ -20,7 +20,6 @@ solicitacoes_collection = database.get_collection("solicitacoes")
 materiais_collection = database.get_collection("materiais")
 impressoras_collection = database.get_collection("impressoras")
 organizacoes_collection = database.get_collection("organizacoes")
-fornecedores_collection = database.get_collection("fornecedores")
 usuarios_collection = database.get_collection("usuarios")
 
 # Coleções novas, usadas pela autenticação/autorização (ver docs/backend.md)
@@ -35,6 +34,6 @@ fotos_perfil_collection = database.get_collection("fotos_perfil")
 
 # Arquivos enviados (modelos 3D e anexos do histórico) ficam no GridFS do
 # próprio MongoDB, e não em disco, para que qualquer computador que use o
-# mesmo banco consiga baixá-los. GridFS porque o limite é 50 MB e um
+# mesmo banco consiga baixá-los. GridFS porque o limite é 200 MB e um
 # documento comum do MongoDB só aceita até 16 MB.
 arquivos_bucket = AsyncIOMotorGridFSBucket(database, bucket_name="arquivos")

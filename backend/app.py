@@ -3,7 +3,7 @@
 - `uvicorn main:app` rodando de dentro de backend/ (jeito "clássico" deste
   projeto) — backend/main.py só reexporta este módulo;
 - `uvicorn backend.app:app` rodando da raiz do repositório (é o que
-  run.py usa). Para isso funcionar, o primeiro bloco abaixo garante que
+  é o caminho usado a partir da raiz). Para isso funcionar, o primeiro bloco abaixo garante que
   backend/ esteja no sys.path, porque os módulos deste pacote (database,
   routes, models...) são importados de forma absoluta ("from database
   import ..."), e não relativa.
